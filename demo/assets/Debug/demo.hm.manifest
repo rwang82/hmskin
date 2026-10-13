@@ -1872,6 +1872,370 @@
           ]
         }
       ]
+    },
+    {
+      "idWMP": 50,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 14
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "OFF·NOR",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 51,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 15
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "OFF·HOV",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 52,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 16
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "OFF·PRE",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 53,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 17
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "OFF·DIS",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 54,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 18
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "ON·NOR",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 55,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 19
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "ON·HOV",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 56,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 20
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "ON·PRE",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 57,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 21
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_dock",
+                "eDockType": "DOCK_LEFT",
+                "m_space1": 3,
+                "m_space2": 3,
+                "m_space3": 3,
+                "m_nThickness": 15
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "ON·DIS",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 22,
+                "m_nOffsetT": 3,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 60,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 5,
+                "Color": 3,
+                "text": "CONTENT ROW 01 · 9-PATCH STRETCH\nCONTENT ROW 02 · ALPHA 0x0F\nCONTENT ROW 03 · GDI+ DRAWSTRING\nCONTENT ROW 04 · SPECIMEN VIEW-06\nCONTENT ROW 05 · SCROLL PENDING\nCONTENT ROW 06 · SCROLL PENDING\nCONTENT ROW 07 · SCROLL PENDING\nCONTENT ROW 08 · SCROLL PENDING",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 8,
+                "m_nOffsetT": 6,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "MsgSink": [
@@ -2039,7 +2403,7 @@
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_corner",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_RT",
+          "m_eCornerType": "CORNER_LT",
           "m_width": 320,
           "m_height": 25,
           "m_space1": 28,
@@ -2069,7 +2433,7 @@
           "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_LT",
           "m_width": 340,
-          "m_height": 96,
+          "m_height": 142,
           "m_space1": 18,
           "m_space2": 158
         }
@@ -2166,6 +2530,258 @@
         }
       ],
       "ParentKeelObjId": 12
+    },
+    {
+      "idKeelObj": 29,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 44,
+          "m_space2": 252
+        }
+      },
+      "WMP": [
+        {
+          "id": 50,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 30,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 204,
+          "m_space2": 252
+        }
+      },
+      "WMP": [
+        {
+          "id": 51,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 31,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 44,
+          "m_space2": 276
+        }
+      },
+      "WMP": [
+        {
+          "id": 52,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 32,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 204,
+          "m_space2": 276
+        }
+      },
+      "WMP": [
+        {
+          "id": 53,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 33,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 44,
+          "m_space2": 300
+        }
+      },
+      "WMP": [
+        {
+          "id": 54,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 34,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 204,
+          "m_space2": 300
+        }
+      },
+      "WMP": [
+        {
+          "id": 55,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 35,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 44,
+          "m_space2": 324
+        }
+      },
+      "WMP": [
+        {
+          "id": 56,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 36,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 12,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 155,
+          "m_height": 20,
+          "m_space1": 204,
+          "m_space2": 324
+        }
+      },
+      "WMP": [
+        {
+          "id": 57,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 38,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 2,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 2,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 560,
+          "m_height": 260,
+          "m_space1": 8,
+          "m_space2": 6
+        }
+      },
+      "WMP": [
+        {
+          "id": 60,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
     },
     {
       "idKeelObj": 21,
