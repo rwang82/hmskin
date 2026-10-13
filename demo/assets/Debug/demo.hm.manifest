@@ -242,6 +242,30 @@
       "R": 91,
       "G": 99,
       "B": 110
+    },
+    {
+      "id": 6,
+      "R": 15,
+      "G": 18,
+      "B": 22
+    },
+    {
+      "id": 7,
+      "R": 22,
+      "G": 27,
+      "B": 33
+    },
+    {
+      "id": 8,
+      "R": 17,
+      "G": 21,
+      "B": 26
+    },
+    {
+      "id": 9,
+      "R": 38,
+      "G": 44,
+      "B": 52
     }
   ],
   "CoordinateSystem": [
@@ -276,7 +300,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 3
+                "RawColorId": 6
               }
             }
           ]
@@ -897,7 +921,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 8
               }
             }
           ]
@@ -1257,7 +1281,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 1
+                "RawColorId": 8
               }
             },
             {
@@ -1274,6 +1298,200 @@
                 "m_nOffsetT": 3,
                 "m_nOffsetR": 0,
                 "m_nOffsetB": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 30,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 31,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 1,
+                "Color": 1,
+                "text": "Win32 皮肤基准台",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 0,
+                "m_nOffsetT": 0,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 32,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 3,
+                "Color": 3,
+                "text": "位图拉伸 · ALPHA 混合 · 无阴影控件语法",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 0,
+                "m_nOffsetT": 0,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 33,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 34,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 3,
+                "Color": 3,
+                "text": "SPECIMEN INDEX · 标本索引",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 0,
+                "m_nOffsetT": 2,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 35,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 3,
+                "Color": 3,
+                "text": "EVT-08 · 事件日志（待接入）",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 0,
+                "m_nOffsetT": 4,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 36,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 37,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 3,
+                "Color": 5,
+                "text": "9-PATCH · 3-SEG · ALPHA · GDI+ · DPI 96",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 16,
+                "m_nOffsetT": 7,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
               }
             }
           ]
@@ -1335,11 +1553,11 @@
         "CSId": 1,
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_offset",
-          "RefKeelObjId": 1,
-          "m_nOffsetL": 10,
-          "m_nOffsetT": 40,
-          "m_nOffsetR": -10,
-          "m_nOffsetB": -10
+          "RefKeelObjId": 12,
+          "m_nOffsetL": 20,
+          "m_nOffsetT": 270,
+          "m_nOffsetR": 20,
+          "m_nOffsetB": 20
         }
       },
       "WMP": [
@@ -1362,12 +1580,12 @@
         "CSId": 1,
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 2,
+          "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_LT",
-          "m_width": 80,
-          "m_height": 30,
-          "m_space1": 0,
-          "m_space2": 200
+          "m_width": 150,
+          "m_height": 42,
+          "m_space1": 20,
+          "m_space2": 104
         }
       },
       "WMP": [
@@ -1392,10 +1610,10 @@
           "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 1,
           "m_eDockType": "DOCK_TOP",
-          "m_space1": 10,
-          "m_space2": 10,
-          "m_space3": 10,
-          "m_thickness": 30
+          "m_space1": 6,
+          "m_space2": 8,
+          "m_space3": 8,
+          "m_thickness": 34
         }
       },
       "WMP": [
@@ -1532,12 +1750,12 @@
         "CSId": 1,
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 2,
+          "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_RT",
-          "m_width": 80,
-          "m_height": 30,
-          "m_space1": 200,
-          "m_space2": 0
+          "m_width": 220,
+          "m_height": 40,
+          "m_space1": 10,
+          "m_space2": 10
         }
       },
       "WMP": [
@@ -1560,12 +1778,12 @@
         "CSId": 1,
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 2,
+          "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_RT",
-          "m_width": 150,
-          "m_height": 25,
-          "m_space1": 100,
-          "m_space2": 0
+          "m_width": 320,
+          "m_height": 80,
+          "m_space1": 28,
+          "m_space2": 170
         }
       },
       "WMP": [
@@ -1588,17 +1806,204 @@
         "CSId": 1,
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 2,
+          "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_LT",
-          "m_width": 200,
-          "m_height": 30,
-          "m_space1": 0,
-          "m_space2": 50
+          "m_width": 340,
+          "m_height": 96,
+          "m_space1": 18,
+          "m_space2": 158
         }
       },
       "WMP": [
         {
           "id": 22,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 12,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_offset",
+          "RefKeelObjId": 1,
+          "m_nOffsetL": 16,
+          "m_nOffsetT": 48,
+          "m_nOffsetR": 430,
+          "m_nOffsetB": 40
+        }
+      },
+      "WMP": [
+        {
+          "id": 30,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 14,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 520,
+          "m_height": 40,
+          "m_space1": 20,
+          "m_space2": 24
+        }
+      },
+      "WMP": [
+        {
+          "id": 31,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 15,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 520,
+          "m_height": 18,
+          "m_space1": 20,
+          "m_space2": 70
+        }
+      },
+      "WMP": [
+        {
+          "id": 32,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 13,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_offset",
+          "RefKeelObjId": 1,
+          "m_nOffsetL": 666,
+          "m_nOffsetT": 48,
+          "m_nOffsetR": 16,
+          "m_nOffsetB": 40
+        }
+      },
+      "WMP": [
+        {
+          "id": 33,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 17,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 360,
+          "m_height": 20,
+          "m_space1": 16,
+          "m_space2": 16
+        }
+      },
+      "WMP": [
+        {
+          "id": 34,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 18,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 360,
+          "m_height": 26,
+          "m_space1": 16,
+          "m_space2": 52
+        }
+      },
+      "WMP": [
+        {
+          "id": 35,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 16,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_dock",
+          "RefKeelObjId": 1,
+          "m_eDockType": "DOCK_BOTTOM",
+          "m_space1": 0,
+          "m_space2": 0,
+          "m_space3": 0,
+          "m_thickness": 30
+        }
+      },
+      "WMP": [
+        {
+          "id": 36,
           "RegEvts": [
             6
           ]

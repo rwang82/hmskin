@@ -160,8 +160,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    //hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,
    //   CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
-   g_hWnd = CreateWindow( szWindowClass, szTitle, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-	   100, 100, 400, 600, NULL, NULL, hInstance, NULL);
+   // benchmark-bench layout: 1100x750, centered on screen ( see DESIGN.md )
+   {
+	   int nScrW = ::GetSystemMetrics( SM_CXSCREEN );
+	   int nScrH = ::GetSystemMetrics( SM_CYSCREEN );
+	   int nWndW = 1100;
+	   int nWndH = 750;
+	   g_hWnd = CreateWindow( szWindowClass, _T("hmskin Gallery — 皮肤基准台"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+		   ( nScrW - nWndW ) / 2, ( nScrH - nWndH ) / 2, nWndW, nWndH, NULL, NULL, hInstance, NULL);
+   }
 
    if ( !g_hWnd )
    {
