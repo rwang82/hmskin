@@ -165,8 +165,7 @@
       "TabBtns":[
         {"Title":"私密聊天"},
         {"Title":"多人互聊"},
-        {"Title":"内部聊天"},
-        {"Title":"裕邦聊天"}
+        {"Title":"内部聊天"}
       ],
       "DefaultBtn":1,
       "DrawTool":"Gdiplus",
