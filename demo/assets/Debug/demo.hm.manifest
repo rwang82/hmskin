@@ -2459,7 +2459,7 @@
           "RefKeelObjId": 13,
           "m_eCornerType": "CORNER_LT",
           "m_width": 360,
-          "m_height": 420,
+          "m_height": 280,
           "m_space1": 16,
           "m_space2": 52
         }
@@ -2489,7 +2489,7 @@
           "m_width": 360,
           "m_height": 110,
           "m_space1": 16,
-          "m_space2": 140
+          "m_space2": 344
         }
       },
       "WMP": [
