@@ -696,6 +696,22 @@
                 "m_ufixT": 5,
                 "m_ufixB": 5
               }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 2,
+                "text": "hmskin Gallery — 皮肤基准台",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 14,
+                "m_nOffsetT": 9,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
             }
           ]
         },
@@ -710,6 +726,22 @@
                 "m_ufixR": 5,
                 "m_ufixT": 5,
                 "m_ufixB": 5
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 2,
+                "text": "hmskin Gallery — 皮肤基准台",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 14,
+                "m_nOffsetT": 9,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
               }
             }
           ]
@@ -1397,7 +1429,7 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
                 "Font": 3,
-                "Color": 3,
+                "Color": 2,
                 "text": "位图拉伸 · ALPHA 混合 · 无阴影控件语法",
                 "Alignment": 1
               },
@@ -1443,7 +1475,7 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
                 "Font": 3,
-                "Color": 3,
+                "Color": 2,
                 "text": "SPECIMEN INDEX · 标本索引",
                 "Alignment": 1
               },
@@ -1634,7 +1666,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 3,
                 "Color": 3,
-                "text": "accent  #FF5C1F\nsurface #161B21\nhairline #262C34\nradius  4 / 8 px",
+                "text": "TOK-04 · DESIGN TOKENS\n\naccent  #FF5C1F\nsurface #161B21\nhairline #262C34\nradius  4 / 8 px",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -2406,7 +2438,7 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 320,
           "m_height": 25,
-          "m_space1": 28,
+          "m_space1": 26,
           "m_space2": 170
         }
       },
@@ -2434,7 +2466,7 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 340,
           "m_height": 142,
-          "m_space1": 18,
+          "m_space1": 20,
           "m_space2": 158
         }
       },
@@ -2546,8 +2578,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 44,
-          "m_space2": 252
+          "m_space1": 26,
+          "m_space2": 246
         }
       },
       "WMP": [
@@ -2574,8 +2606,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 204,
-          "m_space2": 252
+          "m_space1": 186,
+          "m_space2": 246
         }
       },
       "WMP": [
@@ -2602,8 +2634,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 44,
-          "m_space2": 276
+          "m_space1": 26,
+          "m_space2": 270
         }
       },
       "WMP": [
@@ -2630,8 +2662,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 204,
-          "m_space2": 276
+          "m_space1": 186,
+          "m_space2": 270
         }
       },
       "WMP": [
@@ -2658,8 +2690,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 44,
-          "m_space2": 300
+          "m_space1": 26,
+          "m_space2": 294
         }
       },
       "WMP": [
@@ -2686,8 +2718,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 204,
-          "m_space2": 300
+          "m_space1": 186,
+          "m_space2": 294
         }
       },
       "WMP": [
@@ -2714,8 +2746,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 44,
-          "m_space2": 324
+          "m_space1": 26,
+          "m_space2": 318
         }
       },
       "WMP": [
@@ -2742,8 +2774,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 204,
-          "m_space2": 324
+          "m_space1": 186,
+          "m_space2": 318
         }
       },
       "WMP": [
@@ -3139,6 +3171,12 @@
       "WMP": [
         {
           "id": 36,
+          "RegEvts": [
+            6
+          ]
+        },
+        {
+          "id": 37,
           "RegEvts": [
             6
           ]

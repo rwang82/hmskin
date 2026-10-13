@@ -18,7 +18,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Ó¢Óï(ÃÀ¹ú) resources
+// Ó¢ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -45,11 +45,18 @@ BEGIN
     BEGIN
         MENUITEM "E&xit",                       IDM_EXIT
     END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Basic Controls",             0
+    END
+    POPUP "&Skin"
+    BEGIN
+        MENUITEM "&Reload Manifest",            0
+    END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About ...",                  IDM_ABOUT
     END
-    MENUITEM "ABC",                         0
 END
 
 
@@ -143,7 +150,7 @@ BEGIN
     IDC_DEMO                "DEMO"
 END
 
-#endif    // Ó¢Óï(ÃÀ¹ú) resources
+#endif    // Ó¢ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

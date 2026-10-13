@@ -536,7 +536,9 @@ void hm_wmp_rootmenu::_doDrawMenuItem( HDC hDC, const RECT& rcDMICanvas, unsigne
 	// draw text
 	if ( rmiinfo.m_strText.length() ) {
 		nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
-		::DrawText( hDC, rmiinfo.m_strText.c_str(), rmiinfo.m_strText.length(), (RECT*)&rcDMICanvas, DT_CENTER );
+		COLORREF clrTextOld = ::SetTextColor( hDC, RGB( 216, 224, 231 ) );   // label #D8E0E7
+		::DrawText( hDC, rmiinfo.m_strText.c_str(), rmiinfo.m_strText.length(), (RECT*)&rcDMICanvas, DT_CENTER|DT_VCENTER|DT_SINGLELINE );
+		::SetTextColor( hDC, clrTextOld );
 		::SetBkMode( hDC, nBKModeOld );
 	}
 

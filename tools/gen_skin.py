@@ -100,7 +100,8 @@ def gen_tabheader():
     cell(0,   57,  None,    None)               # NOR 透明
     cell(57,  114, HOV,     None)               # HOV 悬停面
     cell(114, 170, DARKPRS, None)               # PRE 按下面
-    cell(170, 211, RAISED,  ACCENT)             # SEL 凸面+2px 橙顶标（1px 实现）
+    cell(170, 211, RAISED,  ACCENT)             # SEL 凸面+橙顶标
+    d.rectangle((170, 1, 210, 2), fill=ACCENT + (255,))  # 顶标加厚到 2px
     save(im, 'tabheader.png')
 
 # ---------- 非客户区框架 ----------

@@ -76,9 +76,12 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 // event log ( EVT-08 ) : prepend newest line, keep last 12, refresh the text WMP.
 void AppendEventLog( const TCHAR* szLine ) {
 	static std::vector< std::basic_string<TCHAR> > arrLines;
+	static unsigned int uSeq = 0;
 	if ( !g_pWMPEvtLog || !szLine )
 		return;
-	arrLines.insert( arrLines.begin(), std::basic_string<TCHAR>( szLine ) );
+	TCHAR szPrefixed[ 80 ];
+	_stprintf_s( szPrefixed, 80, _T("%03d  %s"), ++uSeq, szLine );
+	arrLines.insert( arrLines.begin(), std::basic_string<TCHAR>( szPrefixed ) );
 	if ( arrLines.size() > 12 )
 		arrLines.resize( 12 );
 	std::basic_string<TCHAR> strAll;
