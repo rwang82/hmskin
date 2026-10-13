@@ -574,8 +574,8 @@
                 "UIResName": "hm_rs_uires_pic",
                 "RawPicId": 4,
                 "m_rcSelect": {
-                  "L": 0,
-                  "R": 57,
+                  "L": 171,
+                  "R": 211,
                   "T": 0,
                   "B": 33
                 },
@@ -1013,7 +1013,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1054,7 +1054,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1095,7 +1095,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1136,7 +1136,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1177,7 +1177,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1218,7 +1218,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1259,7 +1259,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1300,7 +1300,7 @@
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_color",
-                "RawColorId": 2
+                "RawColorId": 7
               }
             },
             {
@@ -1356,7 +1356,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 2,
                 "Color": 3,
-                "text": "Check_Dis",
+                "text": "CHK-02 · 复选框 8 态标本",
                 "Alignment": 0
               },
               "PosDecoder": {
@@ -1475,14 +1475,14 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
                 "Font": 3,
-                "Color": 2,
+                "Color": 1,
                 "text": "SPECIMEN INDEX · 标本索引",
                 "Alignment": 1
               },
               "PosDecoder": {
                 "PDCName": "hm_posdecoder_offset",
                 "m_nOffsetL": 0,
-                "m_nOffsetT": 2,
+                "m_nOffsetT": 0,
                 "m_nOffsetR": 0,
                 "m_nOffsetB": 0
               }
@@ -1556,7 +1556,7 @@
               "PosDecoder": {
                 "PDCName": "hm_posdecoder_offset",
                 "m_nOffsetL": 16,
-                "m_nOffsetT": 7,
+                "m_nOffsetT": 8,
                 "m_nOffsetR": 0,
                 "m_nOffsetB": 0
               }
@@ -1805,7 +1805,7 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
                 "Font": 5,
-                "Color": 3,
+                "Color": 1,
                 "text": "MICRO 11 — SECTION LABEL",
                 "Alignment": 1
               },
@@ -2268,6 +2268,24 @@
           ]
         }
       ]
+    },
+    {
+      "idWMP": 61,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 9
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "MsgSink": [
@@ -2438,8 +2456,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 320,
           "m_height": 25,
-          "m_space1": 26,
-          "m_space2": 170
+          "m_space1": 20,
+          "m_space2": 158
         }
       },
       "WMP": [
@@ -2465,9 +2483,9 @@
           "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_LT",
           "m_width": 340,
-          "m_height": 142,
+          "m_height": 144,
           "m_space1": 20,
-          "m_space2": 158
+          "m_space2": 196
         }
       },
       "WMP": [
@@ -2578,8 +2596,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 26,
-          "m_space2": 246
+          "m_space1": 36,
+          "m_space2": 228
         }
       },
       "WMP": [
@@ -2606,8 +2624,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 186,
-          "m_space2": 246
+          "m_space1": 190,
+          "m_space2": 228
         }
       },
       "WMP": [
@@ -2634,8 +2652,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 26,
-          "m_space2": 270
+          "m_space1": 36,
+          "m_space2": 254
         }
       },
       "WMP": [
@@ -2662,8 +2680,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 186,
-          "m_space2": 270
+          "m_space1": 190,
+          "m_space2": 254
         }
       },
       "WMP": [
@@ -2690,8 +2708,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 26,
-          "m_space2": 294
+          "m_space1": 36,
+          "m_space2": 280
         }
       },
       "WMP": [
@@ -2718,8 +2736,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 186,
-          "m_space2": 294
+          "m_space1": 190,
+          "m_space2": 280
         }
       },
       "WMP": [
@@ -2746,8 +2764,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 26,
-          "m_space2": 318
+          "m_space1": 36,
+          "m_space2": 306
         }
       },
       "WMP": [
@@ -2774,8 +2792,8 @@
           "m_eCornerType": "CORNER_LT",
           "m_width": 155,
           "m_height": 20,
-          "m_space1": 186,
-          "m_space2": 318
+          "m_space1": 190,
+          "m_space2": 306
         }
       },
       "WMP": [
@@ -3320,6 +3338,34 @@
       "WMP": [
         {
           "id": 17,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 39,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 1,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 1,
+          "m_eCornerType": "CORNER_LB",
+          "m_width": 2400,
+          "m_height": 1,
+          "m_space1": 0,
+          "m_space2": 31
+        }
+      },
+      "WMP": [
+        {
+          "id": 61,
           "RegEvts": [
             6
           ]
