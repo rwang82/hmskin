@@ -2041,7 +2041,7 @@
           "RefKeelObjId": 12,
           "m_eCornerType": "CORNER_RT",
           "m_width": 320,
-          "m_height": 80,
+          "m_height": 25,
           "m_space1": 28,
           "m_space2": 170
         }
