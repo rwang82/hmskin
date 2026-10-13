@@ -1974,8 +1974,8 @@
     {
       "idKeelObj": 3,
       "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 2
+        "Type": "MsgSink",
+        "MsgSinkId": 10
       },
       "ParentKeelObjId": 12,
       "LayoutObj": {
@@ -2002,8 +2002,8 @@
     {
       "idKeelObj": 9,
       "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 2
+        "Type": "MsgSink",
+        "MsgSinkId": 10
       },
       "ParentKeelObjId": 12,
       "LayoutObj": {
@@ -2030,8 +2030,8 @@
     {
       "idKeelObj": 10,
       "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 2
+        "Type": "MsgSink",
+        "MsgSinkId": 10
       },
       "ParentKeelObjId": 12,
       "LayoutObj": {
@@ -2058,8 +2058,8 @@
     {
       "idKeelObj": 11,
       "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 2
+        "Type": "MsgSink",
+        "MsgSinkId": 10
       },
       "ParentKeelObjId": 12,
       "LayoutObj": {
