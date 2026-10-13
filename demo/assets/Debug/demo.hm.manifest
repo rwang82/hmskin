@@ -117,6 +117,18 @@
       {
         "id": 21,
         "name": "CheckDisable.png"
+      },
+      {
+        "id": 22,
+        "name": "btn_pri_nor.png"
+      },
+      {
+        "id": 23,
+        "name": "btn_pri_hov.png"
+      },
+      {
+        "id": 24,
+        "name": "btn_pri_pre.png"
       }
     ]
   },
@@ -266,6 +278,12 @@
       "R": 38,
       "G": 44,
       "B": 52
+    },
+    {
+      "id": 10,
+      "R": 20,
+      "G": 20,
+      "B": 20
     }
   ],
   "CoordinateSystem": [
@@ -334,7 +352,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 0,
                 "Color": 1,
-                "text": "运行控件测试",
+                "text": "查看皮肤清单",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -361,7 +379,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 0,
                 "Color": 1,
-                "text": "运行控件测试",
+                "text": "查看皮肤清单",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -388,7 +406,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 0,
                 "Color": 1,
-                "text": "运行控件测试",
+                "text": "查看皮肤清单",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -1437,7 +1455,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 3,
                 "Color": 3,
-                "text": "EVT-08 · 事件日志（待接入）",
+                "text": "EVT-08 · 事件日志\n（等待事件…）",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -1490,6 +1508,122 @@
                 "PDCName": "hm_posdecoder_offset",
                 "m_nOffsetL": 16,
                 "m_nOffsetT": 7,
+                "m_nOffsetR": 0,
+                "m_nOffsetB": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 40,
+      "WMPClsName": "hm_wmp_button",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 22
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 10,
+                "text": "运行控件测试",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 5,
+                "m_nOffsetT": 5,
+                "m_nOffsetR": 5,
+                "m_nOffsetB": 5
+              }
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 23
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 10,
+                "text": "运行控件测试",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 5,
+                "m_nOffsetT": 5,
+                "m_nOffsetR": 5,
+                "m_nOffsetB": 5
+              }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 24
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 10,
+                "text": "运行控件测试",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 5,
+                "m_nOffsetT": 5,
+                "m_nOffsetR": 5,
+                "m_nOffsetB": 5
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "idWMP": 41,
+      "WMPClsName": "hm_wmp_bkgnd",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 3,
+                "Color": 3,
+                "text": "accent  #FF5C1F\nsurface #161B21\nhairline #262C34\nradius  4 / 8 px",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 0,
+                "m_nOffsetT": 0,
                 "m_nOffsetR": 0,
                 "m_nOffsetB": 0
               }
@@ -1762,6 +1896,33 @@
       ]
     },
     {
+      "idKeelObj": 19,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 12,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 150,
+          "m_height": 42,
+          "m_space1": 186,
+          "m_space2": 104
+        }
+      },
+      "WMP": [
+        {
+          "id": 40,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
       "idKeelObj": 13,
       "WndMsgSource": {
         "Type": "MsgSink",
@@ -1827,7 +1988,7 @@
           "RefKeelObjId": 13,
           "m_eCornerType": "CORNER_LT",
           "m_width": 360,
-          "m_height": 26,
+          "m_height": 420,
           "m_space1": 16,
           "m_space2": 52
         }
@@ -1835,6 +1996,33 @@
       "WMP": [
         {
           "id": 35,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 20,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 360,
+          "m_height": 110,
+          "m_space1": 16,
+          "m_space2": 140
+        }
+      },
+      "WMP": [
+        {
+          "id": 41,
           "RegEvts": [
             6
           ]

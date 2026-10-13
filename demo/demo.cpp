@@ -5,6 +5,8 @@
 #include "demo.h"
 #include "hmskin_cpp.h"
 #include "hmskin_event_listener_demo.h"
+#include "hmskin_helper.h"
+#include <vector>
 
 //////////////////////////////////////////////////////////
 #define MAINWND_WNDPROPID (258)
@@ -22,12 +24,16 @@
 #define RAWID_RESBMP_BTN_HOV (2)
 #define RAWID_RESBMP_BTN_PRE (3)
 #define RAWID_RESBMP_TABBTNS (4)
+#define KEELOBJID_EVENTLOG (18)
+#define WMPID_EVENTLOG (35)
 
 //hm_rawres_pic_factory::obj_id_type RAWID_RESBMP_BTN_PRE;
 void doTest();
 bool createUI( HWND hWndParent );
+void AppendEventLog( const TCHAR* szLine );
 hmskin_event_listener_demo g_HMSkinEventListener;
 hm_uiroot* g_pHMRoot = NULL;
+void* g_pWMPEvtLog = NULL;
 //////////////////////////////////////////////////////////
 #define MAX_LOADSTRING 100
 
@@ -37,6 +43,25 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
 HWND g_hBtnTest1 = NULL;
+
+// event log ( EVT-08 ) : prepend newest line, keep last 12, refresh the text WMP.
+void AppendEventLog( const TCHAR* szLine ) {
+	static std::vector< std::basic_string<TCHAR> > arrLines;
+	if ( !g_pWMPEvtLog || !szLine )
+		return;
+	arrLines.insert( arrLines.begin(), std::basic_string<TCHAR>( szLine ) );
+	if ( arrLines.size() > 12 )
+		arrLines.resize( 12 );
+	std::basic_string<TCHAR> strAll;
+	for ( size_t i = 0; i < arrLines.size(); ++i ) {
+		if ( i ) strAll += _T("\n");
+		strAll += arrLines[i];
+	}
+	TCHAR szBuf[ 1024 ];
+	_tcsncpy_s( szBuf, 1024, strAll.c_str(), _TRUNCATE );
+	setWMPDisplayText( g_pWMPEvtLog, szBuf );
+	::InvalidateRect( g_hWnd, NULL, FALSE );
+}
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -191,6 +216,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    //
    hm_wndpropid_connect( g_pHMRoot, g_hWnd, MAINWND_WNDPROPID );
+
+   // event log ( EVT-08 ) : fetch the text WMP of keelobj 18 for runtime updates.
+   {
+	   hm_keel_obj* pKeelObjEvtLog = NULL;
+	   if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog )
+		   g_pWMPEvtLog = pKeelObjEvtLog->getWMP( WMPID_EVENTLOG );
+   }
 
    ShowWindow( g_hWnd, nCmdShow );
    UpdateWindow( g_hWnd );

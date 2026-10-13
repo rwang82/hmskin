@@ -44,16 +44,20 @@ def rrect(d, box, r, fill=None, outline=None, width=1):
     d.rounded_rectangle(box, radius=r, fill=fill, outline=outline, width=width)
 
 # ---------- 按钮 69x21（次级样式；主色按钮由 demo 文本/状态位图承载） ----------
-def gen_button(name, fill, border):
+def gen_button(name, fill, border, highlight=True):
     im, d = canvas(69, 21)
     rrect(d, (0, 0, 68, 20), 4, fill=fill + (255,), outline=border + (255,), width=1)
-    d.line((2, 1, 66, 1), fill=INNER)                       # 顶边内高光
+    if highlight:
+        d.line((2, 1, 66, 1), fill=INNER)               # 顶边内高光
     save(im, name)
 
 def gen_buttons():
     gen_button('btn_nor.png', RAISED, (48, 58, 66))   # #303A42
     gen_button('btn_hov.png', HOV,    LINE_S)
     gen_button('btn_pre.png', DARKPRS, LINE)
+    gen_button('btn_pri_nor.png', ACCENT,  (201, 127, 12), highlight=False)  # 主按钮：橙面深字
+    gen_button('btn_pri_hov.png', ACC_HOV, (201, 127, 12), highlight=False)
+    gen_button('btn_pri_pre.png', ACC_PRS, (160, 100, 8), highlight=False)
     im, d = canvas(69, 21)                              # 禁用
     rrect(d, (0, 0, 68, 20), 4, fill=SURFACE + (255,), outline=(36, 43, 49, 255), width=1)
     save(im, 'btn_dis.png')
