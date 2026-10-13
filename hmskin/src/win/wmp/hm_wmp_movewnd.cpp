@@ -25,7 +25,7 @@ void hm_wmp_movewnd::getWndMsgs( msg_container_type& containerWndMsg ) {
 
 }
 
-void hm_wmp_movewnd::_OnHMKEELOBJEVENT_POSCHANGED( void* pSubject, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_movewnd::_OnHMKEELOBJEVENT_POSCHANGED( void* pSubject, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	if ( !m_pHMUIRoot )
 		return;
 	HWND hWndDest = NULL;
@@ -63,7 +63,7 @@ void hm_wmp_movewnd::_OnHMKEELOBJEVENT_POSCHANGED( void* pSubject, long pEventPa
 	::MoveWindow( hWndDest, rcDest.left, rcDest.top, ( rcDest.right - rcDest.left ), ( rcDest.bottom - rcDest.top ), TRUE );
 }
 
-void hm_wmp_movewnd::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_movewnd::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent )
 	{
 	case HMKEELOBJEVENT_POSCHANGED:

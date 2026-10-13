@@ -6,7 +6,7 @@ USING_NAMESPACE_CMN
 //观察者模式 begin////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //class hm_cmn_subject
-void hm_cmn_subject::Notify(UINT idEvent, long pEventParam, long pEventParam2 )
+void hm_cmn_subject::Notify(UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2 )
 {
 	BOOL bContinue = TRUE;
 	

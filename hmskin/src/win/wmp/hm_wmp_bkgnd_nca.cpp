@@ -51,7 +51,7 @@ void hm_wmp_bkgnd_nca::_createDistrictObjs() {
 		
 }
 //
-void hm_wmp_bkgnd_nca::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_bkgnd_nca::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 
 	switch ( idEvent ) {
 	case HMKEELOBJEVENT_DRAWSELF:

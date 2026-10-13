@@ -34,7 +34,7 @@ void hm_wmp_viewbkcontent::_createDistrictObjs() {
 	
 }
 //
-void hm_wmp_viewbkcontent::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_viewbkcontent::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
 	case cmn::ID_EVENT_POSCHANGED:
 		{
@@ -171,7 +171,7 @@ void hm_wmp_viewbkcontent::_OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pW
 		m_uFlag &= ~HMVBKC_FLAG_WHELLSTOPED;
 	}
 	
-	this->Notify( HM_EVENT_MOUSEWHELL, (long)nDistance );
+	this->Notify( HM_EVENT_MOUSEWHELL, (LPARAM)nDistance );
 	
 	if ( nDistance == 0 ) {
 		this->m_uFlag |= HMVBKC_FLAG_WHELLSTOPED;

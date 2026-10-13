@@ -70,7 +70,7 @@ LRESULT CALLBACK HMLibHookWndProc( int nCode, WPARAM wParam, LPARAM lParam )
 			nCtrlId = ::GetDlgCtrlID( pWP->hwnd );
 
 			::OutputDebugString( _T("WM_CREATE.") );
-			_stprintf_s( szCtrlId, _T("0x%08X"), pWP->hwnd );
+			_stprintf_s( szCtrlId, _T("0x%016zx"), (size_t)pWP->hwnd );
 			::OutputDebugString( szCtrlId );
 			::OutputDebugString( _T(" ClassName:") );
 			::OutputDebugString( szClsName );

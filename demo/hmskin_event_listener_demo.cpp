@@ -70,7 +70,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 			hm_keel_obj* pKeelObj = NULL;
 			unsigned int uIndexTab;
 			pKeelObj = ( hm_keel_obj* )lParam1;
-			uIndexTab = (unsigned int)lParam2;
+			uIndexTab = (unsigned int)(UINT_PTR)lParam2;
 			if ( !pKeelObj )
 				return;
 			//

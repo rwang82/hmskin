@@ -24,7 +24,7 @@ void hm_wmp_bkgnd::_createDistrictObjs() {
 	_setDistrictObj( EDISTRICTID_BK, pDistrictObj );
 }
 //
-void hm_wmp_bkgnd::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue )
+void hm_wmp_bkgnd::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue )
 {
 	switch ( idEvent ) {
 		case HMKEELOBJEVENT_DRAWSELF:  

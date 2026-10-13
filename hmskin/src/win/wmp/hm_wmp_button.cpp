@@ -53,7 +53,7 @@ void hm_wmp_button::_createDistrictObjs() {
 	_setDistrictObj( EDISTRICTID_BK_DIS, pDistrictObj );
 }
 //
-void hm_wmp_button::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue )
+void hm_wmp_button::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue )
 {
 	switch ( idEvent ) {
 		case HMKEELOBJEVENT_DRAWSELF:

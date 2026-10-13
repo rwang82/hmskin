@@ -32,7 +32,7 @@ hm_keel_obj::~hm_keel_obj()
 	UnRegister( this, HMKEELOBJEVENT_LAYOUTOBJ_CHANGED );
 }
 // 
-void hm_keel_obj::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue )
+void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue )
 {
 	switch ( idEvent )
 	{
@@ -80,7 +80,7 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, long pEventParam, long p
 		break;
 	case cmn::ID_EVENT_POSCHANGED:
 		{
-			Notify( HMKEELOBJEVENT_POSCHANGED, (long)this );
+			Notify( HMKEELOBJEVENT_POSCHANGED, (LPARAM)this );
 		}
 		break;
 	default:
@@ -440,7 +440,7 @@ void hm_keel_obj::setLayoutObj( hm_layout_obj* pLayoutObjNew )
 	pLayoutObjOld = m_pLayoutObj;
 	m_pLayoutObj = pLayoutObjNew;
 
-	Notify( HMKEELOBJEVENT_LAYOUTOBJ_CHANGED, (long)pLayoutObjNew, (long)pLayoutObjOld );
+	Notify( HMKEELOBJEVENT_LAYOUTOBJ_CHANGED, (LPARAM)pLayoutObjNew, (LPARAM)pLayoutObjOld );
 
 	if ( pLayoutObjOld ) {
 		delete pLayoutObjOld;
@@ -473,12 +473,12 @@ void hm_keel_obj::_doDrawSelf( HDC hDC, HWND hWndCanvas ) {
 	param.m_hDCCanvas = hDC;
 	param.m_hWndCanvas = hWndCanvas;
 	param.m_pLayoutObjCanvas = m_pLayoutObj;
-	Notify( HMKEELOBJEVENT_DRAWSELF, (long)(&param) );
+	Notify( HMKEELOBJEVENT_DRAWSELF, (LPARAM)(&param) );
 }
 //
 void hm_keel_obj::_doDrawChildKeelObjs( HDC hDC, HWND hWndCanvas )
 {
-	Notify( HMKEELOBJEVENT_DRAWSUBOBJS, (long)hDC, (long)hWndCanvas );
+	Notify( HMKEELOBJEVENT_DRAWSUBOBJS, (LPARAM)hDC, (LPARAM)hWndCanvas );
 }
 //
 void hm_keel_obj::setVisible( BOOL bVisible ) {
@@ -490,7 +490,7 @@ void hm_keel_obj::setVisible( BOOL bVisible ) {
 	else
 		m_uFlag &= ~HMKEELOBJ_FLAG_VISIBLE;
 	//
-	Notify( HMKEELOBJEVENT_SETVISIBLE, (long)bVisible );
+	Notify( HMKEELOBJEVENT_SETVISIBLE, (LPARAM)bVisible );
 }
 //
 BOOL hm_keel_obj::isVisible() const {

@@ -18,14 +18,14 @@ public:
 
 	// interface of hm_cmn_observer_i
 public:
-	virtual void update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue );
+	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );
 
 public:
 	void setUIRoot( hm_uiroot* pHMUIRoot );
 	void setWndMark( const hm_rs_wndmark& wndMark );
 
 private:
-	void _OnHMKEELOBJEVENT_POSCHANGED( void* pSubject, long pEventParam, long pEventParam2, BOOL* pbContinue );	
+	void _OnHMKEELOBJEVENT_POSCHANGED( void* pSubject, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );	
 
 private:
 	hm_rs_wndmark m_wndMark;

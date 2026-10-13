@@ -58,7 +58,7 @@ void hm_wmp_tabheader::_createDistrictObjs() {
 		
 }
 //
-void hm_wmp_tabheader::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_tabheader::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
 	case HMKEELOBJEVENT_DRAWSELF:
 		{		
@@ -122,10 +122,10 @@ void hm_wmp_tabheader::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 		hkereParam.m_uEvent = HMWMPTABEVENT_SELECTCHANGED;
 		hkereParam.m_lEventParam = m_uIndexSel;
 		hkereParam.m_lEventParam2 = uIndexSelOld;
-		pKeelObj->Notify( HMKEELOBJEVENT_RELAYEVENT, (long)&hkereParam );
+		pKeelObj->Notify( HMKEELOBJEVENT_RELAYEVENT, (LPARAM)&hkereParam );
 		//
 		if ( m_pEventListener ) {
-			m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_TABBTN_CLICK, (void*)pKeelObj, (void*)m_uIndexSel );
+			m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_TABBTN_CLICK, (void*)pKeelObj, (void*)(UINT_PTR)m_uIndexSel );
 		}
 	}
 

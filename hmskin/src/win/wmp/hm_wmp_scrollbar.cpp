@@ -102,7 +102,7 @@ void hm_wmp_scrollbar::_createDistrictObjs() {
 	_setDistrictObj( hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_PRE, new hm_districtobj(  ) );
 }
 //
-void hm_wmp_scrollbar::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_scrollbar::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
 	case HMKEELOBJEVENT_DRAWSELF:
 		{
@@ -305,7 +305,7 @@ bool hm_wmp_scrollbar::_moveTrackThumb( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, c
 	pHETMParam->m_nPosCur = ( m_nValCur - m_nValMin );
 	pHETMParam->m_nPosMax = ( m_nValMax - m_nValMin );
 	pHETMParam->m_pWMPScrollbar = this;
-	Notify( HM_EVENT_TRACKTHUMB_MOVED, (long)pHETMParam );
+	Notify( HM_EVENT_TRACKTHUMB_MOVED, (LPARAM)pHETMParam );
 	delete pHETMParam;
 	pHETMParam = NULL;
 

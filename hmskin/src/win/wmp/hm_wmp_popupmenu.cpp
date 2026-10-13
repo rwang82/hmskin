@@ -81,7 +81,7 @@ void hm_wmp_popupmenu::_createDistrictObjs() {
 		
 }
 //
-void hm_wmp_popupmenu::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_popupmenu::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
 		case HMKEELOBJEVENT_DRAWSELF:
 			{

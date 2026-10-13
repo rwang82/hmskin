@@ -25,7 +25,7 @@ class hm_cmn_subject;
 class HMLIB_API hm_cmn_observer_i
 {	
 public:
-	virtual void update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) = 0;
+	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) = 0;
 	
 public:
 	virtual ~hm_cmn_observer_i(){};
@@ -45,7 +45,7 @@ public:
 	typedef std::deque< pobs_event_pair_type > obs_ptr_container_type;
 	
 public:
-	void Notify(event_id_type idEvent, long pEventParam = NULL, long pEventParam2 = NULL );
+	void Notify(event_id_type idEvent, LPARAM pEventParam = 0, LPARAM pEventParam2 = 0 );
 	void Register( obs_ptr_type pObserver, event_id_type idEvent );
 	bool HasRegister( obs_ptr_type pObserver, event_id_type idEvent ) const;
 	bool HasRegister( obs_ptr_type pObserver ) const;

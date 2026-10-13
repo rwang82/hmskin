@@ -32,12 +32,11 @@ BOOL WINAPI hmTrackPopupMenu( HMENU hMenu,
 	HANDLE hThread;
 	HMTPMParam hmtpmParam;
 	DWORD dwWait;
-	DWORD dwWndPropId = (DWORD)prcRect;
 
 	hmtpmParam.m_bCopied = false;
 	hmtpmParam.m_hWndPopupMenu = NULL;
 	hmtpmParam.m_hParentWnd = hWnd;
-	hmtpmParam.m_hInst = (HINSTANCE)nReserved;
+	hmtpmParam.m_hInst = (HINSTANCE)(INT_PTR)nReserved;
 	hmtpmParam.m_hMenu = hMenu;
 	hmtpmParam.m_uFlags = uFlags;
 	hmtpmParam.m_x = x;

@@ -22,7 +22,7 @@ hm_layout_obj::~hm_layout_obj()
 
 }
 //
-void hm_layout_obj::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue )
+void hm_layout_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue )
 {
 	switch( idEvent )
 	{

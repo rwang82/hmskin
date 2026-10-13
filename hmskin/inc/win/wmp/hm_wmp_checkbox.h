@@ -49,7 +49,7 @@ protected:
 	virtual void _createDistrictObjs();
 
 public:
-	virtual void update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue );
+	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );
 
 private:
 	void _doDrawSkin( HDC hDC, const RECT& rcCanvas );

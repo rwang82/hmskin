@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\loader\hm_wmp_loaders.h"
+#include "win\hm_win_misc.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\wmp\hm_wmp_bkgnd.h"
 #include "win\wmp\hm_wmp_bkgnd_nca.h"
@@ -611,8 +612,7 @@ bool hm_wmp_display_loader::_createUIRes_Text( const Json::Value& valUIRes, hm_r
 		return false;
 	}
 	//
-	USES_CONVERSION;
-	textData.m_tstrData = A2T(valTmp.asString().c_str());
+	MultiByteToTChar( valTmp.asString(), textData.m_tstrData );
 	//
 	valTmp = valUIRes[ "Alignment" ];
 	if ( !valTmp.isInt() ) {
@@ -1001,8 +1001,7 @@ bool hm_wmp_tabheader_loader::_fillBtns( const Json::Value& valWMP, hm_wmp_tabhe
 		}
 		//
 		pTabBtnInfo = new tabbtninfo();
-		USES_CONVERSION;
-		pTabBtnInfo->m_strTitle = A2T(valTitle.asString().c_str());
+		MultiByteToTChar( valTitle.asString(), pTabBtnInfo->m_strTitle );
 		pWMPLoading->pushbackTabBtn( pTabBtnInfo );
 	}
 

@@ -23,7 +23,7 @@ BOOL WndProcMgr::Attach( HWND hWndDest, WNDPROC pfnWndProcNew )
 	if ( WasAttached( hWndDest ) || !::IsWindow( hWndDest ) )
 		return FALSE; //can't attach twice
 	
-	pfnWndProcOld = (WNDPROC)::SetWindowLong( hWndDest, GWL_WNDPROC, (LONG)pfnWndProcNew );
+	pfnWndProcOld = (WNDPROC)::SetWindowLongPtr( hWndDest, GWLP_WNDPROC, (LONG_PTR)pfnWndProcNew );
 	m_mapHwnd2WndProc[ hWndDest ] = pfnWndProcOld;
 	
 	return TRUE;
@@ -37,7 +37,7 @@ BOOL WndProcMgr::Detach( HWND hWndDest )
 		return FALSE;
 	
 	pfnWndProcOld = m_mapHwnd2WndProc[ hWndDest ];
-	::SetWindowLong( hWndDest, GWL_WNDPROC, (LONG)pfnWndProcOld );
+	::SetWindowLongPtr( hWndDest, GWLP_WNDPROC, (LONG_PTR)pfnWndProcOld );
 
 	return TRUE;
 }

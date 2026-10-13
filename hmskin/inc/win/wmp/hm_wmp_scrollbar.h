@@ -64,7 +64,7 @@ protected:
 
 	// interface of hm_cmn_observer_i
 public:
-	virtual void update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue );
+	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );
 
 public:
 	bool setValRange( int nValMin, int nValMax );

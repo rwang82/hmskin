@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+ipch/
+*.user
+*.aps
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# build outputs ( solution root and per-project IntDir/OutDir; keep demo assets )
+Win32/
+x64/
+ARM64/
+Debug/
+Release/
+!demo/assets/Debug/
+!demo/assets/Release/
+*.pch
+*.pdb
+*.ilk
+*.obj
+*.tlog
+*.log
+
+# hmskin exported binaries (post-build copies)
+hmskin/lib/

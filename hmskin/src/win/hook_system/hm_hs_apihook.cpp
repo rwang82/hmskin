@@ -97,29 +97,43 @@ bool hm_hs_apihook::_isRegHook( const TCHAR* szAPIName, const TCHAR* szLibFileNa
 	return false;
 }
 
-void hm_hs_apihook::_prepareCodeHookTrackPopupMenu( void* pfnOrigin, unsigned char originCodeBuf[ 5 ], unsigned char newCodeBuf[ 5 ] ) {
-	unsigned char OriginCodeTmp[5];
-	unsigned char NewCodeTmp[5];
-	_asm 
-	{ 
-		lea edi,OriginCodeTmp 
-			mov esi,pfnOrigin 
-			cld 
-			movsd
-			movsb
-	} 
-	NewCodeTmp[0]=0xe9; 
-	_asm 
-	{ 
-		lea eax,hmTrackPopupMenu 
-			mov ebx,pfnOrigin 
-			sub eax,ebx
-			sub eax,5
-			mov dword ptr [NewCodeTmp+1],eax
-	}
-
-	memcpy( originCodeBuf, OriginCodeTmp, 5 );
-	memcpy( newCodeBuf, NewCodeTmp, 5 );
+void hm_hs_apihook::_prepareCodeHookTrackPopupMenu( void* pfnOrigin, unsigned char* originCodeBuf, unsigned char* newCodeBuf ) {
+	// snapshot the original prologue we are about to overwrite.
+	// note: the hook fully replaces the API ( no call-through to the original ),
+	// so no instruction-boundary trampoline is needed - the snapshot is only
+	// used to restore the bytes on unhook.
+	memcpy( originCodeBuf, pfnOrigin, HM_HOOK_PATCH_SIZE );
+#if defined(_M_ARM64)
+	// 16-byte absolute jump: LDR X17,[PC,#8] ; BR X17 ; <8-byte target>
+	// ( x17/IP1 is the linker veneer scratch register - safe to clobber;
+	//   AArch64 instructions are fixed 4 bytes, so any 4-instruction
+	//   prologue slot can host the patch without boundary decoding )
+	UINT_PTR uTarget = (UINT_PTR)&hmTrackPopupMenu;
+	newCodeBuf[0] = 0x51; // LDR X17,[PC,#8] = 0x58000051 ( little-endian )
+	newCodeBuf[1] = 0x00;
+	newCodeBuf[2] = 0x00;
+	newCodeBuf[3] = 0x58;
+	newCodeBuf[4] = 0x20; // BR X17 = 0xD61F0220 ( little-endian )
+	newCodeBuf[5] = 0x02;
+	newCodeBuf[6] = 0x1F;
+	newCodeBuf[7] = 0xD6;
+	memcpy( newCodeBuf + 8, &uTarget, sizeof( uTarget ) );
+#elif defined(_WIN64)
+	// 12-byte absolute jump: mov rax, hmTrackPopupMenu ; jmp rax
+	// ( rax is volatile per the x64 ABI; the stub never returns,
+	//   so clobbering it before the original prologue runs is safe )
+	UINT_PTR uTarget = (UINT_PTR)&hmTrackPopupMenu;
+	newCodeBuf[0] = 0x48;
+	newCodeBuf[1] = 0xB8;
+	memcpy( newCodeBuf + 2, &uTarget, sizeof( uTarget ) );
+	newCodeBuf[10] = 0xFF;
+	newCodeBuf[11] = 0xE0;
+#else
+	// 5-byte relative jump: jmp hmTrackPopupMenu
+	INT_PTR nRel32 = (INT_PTR)&hmTrackPopupMenu - ( (INT_PTR)pfnOrigin + 5 );
+	newCodeBuf[0] = 0xE9;
+	memcpy( newCodeBuf + 1, &nRel32, 4 );
+#endif
 }
 
 hm_hs_apihook::hm_hs_apihook() {}
@@ -159,41 +173,43 @@ bool hm_hs_apihook::_hookStop( const TCHAR* szAPIName, const TCHAR* szLibFileNam
 
 void hm_hs_apihook::_hookStart( apiinfo* pAPIInfo ) {
 	if ( !pAPIInfo || pAPIInfo->m_bHooked ) return;
-	HANDLE hProc; 
+	HANDLE hProc;
 	DWORD flOldProtect;
 	DWORD flNewProtect;
-	
+
 	hProc = ::OpenProcess( PROCESS_ALL_ACCESS, 0, pAPIInfo->m_dwPID );
-	
+
 	flNewProtect = PAGE_READWRITE;
-	::VirtualProtectEx(  hProc, pAPIInfo->m_pfnOriginAddr, 5, flNewProtect, &flOldProtect);
-	
-	WriteProcessMemory( hProc, pAPIInfo->m_pfnOriginAddr, pAPIInfo->m_newCodeBuf, 5, 0 );
-	
+	::VirtualProtectEx(  hProc, pAPIInfo->m_pfnOriginAddr, HM_HOOK_PATCH_SIZE, flNewProtect, &flOldProtect);
+
+	WriteProcessMemory( hProc, pAPIInfo->m_pfnOriginAddr, pAPIInfo->m_newCodeBuf, HM_HOOK_PATCH_SIZE, 0 );
+	::FlushInstructionCache( hProc, pAPIInfo->m_pfnOriginAddr, HM_HOOK_PATCH_SIZE );
+
 	flNewProtect = flOldProtect;
-	::VirtualProtectEx( hProc, pAPIInfo->m_pfnOriginAddr, 5, flNewProtect, &flOldProtect );
-	
+	::VirtualProtectEx( hProc, pAPIInfo->m_pfnOriginAddr, HM_HOOK_PATCH_SIZE, flNewProtect, &flOldProtect );
+
 	::CloseHandle( hProc );
-	
+
 	pAPIInfo->m_bHooked = true;
 }
 
 void hm_hs_apihook::_hookStop( apiinfo* pAPIInfo ) {
 	if ( !pAPIInfo || !pAPIInfo->m_bHooked ) return;
-	HANDLE hProc; 
+	HANDLE hProc;
 	DWORD flOldProtect;
 	DWORD flNewProtect;
-	
+
 	hProc = ::OpenProcess( PROCESS_ALL_ACCESS, 0, pAPIInfo->m_dwPID );
-	
+
 	flNewProtect = PAGE_READWRITE;
-	::VirtualProtectEx(  hProc, pAPIInfo->m_pfnOriginAddr, 5, flNewProtect, &flOldProtect);
-	
-	WriteProcessMemory( hProc, pAPIInfo->m_pfnOriginAddr, pAPIInfo->m_originCodeBuf, 5, 0 );
-	
+	::VirtualProtectEx(  hProc, pAPIInfo->m_pfnOriginAddr, HM_HOOK_PATCH_SIZE, flNewProtect, &flOldProtect);
+
+	WriteProcessMemory( hProc, pAPIInfo->m_pfnOriginAddr, pAPIInfo->m_originCodeBuf, HM_HOOK_PATCH_SIZE, 0 );
+	::FlushInstructionCache( hProc, pAPIInfo->m_pfnOriginAddr, HM_HOOK_PATCH_SIZE );
+
 	flNewProtect = flOldProtect;
-	::VirtualProtectEx( hProc, pAPIInfo->m_pfnOriginAddr, 5, flNewProtect, &flOldProtect );
-	
+	::VirtualProtectEx( hProc, pAPIInfo->m_pfnOriginAddr, HM_HOOK_PATCH_SIZE, flNewProtect, &flOldProtect );
+
 	::CloseHandle( hProc );
 }
 	

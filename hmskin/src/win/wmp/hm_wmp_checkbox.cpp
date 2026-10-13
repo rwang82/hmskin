@@ -54,7 +54,7 @@ void hm_wmp_checkbox::_createDistrictObjs() {
 	_setDistrictObj( EDISTRICTID_BK_NOCHECK_DIS, pDistrictObj );
 }
 
-void hm_wmp_checkbox::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue )
+void hm_wmp_checkbox::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue )
 {
 	switch ( idEvent ) {
 	case HMKEELOBJEVENT_DRAWSELF:
@@ -173,7 +173,7 @@ void hm_wmp_checkbox::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 	//
 	if ( ( ( uFlagOld & HM_CHECK_FLAG_LBTDOWN ) == HM_CHECK_FLAG_LBTDOWN ) && ::PtInRect( &rcKeelObj, ptClient ) ) {
 		if ( m_pEventListener ) {
-			m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_CHECKBOX_CLICK, (void*)pKeelObj, (void*)isCheck() );
+			m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_CHECKBOX_CLICK, (void*)pKeelObj, (void*)(UINT_PTR)isCheck() );
 		}
 		////notify parent
 		WPARAM wParam = MAKEWPARAM( GetDlgCtrlID( pWP->hwnd ), HM_CHECK_CMDEVT_DOWN );

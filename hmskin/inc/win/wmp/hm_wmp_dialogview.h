@@ -65,7 +65,7 @@ protected:
 
 	// interface of hm_cmn_observer_i
 public:
-	virtual void update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue );
+	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );
 
 public:
 	int* getStackPostionPtr() { return &m_nStackPosition; }; 
@@ -125,7 +125,7 @@ void hm_wmp_dialogview_t< item_type, item_param_type >::_createDistrictObjs() {
 }
 //
 template< class item_type, typename item_param_type >
-void hm_wmp_dialogview_t< item_type, item_param_type >::update( void* pSubject, UINT idEvent, long pEventParam, long pEventParam2, BOOL* pbContinue ) {
+void hm_wmp_dialogview_t< item_type, item_param_type >::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
 	case HMKEELOBJEVENT_DRAWSELF:
 		{

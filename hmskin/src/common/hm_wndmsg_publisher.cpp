@@ -98,7 +98,7 @@ void hm_wndmsg_publisher::notifyWndMsg( HWND hWnd, UINT message, WPARAM& wParam,
 	iendObs = pObsContainer->end();
 	for ( itObs = pObsContainer->begin(); itObs!=iendObs; ++itObs )
 	{
-		(*itObs)->update( this, HM_EVENT_WND_MSG, (long)&wmsgParam, (long)pParamWndProc, &bContinue );
+		(*itObs)->update( this, HM_EVENT_WND_MSG, (LPARAM)&wmsgParam, (LPARAM)pParamWndProc, &bContinue );
 		if ( !bContinue ) {
 			pParamWndProc->m_flagEatMsg |= EATMSGFLAG_DISABLE_OTHER_MSGOBSRV;
 		}

@@ -7,7 +7,7 @@ typedef BOOL ( WINAPI *fnTrackPopupMenuType)(          HMENU hMenu,
     int y,
     int nReserved,
     HWND hWnd,
-    HWND prcRect
+    CONST RECT * prcRect
 );
 
 BOOL WINAPI hmTrackPopupMenu(          HMENU hMenu,
