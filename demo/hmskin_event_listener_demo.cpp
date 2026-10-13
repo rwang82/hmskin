@@ -6,6 +6,12 @@
 #include "demo.h"
 
 // every hmskin event lands in the EVT-08 event log ( see DESIGN.md ).
+hmskin_event_listener_demo::hmskin_event_listener_demo() {
+}
+
+hmskin_event_listener_demo::~hmskin_event_listener_demo() {
+}
+
 void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lParam1, void* lParam2 ) {
 	hm_keel_obj* pKeelObj = ( hm_keel_obj* )lParam1;
 	TCHAR szLine[ 64 ];
