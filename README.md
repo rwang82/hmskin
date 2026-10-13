@@ -103,7 +103,26 @@ manifest 必须为 **UTF-8**（jsoncpp 严格校验；中文字体名/标题直�
 | `WndMsgProcessor` | 各控件处理器（WMP）实例：类名、区域图、触发器、布局参数 |
 | `MsgSink` | 消息槽（消息→处理器的订阅关系） |
 | `KeelObj` | UI 骨架对象树：绑定的 WMP、UIRes（图片/文本）、PosDecoder（位置解算） |
+| `WndStyle` | **窗口风格适配（可选，Win11+）**：`"Corner"` 控制圆角策略，见下 |
 | `ENUMDISTRICTID` | 控件区域枚举值文档（无代码消费，仅注释性质） |
+
+### 窗口圆角（Windows 11 适配）
+
+Win11 的 DWM 会给所有顶层窗口强制加约 8px 圆角，自绘的直角边框四角会被裁掉。
+manifest 顶层加 `WndStyle` 可控制（在 `hm_wndpropid_connect` 绑定窗口时生效）：
+
+```json
+"WndStyle": { "Corner": "DEFAULT" }
+```
+
+| 取值 | 效果 |
+|---|---|
+| 缺省（不写 `WndStyle`） | 不干预系统行为（Win11 上即圆角） |
+| `"DEFAULT"` | 跟随系统（同上，语义显式化） |
+| `"DONOTROUND"` | 强制直角——还原 Win7/10 时代的皮肤设计观感 |
+| `"ROUND"` / `"ROUNDSMALL"` | 强制标准/小圆角 |
+
+Win10 及以下该调用无效果亦无害。
 
 片段示例：
 
@@ -122,6 +141,7 @@ Debug 与 Release 的 demo manifest 内容略有差异（Debug 含更多控件�
 - `TreatWarningAsError` 目前为关闭状态（升级工具链后存在历史告警：C4267/C4244 尺寸转换、C4996 `Json::Reader` 弃用提示等，不影响功能）
 - `TrackPopupMenu` 的 inline API hook 为**休眠功能**（调用点在 `hmskin/src/win/hmskin.cpp` 中处于注释状态），三架构补丁代码已就绪但未经实机冒烟
 - 未做 DPI 感知：绝对像素皮肤引擎，高 DPI 屏幕上由 DWM 位图拉伸兜底；如需原生高 DPI 属后续专项
+- 窗口圆角：Win11 由 DWM 强制圆角，可用 manifest 的 `WndStyle.Corner` 控制（见上节）；让皮肤自身画圆角需改位图资源，属引擎级改造
 
 ## 项目历史
 

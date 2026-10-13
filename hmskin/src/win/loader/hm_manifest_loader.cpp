@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "win\loader\hm_manifest_loader.h"
 #include "win\loader\hm_manifest_creator.h"
+#include "win\loader\hm_loader_wndstyle.h"
 #include "win\loader\hm_loader_coordinatesystem.h"
 #include "win\loader\hm_loader_rawpic.h"
 #include "win\loader\hm_loader_font.h"
@@ -40,6 +41,7 @@ void hm_manifest_loader::init() {
 #define REG_LOADER_ITEM( cls_loader ) \
 	m_containerLoader.push_back( new cls_loader() );
 
+	REG_LOADER_ITEM( hm_loader_wndstyle );
 	REG_LOADER_ITEM( hm_loader_coordinatesystem );
 	REG_LOADER_ITEM( hm_loader_rawpic );
 	REG_LOADER_ITEM( hm_loader_font );

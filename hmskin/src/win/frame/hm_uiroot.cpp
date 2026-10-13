@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\frame\hm_uiroot.h"
+#include "win\loader\hm_loader_wndstyle.h"
 #include "win\hook_system\hm_hs_wnd_msg_dispatch.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
 #include "win\frame\hm_keel_obj.h"
@@ -17,6 +18,7 @@ hm_uiroot::hm_uiroot( hmskin_event_listener_base* pEventListener )
 , m_pWndMark2MSIdTable( new hm_wmark_msid_table_type() )
 , m_pKeelObjFactory( new hm_keel_obj_factory() )
 , m_pWMPFactory( new hm_wmp_factory() )
+, m_nWndCornerPref( HM_WNDCORNER_NOTSET )
 {
 	_Init();
 }

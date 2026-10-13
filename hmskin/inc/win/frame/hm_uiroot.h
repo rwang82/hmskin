@@ -30,6 +30,9 @@ public:
 	hm_wmp_factory* m_pWMPFactory;
 	hmskin_event_listener_base* m_pEventListener;
 
+	// window style adaptation, see hm_loader_wndstyle.h ( -1 = not configured ).
+	int m_nWndCornerPref;
+
 };
 
 //

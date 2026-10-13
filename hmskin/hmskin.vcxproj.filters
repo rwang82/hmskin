@@ -261,6 +261,9 @@
     <ClCompile Include="src\win\loader\hm_loader_color.cpp">
       <Filter>loader\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\win\loader\hm_loader_wndstyle.cpp">
+      <Filter>loader\src</Filter>
+    </ClCompile>
     <ClCompile Include="src\win\loader\hm_loader_coordinatesystem.cpp">
       <Filter>loader\src</Filter>
     </ClCompile>
@@ -504,6 +507,9 @@
       <Filter>loader\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\loader\hm_loader_color.h">
+      <Filter>loader\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\loader\hm_loader_wndstyle.h">
       <Filter>loader\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\loader\hm_loader_coordinatesystem.h">

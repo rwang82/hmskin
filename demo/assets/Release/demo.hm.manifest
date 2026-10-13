@@ -37,6 +37,7 @@
        {"id":21, "name":"CheckDisable.png"}
     ]
   },
+  "WndStyle": { "Corner": "DEFAULT" },
   "ENUMDISTRICTID":[
     {"Name":"hm_wmp_button",
       "Ids": {
