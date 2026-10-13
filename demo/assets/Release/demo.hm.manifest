@@ -1509,6 +1509,32 @@
       ]
     },
     {
+      "idKeelObj": 12,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_offset",
+          "RefKeelObjId": 1,
+          "m_nOffsetL": 16,
+          "m_nOffsetT": 48,
+          "m_nOffsetR": 430,
+          "m_nOffsetB": 40
+        }
+      },
+      "WMP": [
+        {
+          "id": 30,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
       "idKeelObj": 2,
       "WndMsgSource": {
         "Type": "KeelObj",
@@ -1557,148 +1583,6 @@
       "WMP": [
         {
           "id": 4,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 4,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 1
-      },
-      "ParentKeelObjId": 1,
-      "LayoutObj": {
-        "CSId": 1,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_dock",
-          "RefKeelObjId": 1,
-          "m_eDockType": "DOCK_TOP",
-          "m_space1": 6,
-          "m_space2": 8,
-          "m_space3": 8,
-          "m_thickness": 34
-        }
-      },
-      "WMP": [
-        {
-          "id": 6,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 5,
-      "WndMsgSource": {
-        "Type": "MsgSink",
-        "MsgSinkId": 11
-      },
-      "LayoutObj": {
-        "CSId": 3,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_clientarea"
-        }
-      },
-      "WMP": [
-        {
-          "id": 7,
-          "RegEvts": [
-            6
-          ]
-        },
-        {
-          "id": 8,
-          "RegEvts": []
-        },
-        {
-          "id": 9,
-          "RegEvts": []
-        }
-      ]
-    },
-    {
-      "idKeelObj": 6,
-      "WndMsgSource": {
-        "Type": "MsgSink",
-        "MsgSinkId": 10
-      },
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_wndarea"
-        }
-      },
-      "WMP": [
-        {
-          "id": 10,
-          "RegEvts": []
-        },
-        {
-          "id": 11,
-          "RegEvts": []
-        },
-        {
-          "id": 12,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 7,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 6
-      },
-      "ParentKeelObjId": 6,
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 6,
-          "m_eCornerType": "CORNER_LT",
-          "m_space1": 5,
-          "m_space2": 5,
-          "m_width": 80,
-          "m_height": 30
-        }
-      },
-      "WMP": [
-        {
-          "id": 15,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 8,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 6
-      },
-      "ParentKeelObjId": 6,
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_dock",
-          "RefKeelObjId": 6,
-          "m_eDockType": "DOCK_TOP",
-          "m_space1": 54,
-          "m_thickness": 26,
-          "m_space2": 20,
-          "m_space3": 20
-        }
-      },
-      "WMP": [
-        {
-          "id": 17,
           "RegEvts": [
             6
           ]
@@ -1755,32 +1639,6 @@
       "WMP": [
         {
           "id": 21,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 12,
-      "WndMsgSource": {
-        "Type": "MsgSink",
-        "MsgSinkId": 10
-      },
-      "LayoutObj": {
-        "CSId": 1,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_offset",
-          "RefKeelObjId": 1,
-          "m_nOffsetL": 16,
-          "m_nOffsetT": 48,
-          "m_nOffsetR": 430,
-          "m_nOffsetB": 40
-        }
-      },
-      "WMP": [
-        {
-          "id": 30,
           "RegEvts": [
             6
           ]
@@ -1942,6 +1800,148 @@
       "WMP": [
         {
           "id": 36,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 4,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 1
+      },
+      "ParentKeelObjId": 1,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_dock",
+          "RefKeelObjId": 1,
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 6,
+          "m_space2": 8,
+          "m_space3": 8,
+          "m_thickness": 34
+        }
+      },
+      "WMP": [
+        {
+          "id": 6,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 5,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 11
+      },
+      "LayoutObj": {
+        "CSId": 3,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_clientarea"
+        }
+      },
+      "WMP": [
+        {
+          "id": 7,
+          "RegEvts": [
+            6
+          ]
+        },
+        {
+          "id": 8,
+          "RegEvts": []
+        },
+        {
+          "id": 9,
+          "RegEvts": []
+        }
+      ]
+    },
+    {
+      "idKeelObj": 6,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_wndarea"
+        }
+      },
+      "WMP": [
+        {
+          "id": 10,
+          "RegEvts": []
+        },
+        {
+          "id": 11,
+          "RegEvts": []
+        },
+        {
+          "id": 12,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 7,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_LT",
+          "m_space1": 5,
+          "m_space2": 5,
+          "m_width": 80,
+          "m_height": 30
+        }
+      },
+      "WMP": [
+        {
+          "id": 15,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 8,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_dock",
+          "RefKeelObjId": 6,
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 54,
+          "m_thickness": 26,
+          "m_space2": 20,
+          "m_space3": 20
+        }
+      },
+      "WMP": [
+        {
+          "id": 17,
           "RegEvts": [
             6
           ]
