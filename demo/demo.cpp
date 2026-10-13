@@ -31,6 +31,7 @@
 void doTest();
 bool createUI( HWND hWndParent );
 void AppendEventLog( const TCHAR* szLine );
+void SwitchChapter( unsigned int uChapterIndex );
 hmskin_event_listener_demo g_HMSkinEventListener;
 hm_uiroot* g_pHMRoot = NULL;
 void* g_pWMPEvtLog = NULL;
@@ -43,6 +44,34 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
 HWND g_hBtnTest1 = NULL;
+
+// ---- tab chapters ( §1..§4 ) : keelobj groups switched by visibility ----
+static const unsigned int arrChapterGroups[4][8] = {
+	{ 3, 19, 10, 11, 0, 0, 0, 0 },           // §1 基础交互（+ 原生接管按钮 g_hBtnTest1）
+	{ 21, 22, 23, 24, 25, 26, 0, 0 },        // §2 文本与数据（字阶标本）
+	{ 27, 0, 0, 0, 0, 0, 0, 0 },             // §3 菜单系统
+	{ 2, 28, 0, 0, 0, 0, 0, 0 },             // §4 滚动与容器（滚动井）
+};
+
+void SwitchChapter( unsigned int uChapterIndex ) {
+	if ( !g_pHMRoot || uChapterIndex >= 4 )
+		return;
+	for ( int nChapter = 0; nChapter < 4; ++nChapter ) {
+		BOOL bVisible = ( nChapter == (int)uChapterIndex );
+		for ( int i = 0; i < 8; ++i ) {
+			unsigned int idKeelObj = arrChapterGroups[ nChapter ][ i ];
+			if ( !idKeelObj )
+				break;
+			hm_keel_obj* pKeelObj = NULL;
+			if ( hm_get_keelobj( g_pHMRoot, idKeelObj, &pKeelObj ) && pKeelObj )
+				pKeelObj->setVisible( bVisible );
+		}
+	}
+	// 原生接管按钮（ §1 对照标本）随章节显隐。
+	if ( g_hBtnTest1 )
+		::ShowWindow( g_hBtnTest1, ( uChapterIndex == 0 ) ? SW_SHOW : SW_HIDE );
+	::InvalidateRect( g_hWnd, NULL, FALSE );
+}
 
 // event log ( EVT-08 ) : prepend newest line, keep last 12, refresh the text WMP.
 void AppendEventLog( const TCHAR* szLine ) {
@@ -224,6 +253,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		   g_pWMPEvtLog = pKeelObjEvtLog->getWMP( WMPID_EVENTLOG );
    }
 
+   // tab chapters : §1 基础交互 is the default visible section.
+   SwitchChapter( 0 );
+
    ShowWindow( g_hWnd, nCmdShow );
    UpdateWindow( g_hWnd );
 
@@ -338,16 +370,17 @@ void doTest() {
 }
 
 bool createUI( HWND hWndParent ) {
-	//button: test1
+	//button: test1 — 原生控件换肤对照标本（ §1 基础交互，位于次按钮右侧 ）
 	{
 		DWORD dwCtrlID = 20;
-		g_hBtnTest1 = ::CreateWindow( _T( "Button" ), _T( "Test1" ), WS_VISIBLE | WS_CHILD, 0, 200, 80, 30, hWndParent, ( HMENU )dwCtrlID, NULL, NULL );
+		g_hBtnTest1 = ::CreateWindow( _T( "Button" ), _T( "接管"), WS_VISIBLE | WS_CHILD,
+			368, 152, 90, 42, hWndParent, ( HMENU )dwCtrlID, NULL, NULL );
 		if ( !g_hBtnTest1 ) {
 			::OutputDebugString( _T("hBtnTest1 == NULL!\n") );
 			return false;
 		}
 	}
-	
-	
+
+
 	return true;
 }

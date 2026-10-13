@@ -26,6 +26,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		break;
 	case HMSKIN_EVENT_TABBTN_CLICK:
 		_stprintf_s( szLine, 64, _T("TAB-01 -> #%d"), (unsigned int)(UINT_PTR)lParam2 + 1 );
+		SwitchChapter( (unsigned int)(UINT_PTR)lParam2 );
 		break;
 	case HMSKIN_EVENT_NCABTN_CLICK:
 		_tcscpy_s( szLine, 64, _T("NCA-BTN CLICK") );
