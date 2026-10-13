@@ -41,15 +41,26 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			CWPSTRUCT* pWP = (CWPSTRUCT*)pEventParam;
 			msg_sink_i::WNDPROCPARAM* pParamWndProc = (msg_sink_i::WNDPROCPARAM*)pEventParam2;
 
+			// hidden keel objects neither react to nor eat window messages.
+			// ( e.g. controls hidden by tab-chapter switching used to redraw
+			//   themselves on mouse hover and even stayed clickable. )
+			{
+				BOOL bVisibleChain = isVisible();
+				for ( hm_keel_obj* pParent = getParent(); bVisibleChain && pParent; pParent = pParent->getParent() )
+					bVisibleChain = pParent->isVisible();
+				if ( !bVisibleChain )
+					break;
+			}
+
 			// Notify
 			notifyWndMsg( pWP->hwnd, pWP->message, pWP->wParam, pWP->lParam, pParamWndProc );
-			
+
 			if ( !pParamWndProc || !( pParamWndProc->m_flagEatMsg & EATMSGFLAG_DISABLE_SOURCE ) ) {
 				_doWndMsg( pWP, pParamWndProc );
 			}
-			
+
 			// check if need disable other msg ob
-			if ( pParamWndProc 
+			if ( pParamWndProc
 				&& ( EATMSGFLAG_DISABLE_OTHER_MSGOBSRV == ( pParamWndProc->m_flagEatMsg & EATMSGFLAG_DISABLE_OTHER_MSGOBSRV ) )
 				&& pbContinue ) {
 				*pbContinue = false;
