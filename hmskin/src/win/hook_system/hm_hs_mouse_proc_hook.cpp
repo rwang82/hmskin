@@ -50,8 +50,10 @@ LRESULT CALLBACK HMLibMouseHookProc( int nCode, WPARAM wParam, LPARAM lParam )
 				//::OutputDebugString(_T("WM_NCLBUTTONDOWN.\n"));
 				// if the message is from your window and
 				// the hit test indicates title bar
-				if( mhs->wHitTestCode == HTCAPTION )
+				if( mhs->wHitTestCode == HTCAPTION ) {
 					s_mapHwnd2CaptionDown[ mhs->hwnd ] = TRUE;
+					::OutputDebugString( _T("[hook] rec nclbtndown\n") );
+				}
 			}
 			break;
 		case WM_NCLBUTTONDBLCLK:
@@ -83,7 +85,7 @@ LRESULT CALLBACK HMLibMouseHookProc( int nCode, WPARAM wParam, LPARAM lParam )
 				if( it != s_mapHwnd2CaptionDown.end() )
 				{
 					s_mapHwnd2CaptionDown.erase( it );
-					//::OutputDebugString(_T("post WM_NCLBUTTONUP\n"));
+					::OutputDebugString( _T("[hook] synth nclbtnup\n") );
 					::PostMessage( mhs->hwnd, WM_NCLBUTTONUP, HTCAPTION, MAKELONG(mhs->pt.x,mhs->pt.y) );
 				}
 			}

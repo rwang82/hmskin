@@ -199,6 +199,11 @@ void hm_wmp_button_nca::_OnNCLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP,
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;
 	//
+	{
+		TCHAR szDbg[ 64 ];
+		_stprintf_s( szDbg, 64, _T("[nca] press id=%u\n"), pKeelObj->getId() );
+		::OutputDebugString( szDbg );
+	}
 	m_uBtnStateFlags |= NCABTN_FLAG_LBTNDOWN;
 	//
 	if ( GetCapture() != pWP->hwnd )
@@ -267,6 +272,14 @@ void hm_wmp_button_nca::_OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 		::ReleaseCapture();
 	}
 	m_uBtnStateFlags &= ~NCABTN_FLAG_LBTNDOWN ;
+
+	{
+		TCHAR szDbg[ 96 ];
+		_stprintf_s( szDbg, 96, _T("[nca] up id=%u btndown=%d inrect=%d pt=(%d,%d)\n"),
+			pKeelObj ? pKeelObj->getId() : 0, bLBtnDown ? 1 : 0,
+			::PtInRect( &rcObj, ptWindow ) ? 1 : 0, ptWindow.x, ptWindow.y );
+		::OutputDebugString( szDbg );
+	}
 
 	//draw
 	hDC = GetWindowDC( pWP->hwnd );
@@ -392,6 +405,7 @@ void hm_wmp_button_nca::_OnNCMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, 
 	if ( m_uBtnStateFlags & NCABTN_FLAG_LBTNDOWN ) {
 		::ReleaseCapture();
 		m_uBtnStateFlags &= ~NCABTN_FLAG_LBTNDOWN;
+		::OutputDebugString( _T("[nca] leave CLEARED press\n") );
 	}
 	//
 	hWndDC = ::GetWindowDC( pWP->hwnd );
