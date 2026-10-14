@@ -617,10 +617,10 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_pic",
                 "RawPicId": 1,
-                "m_ufixL": 5,
-                "m_ufixR": 5,
-                "m_ufixT": 5,
-                "m_ufixB": 5
+                "m_ufixL": 10,
+                "m_ufixR": 10,
+                "m_ufixT": 10,
+                "m_ufixB": 10
               }
             }
           ]
@@ -632,10 +632,10 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_pic",
                 "RawPicId": 2,
-                "m_ufixL": 5,
-                "m_ufixR": 5,
-                "m_ufixT": 5,
-                "m_ufixB": 5
+                "m_ufixL": 10,
+                "m_ufixR": 10,
+                "m_ufixT": 10,
+                "m_ufixB": 10
               }
             }
           ]
@@ -647,10 +647,10 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_pic",
                 "RawPicId": 3,
-                "m_ufixL": 5,
-                "m_ufixR": 5,
-                "m_ufixT": 5,
-                "m_ufixB": 5
+                "m_ufixL": 10,
+                "m_ufixR": 10,
+                "m_ufixT": 10,
+                "m_ufixB": 10
               }
             }
           ]
@@ -1505,7 +1505,7 @@
                 "Font": 3,
                 "Color": 3,
                 "text": "EVT-08 · 事件日志\n（等待事件…）",
-                "Alignment": 1
+                "Alignment": 0
               },
               "PosDecoder": {
                 "PDCName": "hm_posdecoder_offset",

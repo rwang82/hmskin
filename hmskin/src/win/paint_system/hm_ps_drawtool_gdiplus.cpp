@@ -36,6 +36,10 @@ void hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_rs_rawres_p
 	//hMemDC = ::CreateCompatibleDC( hDC );
 	
 	Gdiplus::Graphics graph( hDC );
+	// crisp stretched bitmaps: high quality interpolation + half pixel offset
+	// ( default bilinear made upscaled 9-patch edges look blurry/jagged )
+	graph.SetInterpolationMode( Gdiplus::InterpolationModeHighQualityBicubic );
+	graph.SetPixelOffsetMode( Gdiplus::PixelOffsetModeHalf );
 	//graph.DrawImage( pImage, rcDraw, pUIResPic->m_uLeft, pUIResPic->m_uTop, pUIResPic->m_nWidth, pUIResPic->m_uHeight, Gdiplus::UnitPixel );
 	graph.DrawImage( pImage, rcDraw, (Gdiplus::REAL)rcRawResPart.left, (Gdiplus::REAL)rcRawResPart.top,
 		(Gdiplus::REAL)( rcRawResPart.right - rcRawResPart.left ),
@@ -100,19 +104,22 @@ bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_
 		strFormat.SetAlignment( Gdiplus::StringAlignmentFar );
 	} else if ( pText->m_eAlginment == hm_uires_text_data::EALGINMENT_VCENTER ) {
 		strFormat.SetAlignment( Gdiplus::StringAlignmentCenter );
+		// vertical centering needs line alignment; SetAlignment only centers horizontally
+		// ( text used to hug the top of its district in buttons etc. )
+		strFormat.SetLineAlignment( Gdiplus::StringAlignmentCenter );
 	} else {
 		strFormat.SetAlignment( Gdiplus::StringAlignmentNear );
 	}
 //typedef enum {
-//    StringFormatFlagsDirectionRightToLeft = 0x00000001,	╟╢╢ссроРвС╣дкЁпРотй╬нд╠╬.
-//    StringFormatFlagsDirectionVertical = 0x00000002,		нд╠╬╢╧ж╠╤тфК.
-//    StringFormatFlagsNoFitBlackBox = 0x00000004,			тйпМ╡©╥жвж╥ШясиЛ╦цвж╥Ш╢╝╣д╡╪╬ж╬ьпн.д╛хогИ©Жобё╛╫╚жьпб╤╗н╩вж╥Шрт╠эцБхн╨нясиЛ.
-//    StringFormatFlagsDisplayFormatControl = 0x00000020,	©ьжфвж╥Ш(хГ╢свС╣╫ср╠Й╪г)кФ╬ъсп╢З╠Мпт╣д╠Йж╬╥Ш╨ер╩фПотй╬тзйДЁЖжп.
+//    StringFormatFlagsDirectionRightToLeft = 0x00000001,	О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫кЁО©╫О©╫О©╫О©╫й╬О©╫д╠О©╫.
+//    StringFormatFlagsDirectionVertical = 0x00000002,		О©╫д╠О©╫О©╫О©╫ж╠О©╫О©╫О©╫О©╫.
+//    StringFormatFlagsNoFitBlackBox = 0x00000004,			О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ж╥О©╫О©╫О©╫О©╫О©╫О©╫О©╫ж╥О©╫О©╫О©╫О©╫д╡О©╫О©╫ж╬О©╫О©╫О©╫.д╛О©╫О©╫О©╫О©╫О©╫О©╫бёО©╫О©╫О©╫О©╫О©╫О©╫б╤О©╫н╩О©╫ж╥О©╫О©╫т╠О©╫О©╫О©╫О©╫н╨О©╫О©╫О©╫О©╫О©╫.
+//    StringFormatFlagsDisplayFormatControl = 0x00000020,	О©╫О©╫О©╫О©╫О©╫ж╥О©╫(О©╫О©╫О©╫О©╫О©╫О©╫р╠О©╫О©╫)О©╫О©╫О©╫О©╫п╢О©╫О©╫О©╫О©╫т╣д╠О©╫ж╬О©╫О©╫О©╫О©╫р╩О©╫О©╫О©╫О©╫й╬О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 //    StringFormatFlagsNoFontFallback = 0x00000400,
 //    StringFormatFlagsMeasureTrailingSpaces = 0x00000800,
-//    StringFormatFlagsNoWrap = 0x00001000,					тз╬ьпндзиХжц╦Яй╫й╠ё╛╫Шсцнд╠╬╩╩пп╧╕дэ.
+//    StringFormatFlagsNoWrap = 0x00001000,					О©╫з╬О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ц╦О©╫й╫й╠О©╫О©╫О©╫О©╫О©╫О©╫О©╫д╠О©╫О©╫О©╫О©╫п╧О©╫О©╫О©╫.
 //    StringFormatFlagsLineLimit = 0x00002000,				
-//    StringFormatFlagsNoClip = 0x00004000					тйпМотй╬╠Йж╬╥Ш╨е╣диЛЁЖ╡©╥ж╨мясиЛ╣╫╠ъ©РмБ╣дн╢╩╩ппнд╠╬.
+//    StringFormatFlagsNoClip = 0x00004000					О©╫О©╫О©╫О©╫О©╫О©╫й╬О©╫О©╫ж╬О©╫О©╫О©╫е╣О©╫О©╫О©╫О©╫О©╫О©╫О©╫ж╨О©╫О©╫О©╫О©╫Л╣╫О©╫ъ©О©╫О©╫О©╫О©╫н╢О©╫О©╫О©╫О©╫О©╫д╠О©╫.
 //} StringFormatFlags;
 
 	USES_CONVERSION;

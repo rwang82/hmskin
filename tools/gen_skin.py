@@ -43,13 +43,17 @@ def save(im, name):
 def rrect(d, box, r, fill=None, outline=None, width=1):
     d.rounded_rectangle(box, radius=r, fill=fill, outline=outline, width=width)
 
-# ---------- 按钮 69x21（次级样式；主色按钮由 demo 文本/状态位图承载） ----------
+# ---------- 按钮 150x42（§1 自绘按钮实际显示尺寸，1:1 绘制零重采样） ----------
+BTN_W, BTN_H, BTN_R = 150, 42, 8
+SS = 4  # 超采样倍数：4x 绘制再 LANCZOS 缩回，圆角抗锯齿干净
+
 def gen_button(name, fill, border, highlight=True):
-    im, d = canvas(69, 21)
-    rrect(d, (0, 0, 68, 20), 4, fill=fill + (255,), outline=border + (255,), width=1)
+    im, d = canvas(BTN_W * SS, BTN_H * SS)
+    rrect(d, (0, 0, BTN_W * SS - 1, BTN_H * SS - 1), BTN_R * SS,
+          fill=fill + (255,), outline=border + (255,), width=SS)
     if highlight:
-        d.line((2, 1, 66, 1), fill=INNER)               # 顶边内高光
-    save(im, name)
+        d.line((2 * SS, SS, (BTN_W - 2) * SS, SS), fill=INNER, width=SS)  # 顶边内高光
+    save(im.resize((BTN_W, BTN_H), Image.LANCZOS), name)
 
 def gen_buttons():
     gen_button('btn_nor.png', RAISED, (48, 58, 66))   # #303A42
@@ -58,20 +62,20 @@ def gen_buttons():
     gen_button('btn_pri_nor.png', ACCENT,  (201, 127, 12), highlight=False)  # 主按钮：橙面深字
     gen_button('btn_pri_hov.png', ACC_HOV, (201, 127, 12), highlight=False)
     gen_button('btn_pri_pre.png', ACC_PRS, (160, 100, 8), highlight=False)
-    im, d = canvas(69, 21)                              # 禁用
-    rrect(d, (0, 0, 68, 20), 4, fill=SURFACE + (255,), outline=(36, 43, 49, 255), width=1)
-    save(im, 'btn_dis.png')
+    gen_button('btn_dis.png', SURFACE, (36, 43, 49), highlight=False)      # 禁用
 
-# ---------- 复选框 13x13 ----------
+# ---------- 复选框 15x15（dock thickness 15，1:1） ----------
+CHK = 15
+
 def checkbox(name, checked, border, glyph_color=None, box_fill=SUNKEN):
-    im, d = canvas(13, 13)
-    rrect(d, (0, 0, 12, 12), 3, fill=box_fill + (255,), outline=border + (255,), width=1)
+    W = CHK * SS
+    im, d = canvas(W, W)
+    rrect(d, (0, 0, W - 1, W - 1), 4 * SS, fill=box_fill + (255,), outline=border + (255,), width=SS)
     if checked:
-        # 13px 勾：两点折线（手绘像素）
-        for x, y in [(3, 6), (4, 7), (5, 8), (6, 7), (7, 6), (8, 5), (9, 4)]:
-            d.point((x, y), fill=glyph_color + (255,))
-            d.point((x, y + 1), fill=glyph_color + (255,))
-    save(im, name)
+        # 勾：折线一笔（4x 画布上抗锯齿由缩回完成）
+        d.line([(W * 0.22, W * 0.52), (W * 0.42, W * 0.70), (W * 0.78, W * 0.30)],
+               fill=glyph_color + (255,), width=int(2.2 * SS), joint='curve')
+    save(im.resize((CHK, CHK), Image.LANCZOS), name)
 
 def gen_checkboxes():
     HOVB = (85, 99, 109)   # 悬停描边 #55636D
@@ -82,11 +86,7 @@ def gen_checkboxes():
     checkbox('CheckNor.png',     True, TRUE, box_fill=TRUE, glyph_color=(20, 20, 20))
     checkbox('CheckHov.png',     True, HOVB, box_fill=TRUE, glyph_color=(20, 20, 20))
     checkbox('CheckPre.png',     True, ACC_PRS, box_fill=TRUE, glyph_color=(20, 20, 20))
-    im, d = canvas(13, 13)
-    rrect(d, (0, 0, 12, 12), 3, fill=SURFACE + (255,), outline=(36, 43, 49, 255), width=1)
-    for x, y in [(3, 6), (4, 7), (5, 8), (6, 7), (7, 6), (8, 5), (9, 4)]:
-        d.point((x, y), fill=FAINT + (255,)); d.point((x, y + 1), fill=FAINT + (255,))
-    save(im, 'CheckDisable.png')
+    checkbox('CheckDisable.png', True, (36, 43, 49), box_fill=SURFACE, glyph_color=FAINT)
 
 # ---------- Tab 条雪碧图 211x33，切片 [0,57)NOR [58,115)HOV [115,171)PRE [171,211]SEL ----------
 def gen_tabheader():
