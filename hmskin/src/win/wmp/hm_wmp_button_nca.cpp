@@ -322,7 +322,7 @@ void hm_wmp_button_nca::_OnNCMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 			// leave event
 			TRACKMOUSEEVENT tme;
 			tme.cbSize = sizeof( TRACKMOUSEEVENT );
-			tme.dwFlags = TME_LEAVE|TME_CANCEL;//|TME_NONCLIENT;
+			tme.dwFlags = TME_LEAVE|TME_NONCLIENT|TME_CANCEL; // NC area: cancel needs the same tracking type
 			tme.dwHoverTime = HOVER_DEFAULT;
 			tme.hwndTrack = pWP->hwnd;
 
@@ -343,7 +343,7 @@ void hm_wmp_button_nca::_OnNCMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 		TRACKMOUSEEVENT tme;
 
 		tme.cbSize = sizeof( TRACKMOUSEEVENT );
-		tme.dwFlags = TME_LEAVE;//|TME_NONCLIENT;
+		tme.dwFlags = TME_LEAVE|TME_NONCLIENT; // track NC-area leave ( WM_NCMOUSELEAVE ); client-only tracking left hover stuck
 		tme.dwHoverTime = HOVER_DEFAULT;
 		tme.hwndTrack = pWP->hwnd;
 		
@@ -381,7 +381,7 @@ void hm_wmp_button_nca::_OnNCMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, 
 	//cancel track mouse leave message
 	TRACKMOUSEEVENT tme;
 	tme.cbSize = sizeof( TRACKMOUSEEVENT );
-	tme.dwFlags = TME_LEAVE|TME_CANCEL;//|TME_NONCLIENT;
+	tme.dwFlags = TME_LEAVE|TME_NONCLIENT|TME_CANCEL; // NC area: cancel needs the same tracking type
 	tme.dwHoverTime = HOVER_DEFAULT;
 	tme.hwndTrack = pWP->hwnd;
 	

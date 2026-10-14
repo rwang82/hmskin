@@ -129,6 +129,54 @@
       {
         "id": 24,
         "name": "btn_pri_pre.png"
+      },
+      {
+        "id": 25,
+        "name": "capbtn_min_nor.png"
+      },
+      {
+        "id": 26,
+        "name": "capbtn_min_hov.png"
+      },
+      {
+        "id": 27,
+        "name": "capbtn_min_pre.png"
+      },
+      {
+        "id": 28,
+        "name": "capbtn_max_nor.png"
+      },
+      {
+        "id": 29,
+        "name": "capbtn_max_hov.png"
+      },
+      {
+        "id": 30,
+        "name": "capbtn_max_pre.png"
+      },
+      {
+        "id": 31,
+        "name": "capbtn_close_nor.png"
+      },
+      {
+        "id": 32,
+        "name": "capbtn_close_hov.png"
+      },
+      {
+        "id": 33,
+        "name": "capbtn_close_pre.png"
+      },
+      {
+        "id": 34,
+        "name": "capbtn_restore_nor.png"
+      },
+      {
+        "id": 35,
+        "name": "capbtn_restore_hov.png"
+      },
+      {
+        "id": 36,
+        "name": "capbtn_restore_pre.png"
       }
     ]
   },
@@ -845,48 +893,152 @@
       "DistrictObjs": [
         {
           "id": 0,
-          "ShowObjs": [
-            {
-              "UIRes": {
-                "UIResName": "hm_rs_uires_pic",
-                "RawPicId": 1,
-                "m_ufixL": 4,
-                "m_ufixR": 4,
-                "m_ufixT": 3,
-                "m_ufixB": 3
-              }
-            }
-          ]
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 25 } } ]
         },
         {
           "id": 1,
-          "ShowObjs": [
-            {
-              "UIRes": {
-                "UIResName": "hm_rs_uires_pic",
-                "RawPicId": 2,
-                "m_ufixL": 4,
-                "m_ufixR": 4,
-                "m_ufixT": 3,
-                "m_ufixB": 3
-              }
-            }
-          ]
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 26 } } ]
         },
         {
           "id": 2,
-          "ShowObjs": [
-            {
-              "UIRes": {
-                "UIResName": "hm_rs_uires_pic",
-                "RawPicId": 3,
-                "m_ufixL": 4,
-                "m_ufixR": 4,
-                "m_ufixT": 3,
-                "m_ufixB": 3
-              }
-            }
-          ]
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 27 } } ]
+        },
+        {
+          "id": 3,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 25 } } ]
+        },
+        {
+          "id": 4,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 25 } } ]
+        },
+        {
+          "id": 5,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 26 } } ]
+        },
+        {
+          "id": 6,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 27 } } ]
+        },
+        {
+          "id": 7,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 25 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 62,
+      "WMPClsName": "hm_wmp_button_nca",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 28 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 29 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 30 } } ]
+        },
+        {
+          "id": 3,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 28 } } ]
+        },
+        {
+          "id": 4,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 28 } } ]
+        },
+        {
+          "id": 5,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 29 } } ]
+        },
+        {
+          "id": 6,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 30 } } ]
+        },
+        {
+          "id": 7,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 28 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 63,
+      "WMPClsName": "hm_wmp_button_nca",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 31 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 32 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 33 } } ]
+        },
+        {
+          "id": 3,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 31 } } ]
+        },
+        {
+          "id": 4,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 31 } } ]
+        },
+        {
+          "id": 5,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 32 } } ]
+        },
+        {
+          "id": 6,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 33 } } ]
+        },
+        {
+          "id": 7,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 31 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 64,
+      "WMPClsName": "hm_wmp_button_nca",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 35 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 36 } } ]
+        },
+        {
+          "id": 3,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
+        },
+        {
+          "id": 4,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
+        },
+        {
+          "id": 5,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 35 } } ]
+        },
+        {
+          "id": 6,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 36 } } ]
+        },
+        {
+          "id": 7,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
         }
       ]
     },
@@ -3289,34 +3441,6 @@
       ]
     },
     {
-      "idKeelObj": 7,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 6
-      },
-      "ParentKeelObjId": 6,
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 6,
-          "m_eCornerType": "CORNER_LT",
-          "m_space1": 5,
-          "m_space2": 5,
-          "m_width": 80,
-          "m_height": 30
-        }
-      },
-      "WMP": [
-        {
-          "id": 15,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
       "idKeelObj": 8,
       "WndMsgSource": {
         "Type": "KeelObj",
@@ -3366,6 +3490,174 @@
       "WMP": [
         {
           "id": 61,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 40,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_RT",
+          "m_width": 46,
+          "m_height": 32,
+          "m_space1": 0,
+          "m_space2": 92
+        }
+      },
+      "WMP": [
+        {
+          "id": 15,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 41,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_RT",
+          "m_width": 46,
+          "m_height": 32,
+          "m_space1": 0,
+          "m_space2": 46
+        }
+      },
+      "WMP": [
+        {
+          "id": 62,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 42,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_RT",
+          "m_width": 46,
+          "m_height": 32,
+          "m_space1": 0,
+          "m_space2": 0
+        }
+      },
+      "WMP": [
+        {
+          "id": 63,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 43,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_RT",
+          "m_width": 46,
+          "m_height": 32,
+          "m_space1": 8,
+          "m_space2": 46
+        }
+      },
+      "WMP": [
+        {
+          "id": 64,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 44,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_RT",
+          "m_width": 46,
+          "m_height": 32,
+          "m_space1": 8,
+          "m_space2": 92
+        }
+      },
+      "WMP": [
+        {
+          "id": 15,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 45,
+      "WndMsgSource": {
+        "Type": "KeelObj",
+        "KeelObjId": 6
+      },
+      "ParentKeelObjId": 6,
+      "LayoutObj": {
+        "CSId": 2,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 6,
+          "m_eCornerType": "CORNER_RT",
+          "m_width": 46,
+          "m_height": 32,
+          "m_space1": 8,
+          "m_space2": 0
+        }
+      },
+      "WMP": [
+        {
+          "id": 63,
           "RegEvts": [
             6
           ]

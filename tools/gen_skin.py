@@ -149,6 +149,43 @@ def gen_scrollbar():
         rrect(d, (20, 6, 118, 11), 3, fill=col + (255,))
         save(im, f'scrollbar_{st}_hor.png')
 
+# ---------- 标题栏 caption 按钮 46x32（Win11 风格：常态仅 glyph，悬停亮面，close 悬停红） ----------
+CAP_W, CAP_H = 46, 32
+
+def capbtn(name, glyph, fill=None, glyph_color=MUTED):
+    W, H = CAP_W * SS, CAP_H * SS
+    im, d = canvas(W, H)
+    if fill:
+        d.rectangle((0, 0, W - 1, H - 1), fill=fill + (255,))
+    else:
+        # NOR must be OPAQUE ( caption surface color ): state switching draws
+        # the new bitmap over the old one without erasing, so a transparent
+        # normal state leaves the previous hover/press fill stuck on screen.
+        d.rectangle((0, 0, W - 1, H - 1), fill=SURFACE + (255,))
+    g = glyph_color + (255,)
+    if glyph == 'min':      # 12x2 横线，垂直略偏下（视觉居中）
+        d.rectangle((17 * SS, 16 * SS, 29 * SS, 17 * SS), fill=g)
+    elif glyph == 'max':    # 10x10 方框
+        d.rectangle((18 * SS, 11 * SS, 28 * SS, 21 * SS), outline=g, width=SS)
+    elif glyph == 'close':  # x 交叉
+        d.line((18 * SS, 11 * SS, 28 * SS, 21 * SS), fill=g, width=int(1.8 * SS))
+        d.line((28 * SS, 11 * SS, 18 * SS, 21 * SS), fill=g, width=int(1.8 * SS))
+    elif glyph == 'restore':  # 还原：重叠双方块（后框右下偏移 3px）
+        d.rectangle((20 * SS, 13 * SS, 29 * SS, 22 * SS), outline=g, width=SS)
+        d.rectangle((17 * SS, 10 * SS, 26 * SS, 19 * SS), outline=g, width=SS)
+    save(im.resize((CAP_W, CAP_H), Image.LANCZOS), name)
+
+def gen_captionbtns():
+    for g in ('min', 'max', 'restore', 'close'):
+        capbtn(f'capbtn_{g}_nor.png', g)                                          # 常态：仅 glyph
+        bClose = (g == 'close')
+        capbtn(f'capbtn_{g}_hov.png', g,
+               fill=DANGER if bClose else HOV,
+               glyph_color=(255, 255, 255) if bClose else TEXT)                   # 悬停（close 红）
+        capbtn(f'capbtn_{g}_pre.png', g,
+               fill=(196, 58, 62) if bClose else DARKPRS,
+               glyph_color=(255, 255, 255) if bClose else TEXT)                   # 按下
+
 # ---------- 弹出菜单背景 248x243（九宫格友好：均匀面+四边） ----------
 def gen_popmenu():
     im, d = canvas(248, 243, SURFACE + (255,))
@@ -163,6 +200,7 @@ if __name__ == '__main__':
     gen_tabheader()
     gen_nc_frame()
     gen_rootmenu()
+    gen_captionbtns()
     gen_scrollbar()
     gen_popmenu()
     print('完成。')

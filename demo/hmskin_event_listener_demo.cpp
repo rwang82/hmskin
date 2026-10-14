@@ -29,7 +29,19 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		SwitchChapter( (unsigned int)(UINT_PTR)lParam2 );
 		break;
 	case HMSKIN_EVENT_NCABTN_CLICK:
-		_tcscpy_s( szLine, 64, _T("NCA-BTN CLICK") );
+		{
+			unsigned int uBtnId = pKeelObj ? pKeelObj->getId() : 0;
+			_stprintf_s( szLine, 64, _T("NCA-BTN #%u"), uBtnId );
+			// caption buttons drive the real window commands ( manifest K40/K41/K42 ).
+			if ( g_hWnd ) {
+				if ( uBtnId == KEELOBJID_NCABTN_MIN )
+					::SendMessage( g_hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0 );
+				else if ( uBtnId == KEELOBJID_NCABTN_MAX || uBtnId == KEELOBJID_NCABTN_RESTORE )
+					::SendMessage( g_hWnd, WM_SYSCOMMAND, ::IsZoomed( g_hWnd ) ? SC_RESTORE : SC_MAXIMIZE, 0 );
+				else if ( uBtnId == KEELOBJID_NCABTN_CLOSE )
+					::SendMessage( g_hWnd, WM_SYSCOMMAND, SC_CLOSE, 0 );
+			}
+		}
 		break;
 	default:
 		_stprintf_s( szLine, 64, _T("EVT %u"), uEventId );
