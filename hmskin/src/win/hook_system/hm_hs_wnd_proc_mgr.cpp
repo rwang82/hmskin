@@ -6,8 +6,13 @@
 //
 WndProcMgr* WndProcMgr::GetInstance()
 {
-	static WndProcMgr wndProcMgr;
-	return &wndProcMgr;
+	// intentionally leaked singleton: MsgDispatcher's static destructor calls
+	// Detach -> WasAttached -> find on this map. construction order guarantees
+	// WndProcMgr is constructed AFTER MsgDispatcher, so default static
+	// destruction order destroys it FIRST - the dtor-time lookup then hit
+	// freed memory ( crashed at app exit, e.g. closing via taskbar ).
+	static WndProcMgr* s_pWndProcMgr = new WndProcMgr();
+	return s_pWndProcMgr;
 }
 
 WndProcMgr::WndProcMgr()
