@@ -308,22 +308,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			::GetClientRect( hWnd, &rcClient );
 			_stprintf_s( szMsg, _T("rcClient. l:%d,r:%d,t:%d,b:%d\n"), rcClient.left, rcClient.right, rcClient.top, rcClient.bottom );
 			::OutputDebugString( szMsg );
-			// caption button groups: normal K40/K41/K42 <-> zoomed K44/K43/K45.
-			// ( maximized window rect overhangs the screen by the frame border,
-			//   the zoomed group sits 8px lower so glyphs stay visually centered;
-			//   the middle button also swaps max <-> restore glyph. )
-			if ( g_pHMRoot ) {
-				BOOL bZoomed = ::IsZoomed( hWnd );
-				hm_keel_obj* pKeelObjNCABtn = NULL;
-				const unsigned int arrBtnNormal[3] = { KEELOBJID_NCABTN_MIN, KEELOBJID_NCABTN_MAX, KEELOBJID_NCABTN_CLOSE };
-				const unsigned int arrBtnZoomed[3] = { KEELOBJID_NCABTN_MIN_Z, KEELOBJID_NCABTN_RESTORE, KEELOBJID_NCABTN_CLOSE_Z };
-				for ( int i = 0; i < 3; ++i ) {
-					if ( hm_get_keelobj( g_pHMRoot, arrBtnNormal[ i ], &pKeelObjNCABtn ) && pKeelObjNCABtn )
-						pKeelObjNCABtn->setVisible( !bZoomed );
-					if ( hm_get_keelobj( g_pHMRoot, arrBtnZoomed[ i ], &pKeelObjNCABtn ) && pKeelObjNCABtn )
-						pKeelObjNCABtn->setVisible( bZoomed );
-				}
-			}
 		}
 		break;
 	case WM_COMMAND:

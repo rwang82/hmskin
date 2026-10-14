@@ -36,7 +36,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 			if ( g_hWnd ) {
 				if ( uBtnId == KEELOBJID_NCABTN_MIN )
 					::SendMessage( g_hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0 );
-				else if ( uBtnId == KEELOBJID_NCABTN_MAX || uBtnId == KEELOBJID_NCABTN_RESTORE )
+				else if ( uBtnId == KEELOBJID_NCABTN_MAX )
 					::SendMessage( g_hWnd, WM_SYSCOMMAND, ::IsZoomed( g_hWnd ) ? SC_RESTORE : SC_MAXIMIZE, 0 );
 				else if ( uBtnId == KEELOBJID_NCABTN_CLOSE )
 					::SendMessage( g_hWnd, WM_SYSCOMMAND, SC_CLOSE, 0 );

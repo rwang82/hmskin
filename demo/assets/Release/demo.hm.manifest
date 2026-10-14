@@ -165,18 +165,6 @@
       {
         "id": 33,
         "name": "capbtn_close_pre.png"
-      },
-      {
-        "id": 34,
-        "name": "capbtn_restore_nor.png"
-      },
-      {
-        "id": 35,
-        "name": "capbtn_restore_hov.png"
-      },
-      {
-        "id": 36,
-        "name": "capbtn_restore_pre.png"
       }
     ]
   },
@@ -1000,45 +988,6 @@
         {
           "id": 7,
           "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 31 } } ]
-        }
-      ]
-    },
-    {
-      "idWMP": 64,
-      "WMPClsName": "hm_wmp_button_nca",
-      "DrawTool": "Gdiplus",
-      "DistrictObjs": [
-        {
-          "id": 0,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
-        },
-        {
-          "id": 1,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 35 } } ]
-        },
-        {
-          "id": 2,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 36 } } ]
-        },
-        {
-          "id": 3,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
-        },
-        {
-          "id": 4,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
-        },
-        {
-          "id": 5,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 35 } } ]
-        },
-        {
-          "id": 6,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 36 } } ]
-        },
-        {
-          "id": 7,
-          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 34 } } ]
         }
       ]
     },
@@ -3568,90 +3517,6 @@
           "m_width": 46,
           "m_height": 32,
           "m_space1": 0,
-          "m_space2": 0
-        }
-      },
-      "WMP": [
-        {
-          "id": 63,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 43,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 6
-      },
-      "ParentKeelObjId": 6,
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 6,
-          "m_eCornerType": "CORNER_RT",
-          "m_width": 46,
-          "m_height": 32,
-          "m_space1": 8,
-          "m_space2": 46
-        }
-      },
-      "WMP": [
-        {
-          "id": 64,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 44,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 6
-      },
-      "ParentKeelObjId": 6,
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 6,
-          "m_eCornerType": "CORNER_RT",
-          "m_width": 46,
-          "m_height": 32,
-          "m_space1": 8,
-          "m_space2": 92
-        }
-      },
-      "WMP": [
-        {
-          "id": 15,
-          "RegEvts": [
-            6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 45,
-      "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 6
-      },
-      "ParentKeelObjId": 6,
-      "LayoutObj": {
-        "CSId": 2,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
-          "RefKeelObjId": 6,
-          "m_eCornerType": "CORNER_RT",
-          "m_width": 46,
-          "m_height": 32,
-          "m_space1": 8,
           "m_space2": 0
         }
       },
