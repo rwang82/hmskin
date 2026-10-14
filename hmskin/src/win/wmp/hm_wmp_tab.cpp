@@ -408,7 +408,7 @@ void hm_wmp_tabheader::_getAllDistrictId( district_id_container_type& containerI
 bool hm_wmp_tabheader::_setText( hm_districtobj* pDistrictObj, unsigned int uTabBtnIndex ) {
 	if ( !pDistrictObj )
 		return false;
-	if ( uTabBtnIndex > m_containerTabBtns.size() ) {
+	if ( uTabBtnIndex >= m_containerTabBtns.size() ) {
 		assert( false );
 		return false;
 	}
@@ -433,7 +433,7 @@ bool hm_wmp_tabheader::setText( hm_districtobj* pDistrictObj, unsigned int uTabB
 }
 
 void hm_wmp_tabheader::pushDown( unsigned int uTabBtnIndex ) {
-	if ( uTabBtnIndex > m_containerTabBtns.size() ) {
+	if ( uTabBtnIndex >= m_containerTabBtns.size() ) {
 		assert( false );
 		return;
 	}
