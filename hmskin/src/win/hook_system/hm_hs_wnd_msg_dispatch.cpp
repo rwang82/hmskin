@@ -250,6 +250,72 @@ MsgDispatcher::~MsgDispatcher()
 MsgDispatcher::MsgDispatcher()
 {}
 //
+// ---- unified message-flow trace helpers ( see WndProcMsgDispatcher ) ----
+static int DisTraceLevel() {
+	static int s_nLevel = -1;
+	if ( s_nLevel >= 0 )
+		return s_nLevel;
+	s_nLevel = 0;
+	TCHAR szVal[ 8 ];
+	if ( ::GetEnvironmentVariable( _T("HMSKIN_TRACE"), szVal, 8 ) > 0 ) {
+		s_nLevel = ( szVal[ 0 ] == _T('2') ) ? 2 : 1;
+		return s_nLevel;
+	}
+	TCHAR szExe[ MAX_PATH ];
+	if ( ::GetModuleFileName( NULL, szExe, MAX_PATH ) == 0 )
+		return s_nLevel;
+	TCHAR* posSlash = _tcsrchr( szExe, _T('\\') );
+	if ( !posSlash )
+		return s_nLevel;
+	*( posSlash + 1 ) = _T('\0');
+	TCHAR szMarker[ MAX_PATH ];
+	_tcsncpy_s( szMarker, MAX_PATH, szExe, _TRUNCATE );
+	_tcscat_s( szMarker, MAX_PATH, _T("hmskin.trace") );
+	FILE* fpMarker = _tfopen( szMarker, _T("r") );
+	if ( !fpMarker )
+		return s_nLevel;
+	s_nLevel = 1;
+	TCHAR szLine[ 8 ] = _T("");
+	if ( _fgetts( szLine, 8, fpMarker ) && szLine[ 0 ] == _T('2') )
+		s_nLevel = 2;
+	fclose( fpMarker );
+	return s_nLevel;
+}
+
+static FILE* DisTraceFile() {
+	static FILE* s_fp = NULL;
+	static bool s_bChecked = false;
+	if ( s_bChecked )
+		return s_fp;
+	s_bChecked = true;
+	if ( DisTraceLevel() == 0 )
+		return s_fp;
+	TCHAR szExe[ MAX_PATH ];
+	if ( ::GetModuleFileName( NULL, szExe, MAX_PATH ) == 0 )
+		return s_fp;
+	TCHAR* posSlash = _tcsrchr( szExe, _T('\\') );
+	if ( !posSlash )
+		return s_fp;
+	*( posSlash + 1 ) = _T('\0');
+	_tcscat_s( szExe, MAX_PATH, _T("hmskin_trace.log") );
+	s_fp = _tfopen( szExe, _T("w") );
+	if ( s_fp ) {
+		_ftprintf( s_fp, _T("---- hmskin message trace ( level %d ) ----\n"), DisTraceLevel() );
+		fflush( s_fp );
+	}
+	return s_fp;
+}
+
+static void DisTraceOut( const TCHAR* szLine ) {
+	::OutputDebugString( szLine );
+	FILE* fp = DisTraceFile();
+	if ( fp ) {
+		_fputts( szLine, fp );
+		fflush( fp );
+	}
+}
+// -------------------------------------------------------------------------
+
 LRESULT CALLBACK WndProcMsgDispatcher( HWND hWndDest, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	FindMSCParam paramFindMSC;
@@ -267,6 +333,22 @@ LRESULT CALLBACK WndProcMsgDispatcher( HWND hWndDest, UINT message, WPARAM wPara
 	paramWndProc.m_flagEatMsg = EATMSGFLAG_DISABLE_NONE;
 	paramWndProc.m_bValidRes = FALSE;
 	paramWndProc.m_lResult = 0;
+
+	// unified message-flow trace.
+	// activation: HMSKIN_TRACE env var ( 1|2 ), or a marker file "hmskin.trace"
+	// next to the exe ( first char '2' = log everything, else level 1 which
+	// skips the mouse-move flood ). the marker file works no matter how the
+	// process is launched ( VS debugger does not inherit shell env vars ).
+	// output: OutputDebugString + "hmskin_trace.log" next to the exe, so the
+	// log lands in the build output dir which is reachable from the mac side.
+	const int nTraceLevel = DisTraceLevel();
+	const BOOL bTraceMsg = ( nTraceLevel == 2 )
+		|| ( nTraceLevel == 1 && message != WM_MOUSEMOVE && message != WM_NCMOUSEMOVE );
+	if ( bTraceMsg ) {
+		TCHAR szTrace[ 96 ];
+		_stprintf_s( szTrace, 96, _T("[disp] >> hwnd=%p msg=0x%04X w=0x%zX\n"), (void*)hWndDest, message, (size_t)wParam );
+		DisTraceOut( szTrace );
+	}
 	
 	if ( paramFindMSC.m_bFindMSC )
 	{ //find msg sink container
@@ -285,6 +367,12 @@ LRESULT CALLBACK WndProcMsgDispatcher( HWND hWndDest, UINT message, WPARAM wPara
 		}
 	}
 	
+	if ( bTraceMsg ) {
+		TCHAR szTrace[ 96 ];
+		_stprintf_s( szTrace, 96, _T("[disp] << msg=0x%04X flags=0x%X res=%ld\n"),
+			message, paramWndProc.m_flagEatMsg, (long)paramWndProc.m_lResult );
+		DisTraceOut( szTrace );
+	}
 	if ( paramWndProc.m_bValidRes )
 		return paramWndProc.m_lResult;
 	else if ( paramWndProc.m_flagEatMsg & EATMSGFLAG_DISABLE_OLD_WNDPROC )
