@@ -306,7 +306,7 @@ static FILE* DisTraceFile() {
 	return s_fp;
 }
 
-static void DisTraceOut( const TCHAR* szLine ) {
+void DisTraceOut( const TCHAR* szLine ) {
 	::OutputDebugString( szLine );
 	FILE* fp = DisTraceFile();
 	if ( fp ) {

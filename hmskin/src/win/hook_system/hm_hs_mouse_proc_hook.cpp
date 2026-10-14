@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\hook_system\hm_hs_mouse_proc_hook.h"
+#include "win\hook_system\hm_hs_wnd_msg_dispatch.h"
 #include "win\hook_system\hm_hs_whellengine.h"
 #include <deque>
 #include <map>
@@ -52,7 +53,7 @@ LRESULT CALLBACK HMLibMouseHookProc( int nCode, WPARAM wParam, LPARAM lParam )
 				// the hit test indicates title bar
 				if( mhs->wHitTestCode == HTCAPTION ) {
 					s_mapHwnd2CaptionDown[ mhs->hwnd ] = TRUE;
-					::OutputDebugString( _T("[hook] rec nclbtndown\n") );
+					DisTraceOut( _T("[hook] rec nclbtndown\n") );
 				}
 			}
 			break;
@@ -85,7 +86,7 @@ LRESULT CALLBACK HMLibMouseHookProc( int nCode, WPARAM wParam, LPARAM lParam )
 				if( it != s_mapHwnd2CaptionDown.end() )
 				{
 					s_mapHwnd2CaptionDown.erase( it );
-					::OutputDebugString( _T("[hook] synth nclbtnup\n") );
+					DisTraceOut( _T("[hook] synth nclbtnup\n") );
 					::PostMessage( mhs->hwnd, WM_NCLBUTTONUP, HTCAPTION, MAKELONG(mhs->pt.x,mhs->pt.y) );
 				}
 			}

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\wmp\hm_wmp_button_nca.h"
+#include "win\hook_system\hm_hs_wnd_msg_dispatch.h"
 #include "win\frame\hm_debug_utils.h"
 #include "win\frame\hm_layout_obj.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
@@ -19,6 +20,7 @@ MSGBIND_BEGIN( hm_wmp_button_nca )
 	MSGBIND( WM_NCLBUTTONDOWN, _OnNCLButtonDown )
 	MSGBIND( WM_NCLBUTTONDBLCLK, _OnNCLButtonDblClk )
 	MSGBIND( WM_NCLBUTTONUP, _OnNCLButtonUp )
+	MSGBIND( WM_LBUTTONUP, _OnLButtonUp )
 	MSGBIND( WM_NCMOUSEMOVE, _OnNCMouseMove )
 	MSGBIND( WM_NCMOUSELEAVE, _OnNCMouseLeave )
 	MSGBIND( WM_NCACTIVATE, _OnNCActivate )
@@ -29,6 +31,7 @@ ORDERWNDMSG_BEGIN( hm_wmp_button_nca )
 	ORDERWNDMSG( WM_NCLBUTTONDOWN )
 	ORDERWNDMSG( WM_NCLBUTTONDBLCLK )
 	ORDERWNDMSG( WM_NCLBUTTONUP )
+	ORDERWNDMSG( WM_LBUTTONUP )
 	ORDERWNDMSG( WM_NCMOUSEMOVE )
 	ORDERWNDMSG( WM_NCMOUSELEAVE )
 	ORDERWNDMSG( WM_NCACTIVATE )
@@ -202,7 +205,7 @@ void hm_wmp_button_nca::_OnNCLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP,
 	{
 		TCHAR szDbg[ 64 ];
 		_stprintf_s( szDbg, 64, _T("[nca] press id=%u\n"), pKeelObj->getId() );
-		::OutputDebugString( szDbg );
+		DisTraceOut( szDbg );
 	}
 	m_uBtnStateFlags |= NCABTN_FLAG_LBTNDOWN;
 	//
@@ -278,7 +281,7 @@ void hm_wmp_button_nca::_OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 		_stprintf_s( szDbg, 96, _T("[nca] up id=%u btndown=%d inrect=%d pt=(%d,%d)\n"),
 			pKeelObj ? pKeelObj->getId() : 0, bLBtnDown ? 1 : 0,
 			::PtInRect( &rcObj, ptWindow ) ? 1 : 0, ptWindow.x, ptWindow.y );
-		::OutputDebugString( szDbg );
+		DisTraceOut( szDbg );
 	}
 
 	//draw
@@ -306,6 +309,30 @@ void hm_wmp_button_nca::_OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 		//lParam = (LPARAM)pWP->hwnd;
 		//::SendMessage( ::GetParent( pWP->hwnd ), WM_COMMAND, wParam, lParam );				
 	}
+}
+//
+void hm_wmp_button_nca::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
+	// a button press holds capture, so the release arrives as a CLIENT message
+	// ( WM_LBUTTONUP, client coords ) - windows never generates WM_NCLBUTTONUP
+	// while captured. the WH_MOUSE hook translates it back to a synthetic
+	// WM_NCLBUTTONUP, but that is posted asynchronously, and the spurious
+	// WM_NCMOUSELEAVE from the capture change won the race and killed the
+	// pending click ( trace 2026-10-15: 9 presses, 0 pairings ). complete the
+	// release here, synchronously on the real message.
+	if ( !pKeelObj || !pWP || !pParamWndProc )
+		return;
+	if ( !( m_uBtnStateFlags & NCABTN_FLAG_LBTNDOWN ) )
+		return; // not a release of our press
+
+	CWPSTRUCT wpRelease = *pWP;
+	POINT ptScreen;
+
+	ptScreen.x = ( (POINTS*)(&pWP->lParam) )->x;
+	ptScreen.y = ( (POINTS*)(&pWP->lParam) )->y;
+	::ClientToScreen( pWP->hwnd, &ptScreen );
+	wpRelease.lParam = MAKELPARAM( ptScreen.x, ptScreen.y );
+	//
+	_OnNCLButtonUp( pKeelObj, &wpRelease, pParamWndProc );
 }
 //
 void hm_wmp_button_nca::_OnNCMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ){
@@ -402,14 +429,20 @@ void hm_wmp_button_nca::_OnNCMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, 
 	//
 	m_uBtnStateFlags &= ~NCABTN_FLAG_TRACEMOUSELEAVE;
 	//
-	if ( m_uBtnStateFlags & NCABTN_FLAG_LBTNDOWN ) {
-		::ReleaseCapture();
-		m_uBtnStateFlags &= ~NCABTN_FLAG_LBTNDOWN;
-		::OutputDebugString( _T("[nca] leave CLEARED press\n") );
-	}
+	// do NOT clear NCABTN_FLAG_LBTNDOWN / release capture here: while the
+	// button is pressed it holds capture, and the capture change at release
+	// time fires a spurious WM_NCMOUSELEAVE BEFORE the ( synthetic )
+	// WM_NCLBUTTONUP is dispatched - clearing the press flag there killed the
+	// pending click every time ( trace 2026-10-15: 9 presses, 0 pairings ).
+	// the release itself completes the press via _OnLButtonUp ( synchronous,
+	// real client-flavor message ) or the hook's synthetic NC up; a release
+	// outside the button cancels in _OnNCLButtonUp's else branch.
 	//
 	hWndDC = ::GetWindowDC( pWP->hwnd );
-	_doDrawSkin( hWndDC, rcObj, m_bActive ? NCBTN_STATE_NORMAL_ACTIVE : NCBTN_STATE_NORMAL_INACTIVE );
+	if ( m_uBtnStateFlags & NCABTN_FLAG_LBTNDOWN )
+		_doDrawSkin( hWndDC, rcObj, m_bActive ? NCBTN_STATE_PRESS_ACTIVE : NCBTN_STATE_PRESS_INACTIVE );
+	else
+		_doDrawSkin( hWndDC, rcObj, m_bActive ? NCBTN_STATE_NORMAL_ACTIVE : NCBTN_STATE_NORMAL_INACTIVE );
 	::ReleaseDC( pWP->hwnd, hWndDC );
 }
 

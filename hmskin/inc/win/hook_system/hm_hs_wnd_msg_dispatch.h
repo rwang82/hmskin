@@ -102,4 +102,10 @@ class hm_uiroot;
 HMLIB_API bool hm_msid2wndmark_bind( hm_uiroot* pHMUIRoot, unsigned int msId, const hm_rs_wndmark& wndMark );
 
 EXTERN_C_END
+
+// unified debug trace ( hm_hs_wnd_msg_dispatch.cpp ): OutputDebugString plus
+// "hmskin_trace.log" next to the exe when activated ( hmskin.trace marker file
+// or HMSKIN_TRACE env var ). shared so all engine debug points land in one file.
+void DisTraceOut( const TCHAR* szLine );
+
 #endif //__WND_MSG_DISPATCH_H__
