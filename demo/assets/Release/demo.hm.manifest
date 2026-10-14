@@ -452,7 +452,7 @@
           "Title": "滚动与容器"
         }
       ],
-      "DefaultBtn": 1,
+      "DefaultBtn": 0,
       "DrawTool": "Gdiplus",
       "DistrictObjs": [
         {
