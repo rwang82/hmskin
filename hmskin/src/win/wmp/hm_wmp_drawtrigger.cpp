@@ -83,10 +83,7 @@ void hm_wmp_drawtrigger::_OnPaint( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	hm_layout_obj* pLayoutObj = NULL;
 	HWND hWndCanvas;
 	RECT rcCanvas;
-	DWORD dwLastTime;
-	DWORD dwCurTime;
-	TCHAR szMsg[100];
-	
+
 	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;
@@ -98,18 +95,12 @@ void hm_wmp_drawtrigger::_OnPaint( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	if ( !pLayoutObj->mapPosition( hWndCanvas, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcCanvas ) )
 		return;
 	if ( (rcCanvas.left >= rcCanvas.right) || (rcCanvas.top >= rcCanvas.bottom) )
-		return; 
+		return;
 
 	hPaintDC = ::BeginPaint( pWP->hwnd, &ps );
 	//
-	dwLastTime = ::GetTickCount();
-	//
 	pKeelObj->doDrawAll( m_hmCanvas.GetMemDC(), pWP->hwnd );
 	::BitBlt( hPaintDC, rcCanvas.left, rcCanvas.top, (rcCanvas.right - rcCanvas.left), (rcCanvas.bottom - rcCanvas.top), m_hmCanvas.GetMemDC(), 0, 0, SRCCOPY );
-	dwCurTime = ::GetTickCount();
-	
-	_stprintf_s( szMsg, _T("DrawAll : %dms\n"), dwCurTime - dwLastTime );
-	::OutputDebugString( szMsg );
 
 	::EndPaint( pWP->hwnd, &ps );
 }

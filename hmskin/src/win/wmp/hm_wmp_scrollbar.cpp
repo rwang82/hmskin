@@ -297,10 +297,7 @@ bool hm_wmp_scrollbar::_moveTrackThumb( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, c
  
 	// adjust m_nValCur
 	m_nValCur = m_nValMin + ( ( m_nValMax - m_nValMin ) * m_pPosDecoderTrackThumb->m_distance / nMaxDistance );
-	TCHAR szMsg[50];
-	_stprintf_s( szMsg, _T("m_nValCur:%d\n"), m_nValCur );
-	::OutputDebugString( szMsg );
-	
+
 	// send HM_EVENT_TRACKTHUMB_MOVED notify event.
 	HETMPARAM* pHETMParam = new HETMPARAM();
 	pHETMParam->m_nPosCur = ( m_nValCur - m_nValMin );
@@ -747,7 +744,6 @@ void scrollbar_state_nondragtrackthumb::_OnMouseMove( hm_wmp_scrollbar* pScrollB
 }
 
 void scrollbar_state_nondragtrackthumb::_OnMouseLeave( hm_wmp_scrollbar* pScrollBarCtx, hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	::OutputDebugString( _T("enter OnMouseLeave..\n") );
 }
 
 void scrollbar_state_nondragtrackthumb::_OnDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {
@@ -762,33 +758,13 @@ void scrollbar_state_nondragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrol
 
 	hm_districtobj* pDistrict = NULL;
 	hm_wmp_display::district_id_type idDistrict;
-	
-	int nTickStart = 0;
-	int nTickEnd = 0;
-	TCHAR szMsg[ 1000 ];
-	static int s_nDrawCount = 0;
-	static int s_nDrawBKSum = 0;
-	static int s_nDrawStartSum = 0;
-	static int s_nDrawEndSum = 0;
-	static int s_nDrawTrackSum = 0;
-
-	++s_nDrawCount;
 
 	// draw background
-	nTickStart = ::GetTickCount();
-
 	if ( pScrollBarCtx->_getDistrictObj( hm_wmp_scrollbar::EDISTRICTID_BKGND, &pDistrict ) ) {
 		pDistrict->show( hDC, rcCanvas, pScrollBarCtx->m_pDrawTool );
 	}
 
-	nTickEnd = ::GetTickCount();
-	s_nDrawBKSum += (nTickEnd - nTickStart);
-	_stprintf_s( szMsg, _T("bk: %d"), s_nDrawBKSum/s_nDrawCount );
-	//::OutputDebugString( szMsg );
-	
 	// draw start thumb
-	nTickStart = ::GetTickCount();
-
 	if ( pScrollBarCtx->m_pPosDecoderStartThumb ) {
 		//
 		if ( eCursorPos == hm_wmp_scrollbar::ECP_STARTTHUMB )
@@ -799,18 +775,11 @@ void scrollbar_state_nondragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrol
 		if ( pScrollBarCtx->_getDistrictObj( idDistrict, &pDistrict ) ) {
 			pDistrict->setPosDecoder( pScrollBarCtx->m_pPosDecoderStartThumb );
 			pDistrict->show( hDC, rcCanvas, pScrollBarCtx->m_pDrawTool );
-			pDistrict->setPosDecoder( NULL );			
+			pDistrict->setPosDecoder( NULL );
 		}
 	}
 
-	nTickEnd = ::GetTickCount();
-	s_nDrawStartSum += (nTickEnd - nTickStart);
-	_stprintf_s( szMsg, _T("start: %d"), s_nDrawStartSum/s_nDrawCount );
-	//::OutputDebugString( szMsg );
-
 	// draw end thumb
-	nTickStart = ::GetTickCount();
-
 	if ( pScrollBarCtx->m_pPosDecoderEndThumb ) {
 		//
 		if ( eCursorPos == hm_wmp_scrollbar::ECP_ENDTHUMB )
@@ -824,24 +793,18 @@ void scrollbar_state_nondragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrol
 			pDistrict->setPosDecoder( NULL );
 		}
 	}
-	
-	nTickEnd = ::GetTickCount();
-	s_nDrawEndSum += (nTickEnd - nTickStart);
-	_stprintf_s( szMsg, _T("end: %d"), s_nDrawEndSum/s_nDrawCount );
-	//::OutputDebugString( szMsg );
 
 	// draw track thumb
-	nTickStart = ::GetTickCount();
 	// update current value to trackthumb positon.
 	pScrollBarCtx->_updateCurVal2TrackThumbPos( rcCanvas );
-	
+
 	if ( pScrollBarCtx->m_pPosDecoderTrackThumb ) {
 		//
-		if ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_TRACKTHUMB_LBTNDOWN ) 
+		if ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_TRACKTHUMB_LBTNDOWN )
 			idDistrict = hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_PRE;
 		else
 			idDistrict = ( eCursorPos == hm_wmp_scrollbar::ECP_TRACKTHUMB ) ? hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_HOV : hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_NOR;
- 
+
 		//
 		if ( pScrollBarCtx->_getDistrictObj( idDistrict, &pDistrict ) ) {
 			RECT rcTrackThumbRefRect;
@@ -854,11 +817,6 @@ void scrollbar_state_nondragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrol
 		}
 	}
 
-	nTickEnd = ::GetTickCount();
-	s_nDrawTrackSum += (nTickEnd - nTickStart);
-	_stprintf_s( szMsg, _T("track thumb: %d\n"), s_nDrawTrackSum/s_nDrawCount );
-//	::OutputDebugString( szMsg );
-	
 	//save current cursor position.
 	pScrollBarCtx->m_eCursorPos = eCursorPos;
 }
@@ -890,18 +848,8 @@ void scrollbar_state_nondragtrackthumb::_doDrawSkin( hm_wmp_scrollbar* pScrollBa
 	}
 
 	hBitmapOld = (HBITMAP)::SelectObject( hMemDC, hBitmapMem );
-	
-	TCHAR szMsg[ 100 ];
-	int nTickStart = ::GetTickCount();
-	static int nDrawCount = 0;
-	static int nTimeSum = 0;
 
 	_doDrawSkinRaw( pScrollBarCtx, hMemDC, rcCanvasMem, eCursorPos );
-
-	int nTickEnd = ::GetTickCount();
-	nTimeSum += ( nTickEnd - nTickStart );
-	_stprintf_s( szMsg, _T("%d _doDrawSkinRaw spend:%d s\n"), nDrawCount++, nTimeSum/nDrawCount );
-//	::OutputDebugString( szMsg );
 
 	//
 	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, rcCanvasMem.right, rcCanvasMem.bottom, hMemDC, 0, 0, SRCCOPY );
@@ -1028,39 +976,20 @@ void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBa
 
 	hm_districtobj* pDistrict = NULL;
 	hm_wmp_display::district_id_type idDistrict;
-	int nTickStart = 0;
-	int nTickEnd = 0;
-	TCHAR szMsg[ 1000 ];
-	static int s_nDrawCount = 0;
-	static int s_nDrawBKSum = 0;
-	static int s_nDrawStartSum = 0;
-	static int s_nDrawEndSum = 0;
-	static int s_nDrawTrackSum = 0;
-
-	++s_nDrawCount;
 
 	if ( ( m_sizeBK.cx != ( rcCanvas.right - rcCanvas.left ) )
-		|| ( m_sizeBK.cy != ( rcCanvas.bottom - rcCanvas.top ) ) 
+		|| ( m_sizeBK.cy != ( rcCanvas.bottom - rcCanvas.top ) )
 		|| ( !m_hBitmapBK ) ) { // need to prepare m_hBitmapBK
 		if ( m_hBitmapBK ) {
 			::DeleteObject( m_hBitmapBK );
 			m_hBitmapBK = NULL;
 		}
 		// draw background
-		nTickStart = ::GetTickCount();
-
 		if ( pScrollBarCtx->_getDistrictObj( hm_wmp_scrollbar::EDISTRICTID_BKGND, &pDistrict ) ) {
 			pDistrict->show( hDC, rcCanvas, pScrollBarCtx->m_pDrawTool );
 		}
 
-		nTickEnd = ::GetTickCount();
-		s_nDrawBKSum += (nTickEnd - nTickStart);
-		_stprintf_s( szMsg, _T("bk: %d"), s_nDrawBKSum/s_nDrawCount );
-		::OutputDebugString( szMsg );
-		
 		// draw start thumb
-		nTickStart = ::GetTickCount();
-
 		if ( pScrollBarCtx->m_pPosDecoderStartThumb ) {
 			//
 			if ( eCursorPos == hm_wmp_scrollbar::ECP_STARTTHUMB )
@@ -1071,18 +1000,11 @@ void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBa
 			if ( pScrollBarCtx->_getDistrictObj( idDistrict, &pDistrict ) ) {
 				pDistrict->setPosDecoder( pScrollBarCtx->m_pPosDecoderStartThumb );
 				pDistrict->show( hDC, rcCanvas, pScrollBarCtx->m_pDrawTool );
-				pDistrict->setPosDecoder( NULL );			
+				pDistrict->setPosDecoder( NULL );
 			}
 		}
 
-		nTickEnd = ::GetTickCount();
-		s_nDrawStartSum += (nTickEnd - nTickStart);
-		_stprintf_s( szMsg, _T("start: %d"), s_nDrawStartSum/s_nDrawCount );
-		::OutputDebugString( szMsg );
-
 		// draw end thumb
-		nTickStart = ::GetTickCount();
-
 		if ( pScrollBarCtx->m_pPosDecoderEndThumb ) {
 			//
 			if ( eCursorPos == hm_wmp_scrollbar::ECP_ENDTHUMB )
@@ -1096,23 +1018,19 @@ void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBa
 				pDistrict->setPosDecoder( NULL );
 			}
 		}
-		
-		nTickEnd = ::GetTickCount();
-		s_nDrawEndSum += (nTickEnd - nTickStart);
-		_stprintf_s( szMsg, _T("end: %d"), s_nDrawEndSum/s_nDrawCount );
-		::OutputDebugString( szMsg );
 
-		// 
+		// snapshot the fully drawn background ( restored every later draw,
+		// only the moving track thumb is drawn over it while dragging ).
 		HDC hMemDC = ::CreateCompatibleDC( hDC );
 		HBITMAP hBitmapOld = NULL;
 		m_hBitmapBK = ::CreateCompatibleBitmap( hDC, ( rcCanvas.right - rcCanvas.left ), ( rcCanvas.bottom - rcCanvas.top ) );
 		hBitmapOld = ( HBITMAP )::SelectObject( hMemDC, m_hBitmapBK );
-		
+
 		::BitBlt( hMemDC, 0, 0, ( rcCanvas.right - rcCanvas.left ), ( rcCanvas.bottom - rcCanvas.top ), hDC, rcCanvas.left, rcCanvas.top, SRCCOPY );
-		
+
 		::SelectObject( hMemDC, hBitmapOld );
 		::DeleteDC( hMemDC );
-		 
+
 	} else {
 		HDC hMemDC = ::CreateCompatibleDC( hDC );
 		HBITMAP hBitmapOld = NULL;
@@ -1127,23 +1045,22 @@ void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBa
 	m_sizeBK.cy = rcCanvas.bottom - rcCanvas.top;
 
 	// draw track thumb
-	nTickStart = ::GetTickCount();
 	// calc track thumb position.
 	//pScrollBarCtx->_updateCurVal2TrackThumbPos( rcCanvas ); // no need in this state.
-	
+
 	if ( pScrollBarCtx->m_pPosDecoderTrackThumb ) {
 
 		//
-		if ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_TRACKTHUMB_LBTNDOWN ) 
+		if ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_TRACKTHUMB_LBTNDOWN )
 			idDistrict = hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_PRE;
 		else
 			idDistrict = ( eCursorPos == hm_wmp_scrollbar::ECP_TRACKTHUMB ) ? hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_HOV : hm_wmp_scrollbar::EDISTRICTID_THUMB_TRACK_NOR;
- 
+
 		//
 		if ( pScrollBarCtx->_getDistrictObj( idDistrict, &pDistrict ) ) {
 			RECT rcTrackThumbRefRect;
 
-			if ( pScrollBarCtx->_getTrackThumbRefRect( rcCanvas, rcTrackThumbRefRect ) ) { // rcCanvas should be rcKeelObj.				
+			if ( pScrollBarCtx->_getTrackThumbRefRect( rcCanvas, rcTrackThumbRefRect ) ) { // rcCanvas should be rcKeelObj.
 				pDistrict->setPosDecoder( pScrollBarCtx->m_pPosDecoderTrackThumb );
 				pDistrict->show( hDC, rcTrackThumbRefRect, pScrollBarCtx->m_pDrawTool );
 				pDistrict->setPosDecoder( NULL );
@@ -1151,11 +1068,6 @@ void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBa
 		}
 	}
 
-	nTickEnd = ::GetTickCount();
-	s_nDrawTrackSum += (nTickEnd - nTickStart);
-	_stprintf_s( szMsg, _T("track thumb: %d\n"), s_nDrawTrackSum/s_nDrawCount );
-	::OutputDebugString( szMsg );
-	
 	//save current cursor position.
 	pScrollBarCtx->m_eCursorPos = eCursorPos;
 }
@@ -1187,18 +1099,8 @@ void scrollbar_state_dragtrackthumb::_doDrawSkin( hm_wmp_scrollbar* pScrollBarCt
 	}
 
 	hBitmapOld = (HBITMAP)::SelectObject( hMemDC, hBitmapMem );
-	
-	TCHAR szMsg[ 100 ];
-	int nTickStart = ::GetTickCount();
-	static int nDrawCount = 0;
-	static int nTimeSum = 0;
 
 	_doDrawSkinRaw( pScrollBarCtx, hMemDC, rcCanvasMem, eCursorPos );
-
-	int nTickEnd = ::GetTickCount();
-	nTimeSum += ( nTickEnd - nTickStart );
-	_stprintf_s( szMsg, _T("%d _doDrawSkinRaw spend:%d s\n"), nDrawCount++, nTimeSum/nDrawCount );
-//	::OutputDebugString( szMsg );
 
 	//
 	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, rcCanvasMem.right, rcCanvasMem.bottom, hMemDC, 0, 0, SRCCOPY );
