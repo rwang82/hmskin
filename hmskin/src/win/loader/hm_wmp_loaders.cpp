@@ -876,9 +876,30 @@ hm_wmp_popupmenu_loader::~hm_wmp_popupmenu_loader() {
 }
 
 hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	assert( false );
-	return NULL;
-//	HM_WMP_X_LOADER_IMPL( hm_wmp_popupmenu );
+	if ( !pHMUIRoot ) { assert( false ); return NULL; }
+	Json::Value valTmp;
+	hm_wmp_factory::obj_id_type idWMP = 0;
+	std::string strWMPClsName;
+
+	assert( _getWMPName( valWMP, strWMPClsName ) );
+	assert( strWMPClsName == "hm_wmp_popupmenu" );
+	valTmp = valWMP[ "idWMP" ];
+	if ( !valTmp.isInt() ) { assert( false ); return NULL; }
+	idWMP = valTmp.asInt();
+	// MenuCfg: item size + spacing ( defaults 25 x 160, space 6 ).
+	unsigned int uMIHeight = 25;
+	unsigned int uMIWidth = 160;
+	unsigned int uSpace = 6;
+	valTmp = valWMP[ "MenuCfg" ];
+	if ( valTmp.isObject() ) {
+		Json::Value valCfgItem;
+		valCfgItem = valTmp[ "m_uMIHeight" ]; if ( valCfgItem.isInt() ) uMIHeight = valCfgItem.asInt();
+		valCfgItem = valTmp[ "m_uMIWidth" ]; if ( valCfgItem.isInt() ) uMIWidth = valCfgItem.asInt();
+		valCfgItem = valTmp[ "m_uSpace" ]; if ( valCfgItem.isInt() ) uSpace = valCfgItem.asInt();
+	}
+	dimension_menuwnd_default* pDimensionMenuWnd = new dimension_menuwnd_default( uMIHeight, uMIWidth, uSpace );
+	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_popupmenu, dimension_menuwnd_i*, hmskin_event_listener_base* >(
+		idWMP, ( dimension_menuwnd_i* )pDimensionMenuWnd, pHMUIRoot->m_pEventListener );
 }
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_rootmenu_loader::hm_wmp_rootmenu_loader() {

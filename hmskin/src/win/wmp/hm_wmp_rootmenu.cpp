@@ -5,6 +5,7 @@
 #include "win\frame\hm_layout_obj.h"
 #include "win\paint_system\hm_ps_canvas.h"
 #include "win\hm_event_defs.h"
+#include "hmskin_event_defs.h"
 
 hm_wmp_rootmenu::hm_wmp_rootmenu( hmskin_event_listener_base* pEventListener )
 : hm_wmp_display( pEventListener )
@@ -191,6 +192,7 @@ void hm_wmp_rootmenu::_OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 	//
 	if ( ::PtInRect( &rcCanvas, ptWnd ) ) {
 		//
+		BOOL bBtnDown = ( m_uRootMenuFlags & RMFLAG_BTNDOWN );
 		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
@@ -200,7 +202,14 @@ void hm_wmp_rootmenu::_OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 		ptScreen.y = HIWORD( pWP->lParam );
 		hWndDC = ::GetWindowDC( pWP->hwnd );
 		_doDrawSkin( hWndDC, rcCanvas, pWP->hwnd, ptScreen );
-		::ReleaseDC( pWP->hwnd, hWndDC );	
+		::ReleaseDC( pWP->hwnd, hWndDC );
+		// press+release on a menu-bar item: notify the app ( it opens the
+		// skinned popup menu for this item ).
+		if ( bBtnDown && m_pEventListener ) {
+			int nMIIndex = -1;
+			if ( _getCurMenuItemIndex( rcCanvas, pWP->hwnd, ptScreen, nMIIndex ) && nMIIndex >= 0 )
+				m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_ROOTMENU_CLICK, ( void* )pKeelObj, ( void* )( UINT_PTR )nMIIndex );
+		}
 	} else if ( m_uRootMenuFlags & RMFLAG_BTNDOWN ) {
 		//
 		ptScreen.x = LOWORD( pWP->lParam );

@@ -6,6 +6,7 @@
 #include "hmskin_cpp.h"
 #include "hmskin_event_listener_demo.h"
 #include "hmskin_helper.h"
+#include "win\hm_wndmsg_defs.h"
 #include <vector>
 
 //////////////////////////////////////////////////////////
@@ -45,6 +46,15 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
 HWND g_hBtnTest1 = NULL;
 
+// §3 : skinned popup menu window ( MENU-01, see DESIGN.md ).
+#define POPUPWND_WNDPROPID (21)
+static HWND g_hWndPopup = NULL;
+static ATOM s_atomPopupCls = 0;
+
+static LRESULT CALLBACK PopupWndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) {
+	return DefWindowProc( hWnd, message, wParam, lParam );
+}
+
 // ---- tab chapters ( §1..§4 ) : keelobj groups switched by visibility ----
 static const unsigned int arrChapterGroups[4][12] = {
 	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36 },   // §1 基础交互（+ 原生接管按钮 g_hBtnTest1 + 8格状态矩阵）
@@ -71,6 +81,63 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 	if ( g_hBtnTest1 )
 		::ShowWindow( g_hBtnTest1, ( uChapterIndex == 0 ) ? SW_SHOW : SW_HIDE );
 	::InvalidateRect( g_hWnd, NULL, FALSE );
+}
+
+// §3 : open the skinned popup menu for root menu item uRootItemIndex.
+// creates a borderless popup window, connects it to the skin ( prop id 21 ->
+// MsgSink 12 / keelobj K46 / hm_wmp_popupmenu ), then HMWM_BINDMENU binds the
+// submenu HMENU - the WMP resizes the window to fit and draws the items.
+void OpenSkinPopupMenu( unsigned int uRootItemIndex ) {
+	if ( !g_pHMRoot || !g_hWnd )
+		return;
+	// the popup owns its prop-id slot ( one propid <-> one hwnd in the skin ):
+	// release it for BOTH death paths before binding a new popup window.
+	if ( g_hWndPopup ) {
+		hm_wndpropid_disconnect( g_pHMRoot, g_hWndPopup, POPUPWND_WNDPROPID );
+		if ( ::IsWindow( g_hWndPopup ) )
+			::DestroyWindow( g_hWndPopup );
+		g_hWndPopup = NULL;
+	}
+	//
+	HMENU hRootMenu = ::GetMenu( g_hWnd );
+	HMENU hSubMenu = ::GetSubMenu( hRootMenu, (int)uRootItemIndex );
+	if ( !hSubMenu )
+		return;
+	//
+	if ( !s_atomPopupCls ) {
+		WNDCLASSEX wcexPopup;
+		wcexPopup.cbSize = sizeof( WNDCLASSEX );
+		wcexPopup.style = CS_SAVEBITS;
+		wcexPopup.lpfnWndProc = PopupWndProc;
+		wcexPopup.cbClsExtra = 0;
+		wcexPopup.cbWndExtra = 0;
+		wcexPopup.hInstance = hInst;
+		wcexPopup.hIcon = NULL;
+		wcexPopup.hCursor = LoadCursor( NULL, IDC_ARROW );
+		wcexPopup.hbrBackground = NULL;
+		wcexPopup.lpszMenuName = NULL;
+		wcexPopup.lpszClassName = _T( "hmskinPopupCls" );
+		wcexPopup.hIconSm = NULL;
+		s_atomPopupCls = RegisterClassEx( &wcexPopup );
+	}
+	if ( !s_atomPopupCls )
+		return;
+	//
+	RECT rcWnd;
+	::GetWindowRect( g_hWnd, &rcWnd );
+	// position under the clicked menu-bar item ( rootmenu cfg: bar x20, item space 5, len 60, bar y54-80 ).
+	int x = rcWnd.left + 20 + 5 + (int)uRootItemIndex * 60;
+	int y = rcWnd.top + 80;
+	//
+	g_hWndPopup = ::CreateWindowEx( WS_EX_TOOLWINDOW | WS_EX_TOPMOST, _T( "hmskinPopupCls" ),
+		NULL, WS_POPUP, x, y, 160, 100, g_hWnd, NULL, hInst, NULL );
+	if ( !g_hWndPopup )
+		return;
+	//
+	hm_wndpropid_connect( g_pHMRoot, g_hWndPopup, POPUPWND_WNDPROPID );
+	//
+	::SendMessage( g_hWndPopup, HMWM_BINDMENU, (WPARAM)hSubMenu, 0 );
+	::ShowWindow( g_hWndPopup, SW_SHOW );
 }
 
 // event log ( EVT-08 ) : prepend newest line, keep last 12, refresh the text WMP.

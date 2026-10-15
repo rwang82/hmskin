@@ -43,6 +43,18 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 			}
 		}
 		break;
+	case HMSKIN_EVENT_ROOTMENU_CLICK:
+		_stprintf_s( szLine, 64, _T("MENU-BAR -> #%u"), (unsigned int)(UINT_PTR)lParam2 + 1 );
+		OpenSkinPopupMenu( (unsigned int)(UINT_PTR)lParam2 );
+		break;
+	case HMSKIN_EVENT_POPUPMENU_CLICK:
+		{ // a skinned popup menu item was chosen: execute known commands.
+			unsigned int uCmdId = (unsigned int)(UINT_PTR)lParam2;
+			_stprintf_s( szLine, 64, _T("MENU-POP cmd=%u"), uCmdId );
+			if ( uCmdId == IDM_ABOUT || uCmdId == IDM_EXIT )
+				::SendMessage( g_hWnd, WM_COMMAND, MAKEWPARAM( uCmdId, 0 ), 0 );
+		}
+		break;
 	default:
 		_stprintf_s( szLine, 64, _T("EVT %u"), uEventId );
 		break;

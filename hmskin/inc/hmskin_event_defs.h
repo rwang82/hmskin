@@ -22,5 +22,15 @@
 // lParam1 - specify the pointer of keel object.
 // lParam2 - the uIndex of table button.
 #define HMSKIN_EVENT_TABBTN_CLICK (0x00000004)
+//////////////////////////////////////////////////////////////////////////
+// HMSKIN_EVENT_ROOTMENU_CLICK
+// lParam1 - specify the pointer of keel object.
+// lParam2 - the index of the clicked root menu ( menu bar ) item.
+#define HMSKIN_EVENT_ROOTMENU_CLICK (0x00000005)
+//////////////////////////////////////////////////////////////////////////
+// HMSKIN_EVENT_POPUPMENU_CLICK
+// lParam1 - specify the pointer of keel object ( the popup menu window ).
+// lParam2 - the command id of the clicked popup menu item.
+#define HMSKIN_EVENT_POPUPMENU_CLICK (0x00000006)
 
 #endif //__HMSKIN_EVENT_DEFS_H__
