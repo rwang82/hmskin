@@ -61,9 +61,6 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 	case HMSKIN_EVENT_SCROLLBAR_CHANGED:
 		{ // §4 : scrollbar value moves the content rows ( parallax demo,
 		  // K38 base offset y=22, value 0..16 moves content up 0..16px ).
-		  // invalidate ONLY the content rows rect: the scrollbar redraws
-		  // itself directly while dragging, and a wider invalidate would
-		  // repaint every control on each mousemove.
 			int nVal = (int)(UINT_PTR)lParam2;
 			_stprintf_s( szLine, 64, _T("SCB-03 -> %d"), nVal );
 			hm_keel_obj* pKeelObjContent = NULL;
@@ -74,6 +71,9 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 				if ( pDecoder ) {
 					pDecoder->m_space2 = 22 - nVal;
 					pLayoutObj->calcPosition();
+					// invalidate ONLY the content rows rect: the scrollbar
+					// redraws itself directly while dragging, a wider
+					// invalidate would repaint every control per mousemove.
 					::InvalidateRect( g_hWnd, &pLayoutObj->m_rect, FALSE );
 				}
 			}
