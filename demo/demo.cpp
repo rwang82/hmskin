@@ -160,7 +160,12 @@ void AppendEventLog( const TCHAR* szLine ) {
 	TCHAR szBuf[ 1024 ];
 	_tcsncpy_s( szBuf, 1024, strAll.c_str(), _TRUNCATE );
 	setWMPDisplayText( g_pWMPEvtLog, szBuf );
-	::InvalidateRect( g_hWnd, NULL, FALSE );
+	// invalidate ONLY the event log panel: scrollbar dragging logs one event
+	// per mousemove, and a full-window invalidate here made every control
+	// repaint on each of those ( g_pWMPEvtLog already proves K18 exists ).
+	hm_keel_obj* pKeelObjEvtLog = NULL;
+	if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog && pKeelObjEvtLog->getLayoutObj() )
+		::InvalidateRect( g_hWnd, &pKeelObjEvtLog->getLayoutObj()->m_rect, FALSE );
 }
 
 // Forward declarations of functions included in this code module:
