@@ -334,11 +334,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    // §4 scrollbar ( K47 / WMP70 ): value range drives the content-row offset
    // ( parallax demo - full document scrolling needs container clipping ).
+   // thumb / arrow thicknesses must equal the sbthumb_* / sbbtn_* bitmap
+   // dimensions ( gen_skin.py ) - bitmaps are stretched into the districts.
    {
 	   hm_keel_obj* pKeelObjScrollBar = NULL;
 	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
 		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
 		   if ( pWMPScrollBar ) {
+			   pWMPScrollBar->setStartThumbLen( 20 );
+			   pWMPScrollBar->setEndThumbLen( 20 );
 			   pWMPScrollBar->setTrackThumbLen( 48 );
 			   pWMPScrollBar->setValRange( 0, 16 );
 		   }

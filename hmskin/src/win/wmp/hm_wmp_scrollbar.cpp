@@ -452,8 +452,22 @@ hm_wmp_scrollbar::ENUMCURSORPOS hm_wmp_scrollbar::_getCursorPos( const RECT& rcK
 
 bool hm_wmp_scrollbar::setTrackThumbLen( unsigned int uLen ) {
 	if ( !m_pPosDecoderTrackThumb ) return false;
-	
+
 	m_pPosDecoderTrackThumb->m_nThickness = uLen;
+	return true;
+}
+
+bool hm_wmp_scrollbar::setStartThumbLen( unsigned int uLen ) {
+	if ( !m_pPosDecoderStartThumb ) return false;
+
+	m_pPosDecoderStartThumb->m_nThickness = uLen;
+	return true;
+}
+
+bool hm_wmp_scrollbar::setEndThumbLen( unsigned int uLen ) {
+	if ( !m_pPosDecoderEndThumb ) return false;
+
+	m_pPosDecoderEndThumb->m_nThickness = uLen;
 	return true;
 }
 

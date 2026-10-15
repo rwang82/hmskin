@@ -72,6 +72,11 @@ public:
 	bool setCurValue( int nValCur );
 	void getCurValue( int& nValCur ) { nValCur = m_nValCur; };
 	bool setTrackThumbLen( unsigned int uLen );
+	// start/end thumb = the arrow buttons docked at the bar's ends. thickness
+	// must equal the sbbtn_* bitmap height ( bitmaps are stretched into the
+	// district, a mismatch deforms them - gen_skin.py keeps them in sync ).
+	bool setStartThumbLen( unsigned int uLen );
+	bool setEndThumbLen( unsigned int uLen );
 	void drawSelf();
 
 public:
