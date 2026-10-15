@@ -224,8 +224,13 @@ hm_layoutdecoder_offset::~hm_layoutdecoder_offset() {
 }
 //
 void hm_layoutdecoder_offset::decoderLayout() {
+	// R/B offsets are insets from the reference edges ( manifest authors write
+	// positive values expecting padding semantics ). the old "+" pushed rects
+	// past the reference right/bottom - invisible while only CORNER_LT
+	// children consumed left/top, exposed when the §4 scrollbar first
+	// anchored to a reference right edge ( drew 912px outside the client ).
 	m_pOutObj->m_rect.left = m_pRefObj->m_rect.left + m_nOffsetL;
-	m_pOutObj->m_rect.right = m_pRefObj->m_rect.right + m_nOffsetR;
+	m_pOutObj->m_rect.right = m_pRefObj->m_rect.right - m_nOffsetR;
 	m_pOutObj->m_rect.top = m_pRefObj->m_rect.top + m_nOffsetT;
-	m_pOutObj->m_rect.bottom = m_pRefObj->m_rect.bottom + m_nOffsetB;
+	m_pOutObj->m_rect.bottom = m_pRefObj->m_rect.bottom - m_nOffsetB;
 }

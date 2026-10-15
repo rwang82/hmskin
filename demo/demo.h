@@ -6,6 +6,10 @@
 // main window ( demo.cpp ).
 extern HWND g_hWnd;
 
+// hmskin ui root ( demo.cpp ).
+class hm_uiroot;
+extern hm_uiroot* g_pHMRoot;
+
 // caption button keelobj ids ( manifest K40/K41/K42, used by the event listener ).
 #define KEELOBJID_NCABTN_MIN (40)
 #define KEELOBJID_NCABTN_MAX (41)

@@ -964,9 +964,26 @@ hm_wmp_scrollbar_loader::~hm_wmp_scrollbar_loader() {
 }
 
 hm_wndmsgprocessor_i* hm_wmp_scrollbar_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	assert( false );
-	return NULL;
-	//HM_WMP_X_LOADER_IMPL( hm_wmp_scrollbar );
+	if ( !pHMUIRoot ) { assert( false ); return NULL; }
+	Json::Value valTmp;
+	hm_wmp_factory::obj_id_type idWMP = 0;
+	std::string strWMPClsName;
+
+	assert( _getWMPName( valWMP, strWMPClsName ) );
+	assert( strWMPClsName == "hm_wmp_scrollbar" );
+	valTmp = valWMP[ "idWMP" ];
+	if ( !valTmp.isInt() ) { assert( false ); return NULL; }
+	idWMP = valTmp.asInt();
+	// ScrollBarCfg: direction ( "T2B" default | "L2R" ).
+	hm_wmp_scrollbar::ENUMDIRECTIONTYPE eDirection = hm_wmp_scrollbar::T2B_TYPE;
+	valTmp = valWMP[ "ScrollBarCfg" ];
+	if ( valTmp.isObject() ) {
+		Json::Value valDir = valTmp[ "Direction" ];
+		if ( valDir.isString() && valDir.asString() == "L2R" )
+			eDirection = hm_wmp_scrollbar::L2R_TYPE;
+	}
+	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_scrollbar, hm_wmp_scrollbar::ENUMDIRECTIONTYPE, hmskin_event_listener_base* >(
+		idWMP, eDirection, pHMUIRoot->m_pEventListener );
 };
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_tabheader_loader::hm_wmp_tabheader_loader() {

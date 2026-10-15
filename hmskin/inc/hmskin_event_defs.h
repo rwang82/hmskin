@@ -32,5 +32,10 @@
 // lParam1 - specify the pointer of keel object ( the popup menu window ).
 // lParam2 - the command id of the clicked popup menu item.
 #define HMSKIN_EVENT_POPUPMENU_CLICK (0x00000006)
+//////////////////////////////////////////////////////////////////////////
+// HMSKIN_EVENT_SCROLLBAR_CHANGED
+// lParam1 - specify the pointer of keel object ( the scrollbar ).
+// lParam2 - the current scrollbar value ( m_nValCur ).
+#define HMSKIN_EVENT_SCROLLBAR_CHANGED (0x00000007)
 
 #endif //__HMSKIN_EVENT_DEFS_H__

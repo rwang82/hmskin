@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "hmskin_event_defs.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
 #include "win\frame\hm_debug_utils.h"
 #include "win\frame\hm_pos_decoders.h"
@@ -309,6 +310,10 @@ bool hm_wmp_scrollbar::_moveTrackThumb( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, c
 	delete pHETMParam;
 	pHETMParam = NULL;
 
+	// bridge the value change to the app-level listener as well.
+	if ( m_pEventListener )
+		m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_SCROLLBAR_CHANGED, ( void* )pKeelObj, ( void* )( UINT_PTR )m_nValCur );
+
 	return true;
 }
 
@@ -584,7 +589,7 @@ void scrollbar_state_nondragtrackthumb::_OnLButtonDown( hm_wmp_scrollbar* pScrol
 			pScrollBarCtx->m_ptTrackThumbLBtnDown = ptClient;
 			pScrollBarCtx->m_nDistanceLBtnDown = pScrollBarCtx->m_pPosDecoderTrackThumb->m_distance;
 			// switch state to drag.
-			//pScrollBarCtx->_switchState( hm_wmp_scrollbar::ESTATE_DRAG );
+			pScrollBarCtx->_switchState( hm_wmp_scrollbar::ESTATE_DRAG );
 		}
 		break;
 	case hm_wmp_scrollbar::ECP_STARTSPACE:
@@ -750,7 +755,6 @@ void scrollbar_state_nondragtrackthumb::_OnDrawSkinRaw( hm_wmp_scrollbar* pScrol
 }
 
 void scrollbar_state_nondragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {
-	::OutputDebugString(_T("  ------------  in scrollbar_state_nondragtrackthumb::_doDrawSkinRaw\n"));
 	//COLORREF clrScrollBar = RGB( 160, 160, 80 );
 	//
 	//hm_util_draw_rect( hDC, rcCanvas, clrScrollBar );
@@ -972,6 +976,10 @@ void scrollbar_state_dragtrackthumb::_OnLButtonUp( hm_wmp_scrollbar* pScrollBarC
 		//LPARAM lParam = (LPARAM)pWP->hwnd;
 		//::SendMessage( ::GetParent( pWP->hwnd ), WM_COMMAND, wParam, lParam );
 	}
+
+	// drag finished: back to the non-drag state ( without this the scrollbar
+	// stayed in drag state where drawing is a no-op - the thumb froze ).
+	pScrollBarCtx->_switchState( hm_wmp_scrollbar::ESTATE_NONDRAG );
 }
 
 void scrollbar_state_dragtrackthumb::_OnRButtonDown( hm_wmp_scrollbar* pScrollBarCtx, hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {}
@@ -1005,7 +1013,13 @@ void scrollbar_state_dragtrackthumb::_OnMouseMove( hm_wmp_scrollbar* pScrollBarC
 }
 
 void scrollbar_state_dragtrackthumb::_OnMouseLeave( hm_wmp_scrollbar* pScrollBarCtx, hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {}
-void scrollbar_state_dragtrackthumb::_OnDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {}
+void scrollbar_state_dragtrackthumb::_OnDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {
+	// the WM_PAINT path must render the dragging scrollbar too. this used to
+	// be empty, so every repaint ( engine drawing is not clipped to the
+	// invalid region ) erased the bar while the drag loop redrew it directly
+	// - a paint/draw race that showed as violent flicker while dragging.
+	_doDrawSkin( pScrollBarCtx, hDC, rcCanvas, eCursorPos );
+}
 void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {
   	//COLORREF clrScrollBar = RGB( 160, 160, 80 );
 	//

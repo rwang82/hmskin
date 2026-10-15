@@ -169,6 +169,46 @@
       {
         "id": 34,
         "name": "pop_menu_bk.png"
+      },
+      {
+        "id": 35,
+        "name": "sbtrack_nor.png"
+      },
+      {
+        "id": 36,
+        "name": "sbthumb_nor.png"
+      },
+      {
+        "id": 37,
+        "name": "sbthumb_hov.png"
+      },
+      {
+        "id": 38,
+        "name": "sbthumb_pre.png"
+      },
+      {
+        "id": 39,
+        "name": "sbbtn_up_nor.png"
+      },
+      {
+        "id": 40,
+        "name": "sbbtn_up_hov.png"
+      },
+      {
+        "id": 41,
+        "name": "sbbtn_up_pre.png"
+      },
+      {
+        "id": 42,
+        "name": "sbbtn_down_nor.png"
+      },
+      {
+        "id": 43,
+        "name": "sbbtn_down_hov.png"
+      },
+      {
+        "id": 44,
+        "name": "sbbtn_down_pre.png"
       }
     ]
   },
@@ -2365,7 +2405,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 5,
                 "Color": 3,
-                "text": "CONTENT ROW 01 · 9-PATCH STRETCH\nCONTENT ROW 02 · ALPHA 0x0F\nCONTENT ROW 03 · GDI+ DRAWSTRING\nCONTENT ROW 04 · SPECIMEN VIEW-06\nCONTENT ROW 05 · SCROLL PENDING\nCONTENT ROW 06 · SCROLL PENDING\nCONTENT ROW 07 · SCROLL PENDING\nCONTENT ROW 08 · SCROLL PENDING",
+                "text": "CONTENT ROW 01 · 9-PATCH STRETCH\nCONTENT ROW 02 · ALPHA 0x0F\nCONTENT ROW 03 · GDI+ DRAWSTRING\nCONTENT ROW 04 · SPECIMEN VIEW-06\nCONTENT ROW 05 · DRAG THUMB TO SCROLL\nCONTENT ROW 06 · SCRBAR 3-STATE THUMB\nCONTENT ROW 07 · LINE BTN UP/DOWN\nCONTENT ROW 08 · VALUE -> EVENT LOG",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -2447,6 +2487,67 @@
     {
       "idWMP": 69,
       "WMPClsName": "hm_wmp_drawtrigger"
+    },
+    {
+      "idWMP": 70,
+      "WMPClsName": "hm_wmp_scrollbar",
+      "ScrollBarCfg": {
+        "Direction": "T2B"
+      },
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_pic",
+                "RawPicId": 35,
+                "m_ufixL": 6,
+                "m_ufixR": 6,
+                "m_ufixT": 6,
+                "m_ufixB": 6
+              }
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 39 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 40 } } ]
+        },
+        {
+          "id": 3,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 41 } } ]
+        },
+        {
+          "id": 4,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 42 } } ]
+        },
+        {
+          "id": 5,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 43 } } ]
+        },
+        {
+          "id": 6,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 44 } } ]
+        },
+        {
+          "id": 7,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 36 } } ]
+        },
+        {
+          "id": 8,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 37 } } ]
+        },
+        {
+          "id": 9,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 38 } } ]
+        }
+      ]
     }
   ],
   "MsgSink": [
@@ -2987,7 +3088,7 @@
           "m_width": 560,
           "m_height": 260,
           "m_space1": 8,
-          "m_space2": 6
+          "m_space2": 22
         }
       },
       "WMP": [
@@ -3618,6 +3719,33 @@
         },
         {
           "id": 67,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 47,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 2,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_offset",
+          "RefKeelObjId": 2,
+          "m_nOffsetL": 580,
+          "m_nOffsetT": 0,
+          "m_nOffsetR": 0,
+          "m_nOffsetB": 0
+        }
+      },
+      "WMP": [
+        {
+          "id": 70,
           "RegEvts": [
             6
           ]

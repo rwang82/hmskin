@@ -7,6 +7,7 @@
 #include "hmskin_event_listener_demo.h"
 #include "hmskin_helper.h"
 #include "win\hm_wndmsg_defs.h"
+#include "win\wmp\hm_wmp_scrollbar.h"
 #include <vector>
 
 //////////////////////////////////////////////////////////
@@ -326,6 +327,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    // tab chapters : §1 基础交互 is the default visible section.
    SwitchChapter( 0 );
 
+   // §4 scrollbar ( K47 / WMP70 ): value range drives the content-row offset
+   // ( parallax demo - full document scrolling needs container clipping ).
+   {
+	   hm_keel_obj* pKeelObjScrollBar = NULL;
+	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
+		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
+		   if ( pWMPScrollBar ) {
+			   pWMPScrollBar->setTrackThumbLen( 48 );
+			   pWMPScrollBar->setValRange( 0, 16 );
+		   }
+	   }
+   }
+
    ShowWindow( g_hWnd, nCmdShow );
    UpdateWindow( g_hWnd );
 
@@ -393,6 +407,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
+	case WM_ERASEBKGND:
+		// the skin paints the whole client area - skipping the class-brush
+		// erase kills the white flash on repaints ( e.g. scrollbar dragging ).
+		return 1;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: Add any drawing code here...

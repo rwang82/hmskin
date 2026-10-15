@@ -186,6 +186,40 @@ def gen_captionbtns():
                fill=(196, 58, 62) if bClose else DARKPRS,
                glyph_color=(255, 255, 255) if bClose else TEXT)                   # 按下
 
+# ---------- §4 滚动条：轨道 18x139 / thumb 18x48 / 上下端钮 18x20 ----------
+# 尺寸必须等于引擎实际绘制尺寸（thumb 厚度 = demo setTrackThumbLen(48)，
+# 端钮厚度 = hm_posdecoder_dock 默认 20）：位图被整体拉伸进 district，
+# 非原生尺寸会让圆角变形发糊（ 6x24 拉到 18x48 的教训）。
+SB_W = 18
+
+def gen_scrollbar_v2():
+    # 轨道（单态，凹陷面）
+    im, d = canvas(SB_W, 139, SUNKEN + (255,))
+    d.line((0, 0, SB_W - 1, 0), fill=LINE + (255,))
+    save(im, 'sbtrack_nor.png')
+    # thumb（三态圆角条，原生 18x48）
+    for name, col in [('nor', (74, 86, 96)), ('hov', (93, 107, 117)), ('pre', ACCENT)]:
+        im, d = canvas(SB_W * SS, 48 * SS)
+        rrect(d, (0, 0, SB_W * SS - 1, 48 * SS - 1), 4 * SS, fill=col + (255,))
+        save(im.resize((SB_W, 48), Image.LANCZOS), f'sbthumb_{name}.png')
+    # 上下端钮（三态小圆角钮 + 箭头 glyph，原生 18x20）
+    for name, fill, border in [('nor', RAISED, (48, 58, 66)),
+                               ('hov', HOV, LINE_S),
+                               ('pre', DARKPRS, LINE)]:
+        im, d = canvas(SB_W * SS, 20 * SS)
+        rrect(d, (0, 0, SB_W * SS - 1, 20 * SS - 1), 3 * SS,
+              fill=fill + (255,), outline=border + (255,), width=SS)
+        g = MUTED if name != 'pre' else TEXT
+        gc = g + (255,)
+        # 上箭头 ∧（3px 线宽，20 高里垂直居中）
+        d.line([(5 * SS, 12 * SS), (9 * SS, 8 * SS), (13 * SS, 12 * SS)], fill=gc, width=SS, joint='curve')
+        save(im.resize((SB_W, 20), Image.LANCZOS), f'sbbtn_up_{name}.png')
+        im, d = canvas(SB_W * SS, 20 * SS)
+        rrect(d, (0, 0, SB_W * SS - 1, 20 * SS - 1), 3 * SS,
+              fill=fill + (255,), outline=border + (255,), width=SS)
+        d.line([(5 * SS, 8 * SS), (9 * SS, 12 * SS), (13 * SS, 8 * SS)], fill=gc, width=SS, joint='curve')
+        save(im.resize((SB_W, 20), Image.LANCZOS), f'sbbtn_down_{name}.png')
+
 # ---------- 弹出菜单背景 248x243（九宫格友好：均匀面+四边） ----------
 def gen_popmenu():
     im, d = canvas(248, 243, SURFACE + (255,))
@@ -202,5 +236,6 @@ if __name__ == '__main__':
     gen_rootmenu()
     gen_captionbtns()
     gen_scrollbar()
+    gen_scrollbar_v2()
     gen_popmenu()
     print('完成。')
