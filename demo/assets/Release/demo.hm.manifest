@@ -3735,12 +3735,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_offset",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 2,
-          "m_nOffsetL": 580,
-          "m_nOffsetT": 0,
-          "m_nOffsetR": 0,
-          "m_nOffsetB": 0
+          "m_eDockType": "DOCK_RIGHT",
+          "m_space1": 0,
+          "m_space2": 0,
+          "m_space3": 0,
+          "m_thickness": 18
         }
       },
       "WMP": [

@@ -233,4 +233,14 @@ void hm_layoutdecoder_offset::decoderLayout() {
 	m_pOutObj->m_rect.right = m_pRefObj->m_rect.right - m_nOffsetR;
 	m_pOutObj->m_rect.top = m_pRefObj->m_rect.top + m_nOffsetT;
 	m_pOutObj->m_rect.bottom = m_pRefObj->m_rect.bottom - m_nOffsetB;
+	// a reference smaller than the insets pushes edges past each other
+	// ( e.g. window narrowed below the left inset ): an inverted rect
+	// poisons everything downstream - districts compute mirrored rects,
+	// BitBlt with negative extents smears cached pixels, PtInRect always
+	// misses. collapse to an empty rect instead ( control cleanly hidden
+	// until the reference is wide enough again ).
+	if ( m_pOutObj->m_rect.left > m_pOutObj->m_rect.right )
+		m_pOutObj->m_rect.right = m_pOutObj->m_rect.left;
+	if ( m_pOutObj->m_rect.top > m_pOutObj->m_rect.bottom )
+		m_pOutObj->m_rect.bottom = m_pOutObj->m_rect.top;
 }
