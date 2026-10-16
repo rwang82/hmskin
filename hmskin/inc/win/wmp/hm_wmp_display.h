@@ -109,6 +109,24 @@ protected:
 	// control implements. default empty until migrated.
 	virtual void _render( HDC hDC, const RECT& rcCanvas ) {}
 
+	// hover-leave tracking mechanics ( the MECHANISM - what to clear on
+	// leave stays per-control semantics ): arm on mousemove, the flag
+	// resets when the leave arrives. a control that forgets to arm gets
+	// a hover state stuck until its next entry ( the tabheader bug ).
+	// derived _OnMouseLeave must call onLeaveArrived() first thing.
+	void armMouseLeaveTracking( HWND hWndTrack, DWORD dwFlags = TME_LEAVE ) {
+		if ( m_bLeaveTracking )
+			return;
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof( TRACKMOUSEEVENT );
+		tme.dwFlags = dwFlags;
+		tme.dwHoverTime = HOVER_DEFAULT;
+		tme.hwndTrack = hWndTrack;
+		::TrackMouseEvent( &tme );
+		m_bLeaveTracking = TRUE;
+	}
+	void onLeaveArrived() { m_bLeaveTracking = FALSE; }
+
 public:
 	void setDrawTool( hm_ps_drawtool_i* pDrawTool );
 	bool hasDrawTool() const { return m_pDrawTool!=NULL; }
@@ -122,6 +140,7 @@ protected:
 
 protected:
 	hm_ps_drawtool_i* m_pDrawTool;
+	BOOL m_bLeaveTracking;
 	ENUMBUFSTRATEGY m_eBufStrategy;
 	HBITMAP m_hBufBmp;    // BUF_CACHE_SIZE backing bitmap
 	RECT m_rcBufCanvas;   // BUF_CACHE_SIZE size key

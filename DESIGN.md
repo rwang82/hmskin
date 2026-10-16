@@ -142,7 +142,7 @@ components:
 四章节内容：
 
 - **§1 基础交互**：BTN-01 按钮矩阵（32/26/40 三档 × normal/hover/press/disable 四态，静态陈列全部状态 + 可交互实例）；CHK-02 复选框按语义分两组单列排布（渲染引擎 / 交互选项），组内含焦点态与禁用态标本；TGL-10 开关标本（36×20 药丸，OFF=凹陷灰钮 / ON=信号橙钮，复选框引擎换肤而成，四态齐全）；RAD-11 单选组标本（15×15 圆，选中=状态绿圆点，与勾选族同语义；GDI/GDI+/AUTO 三选项——独立引擎类 `hm_wmp_radio` 继承 checkbox 状态机：已选中点击不翻转〔杜绝中间态闪屏〕+ 独立 RADIO_CLICK 事件，选一灭兄弟由事件监听层驱动）。
-- **§2 文本与数据**：TXT-03 字阶标本（display/body/label/mono/micro 同屏）；TOK-04 token 表格——文本左对齐、数值右对齐 mono、行悬停高亮（表格模式）。
+- **§2 文本与数据**：TXT-03 字阶标本（display/body/label/mono/micro 同屏）；TOK-04 token 表格——文本左对齐、数值右对齐 mono、行悬停高亮（表格模式）；PRG-12 进度条标本（260×8 轨道 + 信号橙填充 64%，纯 manifest 拼装零引擎改动——填充厚度即 dock thickness，改百分比只动 manifest）。
 - **§3 菜单系统**：MENU-05 弹出菜单标本（由根菜单栏触发，含勾选项/悬停/禁用项/语义分隔线/mono 快捷键右对齐）。
 - **§4 滚动与容器**：VIEW-06 滚动视图（凹陷内容井，含空状态文案"未加载内容——导入 manifest"+ 主按钮，空状态也是展品）；SB-07 独立滚动条标本（thumb 三态并排）；BG-08 背景三级面（surface/sunken/raised）对照。
 
@@ -209,6 +209,13 @@ drawSelf、再下次 button/bkgnd），一个控件一个提交带实测验证�
 
 **明确不做**：保留模式合成器（控件只失效矩形、框架统一合成脏区）——等于重写交互模型；
 直绘存在的意义就是免整窗重绘的即时反馈，三层规则已拿到该架构的性价比。
+
+**同族横切关注点——悬停离开跟踪**（2026-10-16 tabheader 卡悬停事故立项）：
+机制已收编基类（`hm_wmp_display::armMouseLeaveTracking/onLeaveArrived`，NC 控件传
+`TME_LEAVE|TME_NONCLIENT`），控件只剩"离开后清什么状态"的语义。迁移纪律同缓冲：
+碰谁迁谁（tabheader 已迁，checkbox/button/scrollbar 下次碰时迁）。终极形态 backlog：
+分发层用 WH_MOUSE 钩子合成离开事件（分发器见全部 mousemove，天然知道上次命中与
+当前的差异）——控件连 TrackMouseEvent 都不用调，但动分发核心，收益边际，暂不做。
 
 ## Decisions Log
 

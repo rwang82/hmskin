@@ -219,14 +219,6 @@ void hm_wmp_checkbox::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 			}
 
 			//
-			TRACKMOUSEEVENT tme;
-			tme.cbSize = sizeof( TRACKMOUSEEVENT );
-			tme.dwFlags = TME_LEAVE|TME_CANCEL;
-			tme.dwHoverTime = HOVER_DEFAULT;
-			tme.hwndTrack = pWP->hwnd;
-
-			::TrackMouseEvent( &tme );
-
 			m_uFlag &= ~HM_CHECK_FLAG_TRACEMOSELEAVE;
 			//
 			drawSelf( pKeelObj, pWP->hwnd );
@@ -316,14 +308,6 @@ void hm_wmp_checkbox::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	//cancel track mouse leave message
 	if ( !( m_uFlag & HM_CHECK_FLAG_TRACEMOSELEAVE ) )
 		return;
-	TRACKMOUSEEVENT tme;
-	tme.cbSize = sizeof( TRACKMOUSEEVENT );
-	tme.dwFlags = TME_LEAVE|TME_CANCEL;
-	tme.dwHoverTime = HOVER_DEFAULT;
-	tme.hwndTrack = pWP->hwnd;
-
-	::TrackMouseEvent( &tme );
-
 	m_uFlag &= ~HM_CHECK_FLAG_TRACEMOSELEAVE;
 	//
 	if ( m_uFlag & HM_CHECK_FLAG_LBTDOWN ) {

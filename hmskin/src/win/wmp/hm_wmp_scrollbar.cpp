@@ -653,13 +653,6 @@ void scrollbar_state_nondragtrackthumb::_OnLButtonUp( hm_wmp_scrollbar* pScrollB
 	//
 	bLBtnDownOld = ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_LBTNDOWN );
 	if ( bLBtnDownOld ) {
-		TRACKMOUSEEVENT tme;
-		tme.cbSize = sizeof( TRACKMOUSEEVENT );
-		tme.dwFlags = TME_LEAVE|TME_CANCEL;
-		tme.dwHoverTime = HOVER_DEFAULT;
-		tme.hwndTrack = pWP->hwnd;
-
-		::TrackMouseEvent( &tme );
 		//
 		::ReleaseCapture();
 	}
@@ -713,16 +706,6 @@ void scrollbar_state_nondragtrackthumb::_OnMouseMove( hm_wmp_scrollbar* pScrollB
 	if ( !::PtInRect( &rcKeelObj, ptClient ) ) {
 		if ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_TRACEMOUSELEAVE ) {
 			// leave event.
-			if ( !( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_TRACKTHUMB_LBTNDOWN ) ) {
-				TRACKMOUSEEVENT tme;
-				tme.cbSize = sizeof( TRACKMOUSEEVENT );
-				tme.dwFlags = TME_LEAVE|TME_CANCEL;
-				tme.dwHoverTime = HOVER_DEFAULT;
-				tme.hwndTrack = pWP->hwnd;
-
-				::TrackMouseEvent( &tme );
-			}
-			//
 			pScrollBarCtx->m_uMouseStatusFlags &= ~SCRBAR_FLAG_TRACEMOUSELEAVE;
 			//
 			eCursorPos = pScrollBarCtx->_getCursorPos( rcKeelObj, ptClient );
@@ -903,13 +886,6 @@ void scrollbar_state_dragtrackthumb::_OnLButtonUp( hm_wmp_scrollbar* pScrollBarC
 	//
 	bLBtnDownOld = ( pScrollBarCtx->m_uMouseStatusFlags & SCRBAR_FLAG_LBTNDOWN );
 	if ( bLBtnDownOld ) {
-		TRACKMOUSEEVENT tme;
-		tme.cbSize = sizeof( TRACKMOUSEEVENT );
-		tme.dwFlags = TME_LEAVE|TME_CANCEL;
-		tme.dwHoverTime = HOVER_DEFAULT;
-		tme.hwndTrack = pWP->hwnd;
-
-		::TrackMouseEvent( &tme );
 		//
 		::ReleaseCapture();
 	}

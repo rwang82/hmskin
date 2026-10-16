@@ -186,7 +186,10 @@ void hm_wmp_tabheader::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 		_setTabBtnPre( INDEX_NONE );
 		_setTabBtnHov( INDEX_NONE );
 	}
-	
+
+	// leave tracking is base-class mechanics now ( see hm_wmp_display ).
+	armMouseLeaveTracking( pWP->hwnd );
+
 	hDC = ::GetDC( pWP->hwnd );
 	if ( uIndexHovOld != m_uIndexHov ) {
 		if ( ( m_uIndexHov != INDEX_NONE ) && ( m_uIndexHov != m_uIndexSel ) )
@@ -230,7 +233,31 @@ void hm_wmp_tabheader::_setTabBtnPre( unsigned int uIndexPre ) {
 }
 //
 void hm_wmp_tabheader::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	int a = 0;
+	RECT rcKeelObj;
+	hm_layout_obj* pLayoutObj = NULL;
+	HDC hDC;
+	unsigned int uIndexHovOld = m_uIndexHov;
+	unsigned int uIndexPreOld = m_uIndexPre;
+
+	// the mouse left the window while a tab was highlighted: clear and
+	// repaint it NOR. without this the hover state survived until the next
+	// mouse entry ( stuck highlight when sliding out past the last tab ).
+	onLeaveArrived();
+	if ( ( uIndexHovOld == INDEX_NONE ) && ( uIndexPreOld == INDEX_NONE ) )
+		return;
+	_setTabBtnPre( INDEX_NONE );
+	_setTabBtnHov( INDEX_NONE );
+
+	pLayoutObj = pKeelObj->getLayoutObj();
+	if ( !pLayoutObj )
+		return;
+	pLayoutObj->mapPosition( pWP->hwnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcKeelObj );
+	hDC = ::GetDC( pWP->hwnd );
+	if ( ( uIndexHovOld != INDEX_NONE ) && ( uIndexHovOld != m_uIndexSel ) )
+		_doDrawBtnRaw( hDC, rcKeelObj, uIndexHovOld, hm_wmp_tabheader::EDISTRICTID_TABBTN_NOR );
+	if ( ( uIndexPreOld != INDEX_NONE ) && ( uIndexPreOld != m_uIndexSel ) )
+		_doDrawBtnRaw( hDC, rcKeelObj, uIndexPreOld, hm_wmp_tabheader::EDISTRICTID_TABBTN_NOR );
+	::ReleaseDC( pWP->hwnd, hDC );
 }
 //
 bool hm_wmp_tabheader::pushbackTabBtn( tabbtninfo* pTabBtnInfo ) {

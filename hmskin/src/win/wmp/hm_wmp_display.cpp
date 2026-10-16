@@ -7,6 +7,7 @@
 hm_wmp_display::hm_wmp_display( hmskin_event_listener_base* pEventListener )
 : hm_wndmsgprocessor_i( pEventListener )
 , m_pDrawTool( NULL )
+, m_bLeaveTracking( FALSE )
 , m_eBufStrategy( BUF_NONE )
 , m_hBufBmp( NULL ) {
 	memset( &m_rcBufCanvas, 0, sizeof( RECT ) );

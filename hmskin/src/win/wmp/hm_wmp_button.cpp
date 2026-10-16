@@ -205,14 +205,6 @@ void hm_wmp_button::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sin
 	if ( !::PtInRect( &rcKeelObj, ptClient ) ) {
 		if ( m_uBtnStateFlags & BTN_FLAG_TRACEMOUSELEAVE ) {
 			// leave event.
-			TRACKMOUSEEVENT tme;
-			tme.cbSize = sizeof( TRACKMOUSEEVENT );
-			tme.dwFlags = TME_LEAVE|TME_CANCEL;
-			tme.dwHoverTime = HOVER_DEFAULT;
-			tme.hwndTrack = pWP->hwnd;
-
-			::TrackMouseEvent( &tme );
-			
 			m_uBtnStateFlags &= ~BTN_FLAG_TRACEMOUSELEAVE;
 			//
 			hDC = ::GetDC( pWP->hwnd );
@@ -261,14 +253,6 @@ void hm_wmp_button::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	//cancel track mouse leave message
 	if ( !(m_uBtnStateFlags & BTN_FLAG_TRACEMOUSELEAVE) )
 		return;
-	TRACKMOUSEEVENT tme;
-	tme.cbSize = sizeof( TRACKMOUSEEVENT );
-	tme.dwFlags = TME_LEAVE|TME_CANCEL;
-	tme.dwHoverTime = HOVER_DEFAULT;
-	tme.hwndTrack = pWP->hwnd;
-
-	::TrackMouseEvent( &tme );
-	
 	m_uBtnStateFlags &= ~BTN_FLAG_TRACEMOUSELEAVE;
 	//
 	if ( m_uBtnStateFlags & BTN_FLAG_LBTNDOWN ) {
