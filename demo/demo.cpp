@@ -57,11 +57,11 @@ static LRESULT CALLBACK PopupWndProc( HWND hWnd, UINT message, WPARAM wParam, LP
 }
 
 // ---- tab chapters ( §1..§4 ) : keelobj groups switched by visibility ----
-static const unsigned int arrChapterGroups[4][12] = {
-	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36 },   // §1 基础交互（+ 原生接管按钮 g_hBtnTest1 + 8格状态矩阵）
-	{ 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0 },        // §2 文本与数据（字阶标本）
-	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },             // §3 菜单系统
-	{ 2, 28, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0 },            // §4 滚动与容器（滚动井+内容行）
+static const unsigned int arrChapterGroups[4][13] = {
+	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48 },  // §1 基础交互（+ 原生接管按钮 g_hBtnTest1 + 8格状态矩阵 + TGL-10 开关）
+	{ 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0, 0 },        // §2 文本与数据（字阶标本）
+	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },             // §3 菜单系统
+	{ 2, 28, 38, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0 },           // §4 滚动与容器（滚动井+内容行+滚动条）
 };
 
 void SwitchChapter( unsigned int uChapterIndex ) {
@@ -69,7 +69,7 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 		return;
 	for ( int nChapter = 0; nChapter < 4; ++nChapter ) {
 		BOOL bVisible = ( nChapter == (int)uChapterIndex );
-		for ( int i = 0; i < 12; ++i ) {
+		for ( int i = 0; i < 13; ++i ) {
 			unsigned int idKeelObj = arrChapterGroups[ nChapter ][ i ];
 			if ( !idKeelObj )
 				break;

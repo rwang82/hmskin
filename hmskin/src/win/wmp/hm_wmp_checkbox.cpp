@@ -81,7 +81,32 @@ void hm_wmp_checkbox::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 	eDistricId = _getCurDistrictId();
 	if ( !_getDistrictObj( eDistricId, &pDistrictObj ) )
 		return;
-	pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
+	// double buffer only when painting straight to the screen DC ( the
+	// interaction draws ): a district draws opaque bg fill -> bitmap -> text
+	// with each step visible at once, so a state switch erases the whole row
+	// for a moment ( label shimmer ). compose off-screen, blit once. the
+	// root WM_PAINT path already composes offscreen ( its DC is a memory DC,
+	// WindowFromDC returns NULL there ) - a nested buffer would only add a
+	// copy, which matters if every control buffers during full repaints
+	// ( window resizing ). checkbox draws are rare ( click/hover ), so no
+	// cached bitmap is needed.
+	if ( !::WindowFromDC( hDC ) ) {
+		pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
+		return;
+	}
+	int nW = rcCanvas.right - rcCanvas.left;
+	int nH = rcCanvas.bottom - rcCanvas.top;
+	if ( ( nW <= 0 ) || ( nH <= 0 ) )
+		return;
+	HDC hMemDC = ::CreateCompatibleDC( hDC );
+	HBITMAP hMemBmp = ::CreateCompatibleBitmap( hDC, nW, nH );
+	HBITMAP hBmpOld = ( HBITMAP )::SelectObject( hMemDC, hMemBmp );
+	RECT rcMem = { 0, 0, nW, nH };
+	pDistrictObj->show( hMemDC, rcMem, m_pDrawTool );
+	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, nW, nH, hMemDC, 0, 0, SRCCOPY );
+	::SelectObject( hMemDC, hBmpOld );
+	::DeleteObject( hMemBmp );
+	::DeleteDC( hMemDC );
 }
 
 void hm_wmp_checkbox::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
