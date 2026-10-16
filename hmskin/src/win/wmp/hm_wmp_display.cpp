@@ -1,10 +1,15 @@
 #include "stdafx.h"
 #include "win\wmp\hm_wmp_display.h"
+#include "win\frame\hm_layout_obj.h"
+#include "win\frame\hm_coordinate_system_hwnd.h"
 
 
 hm_wmp_display::hm_wmp_display( hmskin_event_listener_base* pEventListener )
 : hm_wndmsgprocessor_i( pEventListener )
-, m_pDrawTool( NULL ) {
+, m_pDrawTool( NULL )
+, m_eBufStrategy( BUF_NONE )
+, m_hBufBmp( NULL ) {
+	memset( &m_rcBufCanvas, 0, sizeof( RECT ) );
 }
 //
 hm_wmp_display::~hm_wmp_display() {
@@ -12,6 +17,85 @@ hm_wmp_display::~hm_wmp_display() {
 	//if ( m_pDrawTool )
 	//	delete m_pDrawTool;
 	m_pDrawTool = NULL;
+	//
+	if ( m_hBufBmp ) {
+		::DeleteObject( m_hBufBmp );
+		m_hBufBmp = NULL;
+	}
+}
+//
+void hm_wmp_display::drawSelf( hm_keel_obj* pKeelObj, HWND hWndCanvas ) {
+	hm_layout_obj* pLayoutObj = NULL;
+	RECT rcCanvas;
+	HDC hDC;
+
+	if ( !pKeelObj || !hWndCanvas )
+		return;
+	pLayoutObj = pKeelObj->getLayoutObj();
+	if ( !pLayoutObj )
+		return;
+	if ( !pLayoutObj->mapPosition( hWndCanvas, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcCanvas ) )
+		return;
+
+	hDC = ::GetDC( hWndCanvas );
+	_drawWithStrategy( hDC, rcCanvas );
+	::ReleaseDC( hWndCanvas, hDC );
+}
+//
+void hm_wmp_display::_drawWithStrategy( HDC hDC, const RECT& rcCanvas ) {
+	// direct draw when: control declared BUF_NONE, or the target is a memory
+	// DC ( the root WM_PAINT path - it composites offscreen already, a
+	// nested buffer would only add a copy ). WindowFromDC returns the owner
+	// window for screen DCs and NULL for memory DCs.
+	if ( ( m_eBufStrategy == BUF_NONE ) || !::WindowFromDC( hDC ) ) {
+		_render( hDC, rcCanvas );
+		return;
+	}
+
+	// screen DC with a buffering strategy: compose offscreen, blit once so
+	// no intermediate render step ( opaque bg fill -> bitmap -> text ) is
+	// ever visible on screen.
+	int nW = rcCanvas.right - rcCanvas.left;
+	int nH = rcCanvas.bottom - rcCanvas.top;
+	if ( ( nW <= 0 ) || ( nH <= 0 ) )
+		return;
+	HDC hMemDC = ::CreateCompatibleDC( hDC );
+	HBITMAP hBmpDraw = NULL;
+	HBITMAP hBmpOld = NULL;
+	BOOL bBufOwner = FALSE;
+
+	if ( m_eBufStrategy == BUF_ALLOC ) {
+		// click-rate controls: draws are rare, fresh bitmap per draw.
+		hBmpDraw = ::CreateCompatibleBitmap( hDC, nW, nH );
+		bBufOwner = TRUE;
+	} else {
+		// BUF_CACHE_SIZE: drag-rate controls ( redraw per mousemove ),
+		// recreate only when the canvas size changes.
+		if ( !m_hBufBmp || ( m_rcBufCanvas.right != nW ) || ( m_rcBufCanvas.bottom != nH ) ) {
+			if ( m_hBufBmp )
+				::DeleteObject( m_hBufBmp );
+			m_hBufBmp = ::CreateCompatibleBitmap( hDC, nW, nH );
+			m_rcBufCanvas.left = 0;
+			m_rcBufCanvas.top = 0;
+			m_rcBufCanvas.right = nW;
+			m_rcBufCanvas.bottom = nH;
+		}
+		hBmpDraw = m_hBufBmp;
+	}
+	if ( !hBmpDraw ) {
+		::DeleteDC( hMemDC );
+		return;
+	}
+
+	hBmpOld = ( HBITMAP )::SelectObject( hMemDC, hBmpDraw );
+	RECT rcMem = { 0, 0, nW, nH };
+	_render( hMemDC, rcMem );
+	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, nW, nH, hMemDC, 0, 0, SRCCOPY );
+	::SelectObject( hMemDC, hBmpOld );
+
+	if ( bBufOwner )
+		::DeleteObject( hBmpDraw );
+	::DeleteDC( hMemDC );
 }
 //
 void hm_wmp_display::setDrawTool( hm_ps_drawtool_i* pDrawTool ) { 

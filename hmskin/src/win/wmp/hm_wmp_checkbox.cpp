@@ -12,6 +12,8 @@ hm_wmp_checkbox::hm_wmp_checkbox( hmskin_event_listener_base* pEventListener )
 : hm_wmp_display( pEventListener )
 , m_uFlag( HM_CHECK_FLAG_NONE )
 , m_eCheckStatus( ENOCHECK_STATUS_NORMAL ) {
+	// click-rate control: fresh buffer bitmap per interaction draw.
+	m_eBufStrategy = BUF_ALLOC;
 	_createDistrictObjs();
 }
 
@@ -66,7 +68,8 @@ void hm_wmp_checkbox::update( void* pSubject, UINT idEvent, LPARAM pEventParam, 
 		if ( !pHEDSParam->m_pLayoutObjCanvas->mapPosition( pHEDSParam->m_hWndCanvas, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcCanvas ) )
 			return;
 
-		_doDrawSkin( pHEDSParam->m_hDCCanvas, rcCanvas );
+		// paint path: the base funnel detects the memory DC and draws direct.
+		_drawWithStrategy( pHEDSParam->m_hDCCanvas, rcCanvas );
 	}
 		break;
 	default:
@@ -74,43 +77,17 @@ void hm_wmp_checkbox::update( void* pSubject, UINT idEvent, LPARAM pEventParam, 
 	}
 }
 
-void hm_wmp_checkbox::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
+void hm_wmp_checkbox::_render( HDC hDC, const RECT& rcCanvas ) {
 	hm_districtobj* pDistrictObj = NULL;
 	EDISTRICTID eDistricId;
 
 	eDistricId = _getCurDistrictId();
 	if ( !_getDistrictObj( eDistricId, &pDistrictObj ) )
 		return;
-	// double buffer only when painting straight to the screen DC ( the
-	// interaction draws ): a district draws opaque bg fill -> bitmap -> text
-	// with each step visible at once, so a state switch erases the whole row
-	// for a moment ( label shimmer ). compose off-screen, blit once. the
-	// root WM_PAINT path already composes offscreen ( its DC is a memory DC,
-	// WindowFromDC returns NULL there ) - a nested buffer would only add a
-	// copy, which matters if every control buffers during full repaints
-	// ( window resizing ). checkbox draws are rare ( click/hover ), so no
-	// cached bitmap is needed.
-	if ( !::WindowFromDC( hDC ) ) {
-		pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
-		return;
-	}
-	int nW = rcCanvas.right - rcCanvas.left;
-	int nH = rcCanvas.bottom - rcCanvas.top;
-	if ( ( nW <= 0 ) || ( nH <= 0 ) )
-		return;
-	HDC hMemDC = ::CreateCompatibleDC( hDC );
-	HBITMAP hMemBmp = ::CreateCompatibleBitmap( hDC, nW, nH );
-	HBITMAP hBmpOld = ( HBITMAP )::SelectObject( hMemDC, hMemBmp );
-	RECT rcMem = { 0, 0, nW, nH };
-	pDistrictObj->show( hMemDC, rcMem, m_pDrawTool );
-	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, nW, nH, hMemDC, 0, 0, SRCCOPY );
-	::SelectObject( hMemDC, hBmpOld );
-	::DeleteObject( hMemBmp );
-	::DeleteDC( hMemDC );
+	pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
 }
 
 void hm_wmp_checkbox::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	HDC hDC;
 	RECT rcKeelObj;
 	POINT ptClient;
 	hm_layout_obj* pLayoutObj = NULL;
@@ -150,13 +127,10 @@ void hm_wmp_checkbox::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 	if ( ::GetCapture() != pWP->hwnd )
 		::SetCapture( pWP->hwnd );
 	//
-	hDC = ::GetDC( pWP->hwnd );
-	_doDrawSkin( hDC, rcKeelObj );
-	::ReleaseDC( pWP->hwnd, hDC );
+	drawSelf( pKeelObj, pWP->hwnd );
 }
 
 void hm_wmp_checkbox::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	HDC hDC;
 	RECT rcKeelObj;
 	POINT ptClient;
 	unsigned int uFlagOld;
@@ -188,13 +162,11 @@ void hm_wmp_checkbox::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 		assert( false );
 	}
 	//
-	hDC = ::GetDC( pWP->hwnd );
-	_doDrawSkin( hDC, rcKeelObj );
+	drawSelf( pKeelObj, pWP->hwnd );
 	// eat message
 	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;
-	::ReleaseDC( pWP->hwnd, hDC );
 	//
 	if ( ( ( uFlagOld & HM_CHECK_FLAG_LBTDOWN ) == HM_CHECK_FLAG_LBTDOWN ) && ::PtInRect( &rcKeelObj, ptClient ) ) {
 		if ( m_pEventListener ) {
@@ -208,7 +180,6 @@ void hm_wmp_checkbox::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 }
 
 void hm_wmp_checkbox::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	HDC hDC;
 	RECT rcKeelObj;
 	POINT ptClient;
 	bool bMouse1stIn;
@@ -255,9 +226,7 @@ void hm_wmp_checkbox::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 
 			m_uFlag &= ~HM_CHECK_FLAG_TRACEMOSELEAVE;
 			//
-			hDC = ::GetDC( pWP->hwnd );
-			_doDrawSkin( hDC, rcKeelObj );
-			::ReleaseDC( pWP->hwnd, hDC );
+			drawSelf( pKeelObj, pWP->hwnd );
 		}
 
 		return;
@@ -305,14 +274,11 @@ void hm_wmp_checkbox::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 
 		m_uFlag |= HM_CHECK_FLAG_TRACEMOSELEAVE;
 		//
-		hDC = ::GetDC( pWP->hwnd );
-		_doDrawSkin( hDC, rcKeelObj );
-		::ReleaseDC( pWP->hwnd, hDC );
+		drawSelf( pKeelObj, pWP->hwnd );
 	}
 }
 
 void hm_wmp_checkbox::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	HDC hDC;
 	RECT rcKeelObj;
 	POINT ptClient;
 	hm_layout_obj* pLayoutObj = NULL;
@@ -363,9 +329,7 @@ void hm_wmp_checkbox::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	}
 	m_uFlag &= ~HM_CHECK_FLAG_LBTDOWN;
 	//
-	hDC = ::GetDC( pWP->hwnd );
-	_doDrawSkin( hDC, rcKeelObj );
-	::ReleaseDC( pWP->hwnd, hDC );
+	drawSelf( pKeelObj, pWP->hwnd );
 }
 
 void hm_wmp_checkbox::_getAllDistrictId( district_id_container_type& containerIds ) {

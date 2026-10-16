@@ -52,7 +52,9 @@ public:
 	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );
 
 private:
-	void _doDrawSkin( HDC hDC, const RECT& rcCanvas );
+	// first migrated consumer of the hm_wmp_display drawSelf framework:
+	// _render is the raw drawing, buffering is applied by the base class.
+	virtual void _render( HDC hDC, const RECT& rcCanvas );
 	ECHECKBOXSTATUS _getCurState();
 	EDISTRICTID _getCurDistrictId();
 

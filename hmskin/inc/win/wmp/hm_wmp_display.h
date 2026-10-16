@@ -70,6 +70,17 @@ public:
 	typedef int district_id_type;
 	typedef std::map< district_id_type, hm_districtobj* > map_id2district_type;
 	typedef std::deque< district_id_type > district_id_container_type;
+
+	// buffering policy for interaction draws ( straight to the screen DC ):
+	// the framework applies it, controls only declare it. see DESIGN.md
+	// "引擎演进" - the paint path ( memory DC of the root canvas ) always
+	// draws direct regardless of strategy.
+	typedef enum _ENUMBUFSTRATEGY {
+		BUF_NONE = 0,       // draw straight onto the target DC
+		BUF_ALLOC,          // compose into a fresh bitmap per draw, single blit ( click-rate controls )
+		BUF_CACHE_SIZE      // compose into a bitmap cached by canvas size ( drag-rate controls )
+	} ENUMBUFSTRATEGY;
+
 public:
 	hm_wmp_display( hmskin_event_listener_base* pEventListener = NULL );
 	virtual ~hm_wmp_display();
@@ -77,12 +88,27 @@ public:
 public:
 	void getAllDistrictId( district_id_container_type& containerIds );
 
+	// interaction redraw entry: GetDC + buffering per m_eBufStrategy +
+	// release. mouse handlers call this instead of hand-rolling the
+	// GetDC/draw/ReleaseDC triplet.
+	void drawSelf( hm_keel_obj* pKeelObj, HWND hWndCanvas );
+
 	// interface
 protected:
 	virtual void _createDistrictObjs() = 0;
 private:
 	virtual void _getAllDistrictId( district_id_container_type& containerIds ) = 0;
-	
+
+protected:
+	// funnel for both paint ( memory DC ) and interaction ( screen DC )
+	// draws: detects the draw target and applies the buffer strategy.
+	// protected: derived update() funnels its paint draws through here too.
+	void _drawWithStrategy( HDC hDC, const RECT& rcCanvas );
+
+	// the control's actual drawing - the ONLY render method a display
+	// control implements. default empty until migrated.
+	virtual void _render( HDC hDC, const RECT& rcCanvas ) {}
+
 public:
 	void setDrawTool( hm_ps_drawtool_i* pDrawTool );
 	bool hasDrawTool() const { return m_pDrawTool!=NULL; }
@@ -93,9 +119,12 @@ protected:
 	bool _hasDistrictObj( district_id_type idDistrict );
 	bool _getDistrictObj( district_id_type idDistrict, hm_districtobj** ppDistrictObj );
 	bool _clearAllDistrictObjs();
-	
+
 protected:
 	hm_ps_drawtool_i* m_pDrawTool;
+	ENUMBUFSTRATEGY m_eBufStrategy;
+	HBITMAP m_hBufBmp;    // BUF_CACHE_SIZE backing bitmap
+	RECT m_rcBufCanvas;   // BUF_CACHE_SIZE size key
 #pragma warning(push)
 #pragma warning(disable:4251)
 	map_id2district_type m_mapId2District;
