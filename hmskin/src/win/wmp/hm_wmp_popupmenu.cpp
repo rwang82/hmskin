@@ -7,6 +7,23 @@
 #include "win\hm_wndmsg_defs.h"
 #include "hmskin_event_defs.h"
 
+// shared menu-label font ( YaHei UI 12px, GB2312 charset ): the menu WMPs
+// draw labels with raw GDI DrawText and the DC default font ( bitmap System
+// font ) has no CJK glyphs - localized labels need an explicit font.
+static HFONT _GetMenuLabelFont() {
+	static HFONT hFontMenuLabel = NULL;
+	if ( !hFontMenuLabel ) {
+		LOGFONT logFont;
+		memset( &logFont, 0, sizeof( LOGFONT ) );
+		logFont.lfHeight = -12;
+		logFont.lfWeight = FW_NORMAL;
+		logFont.lfCharSet = GB2312_CHARSET;
+		_tcscpy_s( logFont.lfFaceName, _T( "Microsoft YaHei UI" ) );
+		hFontMenuLabel = ::CreateFontIndirect( &logFont );
+	}
+	return hFontMenuLabel;
+}
+
 //
 dimension_menuwnd_default::dimension_menuwnd_default( unsigned int uMIHeight, unsigned int uMIWidth, unsigned int uSpace )
 : dimension_menuwnd_i()
@@ -238,7 +255,11 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 		rcText.right -= 8;
 		int nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
 		COLORREF clrTextOld = ::SetTextColor( hDC, RGB( 232, 236, 241 ) );   // text #E8ECF1
+		// explicit CJK font ( same as the root menu bar ): the DC default
+		// bitmap font has no Chinese glyphs.
+		HFONT hFontOld = (HFONT)::SelectObject( hDC, _GetMenuLabelFont() );
 		::DrawText( hDC, strMIText.c_str(), -1, &rcText, DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
+		::SelectObject( hDC, hFontOld );
 		::SetTextColor( hDC, clrTextOld );
 		::SetBkMode( hDC, nBKModeOld );
 
