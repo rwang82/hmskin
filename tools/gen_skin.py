@@ -226,6 +226,31 @@ def gen_popmenu():
     d.rectangle((0, 0, 247, 242), outline=LINE_S + (255,), width=1)
     save(im, 'pop_menu_bk.png')
 
+# ---------- §1 开关标本 TGL-10：36x20 药丸 8 态 ----------
+# 复用 hm_wmp_checkbox（unchecked=OFF / checked=ON），位图按实际绘制尺寸 1:1。
+# district 厚度 = 36（demo manifest 里 dock LEFT），改尺寸需两边同步。
+TGL_W, TGL_H, KNOB = 36, 20, 16
+
+def gen_toggle():
+    # (名字, 药丸填充, 药丸描边, 滑钮颜色, 滑钮在右)
+    states = [
+        ('off_nor', SUNKEN, LINE,     FAINT,   False),
+        ('off_hov', SUNKEN, LINE_S,   MUTED,   False),
+        ('off_pre', DARKPRS, LINE,    MUTED,   False),
+        ('off_dis', SUNKEN, LINE,     (48, 54, 62), False),
+        ('on_nor',  ACCENT, ACC_PRS,  BG,      True),
+        ('on_hov',  ACC_HOV, ACC_PRS, BG,      True),
+        ('on_pre',  ACC_PRS, ACC_PRS, BG,      True),
+        ('on_dis',  (74, 60, 45), LINE, (48, 54, 62), True),
+    ]
+    for name, pill, border, knob, on in states:
+        im, d = canvas(TGL_W * SS, TGL_H * SS)
+        rrect(d, (0, 0, TGL_W * SS - 1, TGL_H * SS - 1), (TGL_H // 2) * SS,
+              fill=pill + (255,), outline=border + (255,), width=SS)
+        kx = (TGL_W - KNOB - 2) * SS if on else 2 * SS
+        d.ellipse((kx, 2 * SS, kx + KNOB * SS, (2 + KNOB) * SS), fill=knob + (255,))
+        save(im.resize((TGL_W, TGL_H), Image.LANCZOS), f'tgl_{name}.png')
+
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
     print('生成「基准台」皮肤位图 →', os.path.normpath(OUT))
@@ -238,4 +263,5 @@ if __name__ == '__main__':
     gen_scrollbar()
     gen_scrollbar_v2()
     gen_popmenu()
+    gen_toggle()
     print('完成。')
