@@ -153,10 +153,13 @@ bool hm_wmp_display_loader::_fillShowObjs( const Json::Value& aryShowObjs, hm_di
 	Json::Value valTmp;
 	hm_showobj* pShowObj = NULL;
 	hm_rs_uires_i* pUIRes = NULL;
-	hm_pos_decoder_i* pPDC = NULL;
 
 	uCountShowObj = aryShowObjs.size();
 	for ( uIndexShowObj = 0; uIndexShowObj < uCountShowObj; ++uIndexShowObj ) {
+		// fresh per showobj: a decoder-less showobj used to INHERIT the previous
+		// one's decoder ( pPDC was initialized once outside the loop ) - a
+		// silent wrong-position landmine.
+		hm_pos_decoder_i* pPDC = NULL;
 		valShowObj = aryShowObjs[ uIndexShowObj ];
 		if ( !valShowObj.isObject() ) {
 			assert( false );
