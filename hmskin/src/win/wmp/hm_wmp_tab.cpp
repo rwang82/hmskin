@@ -38,6 +38,7 @@ MSGBIND_BEGIN( hm_wmp_tabheader )
 	MSGBIND( WM_LBUTTONDBLCLK, _OnLButtonDblClk )
 	MSGBIND( WM_MOUSEMOVE, _OnMouseMove )
 	MSGBIND( WM_MOUSELEAVE, _OnMouseLeave )
+	MSGBIND( WM_KEYDOWN, _OnKeyDown )
 MSGBIND_END()
 //
 ORDERWNDMSG_BEGIN( hm_wmp_tabheader )
@@ -46,6 +47,7 @@ ORDERWNDMSG_BEGIN( hm_wmp_tabheader )
 	ORDERWNDMSG( WM_LBUTTONDBLCLK )
 	ORDERWNDMSG( WM_MOUSEMOVE )
 	ORDERWNDMSG( WM_MOUSELEAVE )
+	ORDERWNDMSG( WM_KEYDOWN )
 ORDERWNDMSG_END()
 //
 void hm_wmp_tabheader::_createDistrictObjs() {
@@ -258,6 +260,54 @@ void hm_wmp_tabheader::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 	::ReleaseDC( pWP->hwnd, hDC );
 }
 //
+void hm_wmp_tabheader::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
+	// keyboard accessibility ( DESIGN ): arrow keys cycle the chapters with
+	// wrap-around. WM_KEYDOWN reaches the focused window ( the canvas ),
+	// the dispatcher fans it out to this WMP. runs the exact same
+	// select/redraw/notify path as a click.
+	unsigned int uTabBtnCount = m_containerTabBtns.size();
+	unsigned int uIndexSelOld = m_uIndexSel;
+	hm_layout_obj* pLayoutObj = NULL;
+	RECT rcKeelObj;
+	HDC hDC;
+	int nStep = 0;
+
+	if ( uTabBtnCount == 0 )
+		return;
+	if ( pWP->wParam == VK_LEFT )
+		nStep = -1;
+	else if ( pWP->wParam == VK_RIGHT )
+		nStep = 1;
+	else
+		return;
+	m_uIndexSel = ( m_uIndexSel + nStep + uTabBtnCount ) % uTabBtnCount;
+	if ( m_uIndexSel == uIndexSelOld )
+		return;
+
+	pLayoutObj = pKeelObj->getLayoutObj();
+	if ( !pLayoutObj ) return;
+	pLayoutObj->mapPosition( pWP->hwnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcKeelObj );
+	hDC = ::GetDC( pWP->hwnd );
+	_doDrawBtnRaw( hDC, rcKeelObj, uIndexSelOld, hm_wmp_tabheader::EDISTRICTID_TABBTN_NOR );
+	_doDrawBtnRaw( hDC, rcKeelObj, m_uIndexSel, hm_wmp_tabheader::EDISTRICTID_TABBTN_SEL );
+	::ReleaseDC( pWP->hwnd, hDC );
+	//
+	HKEREPARAM hkereParam;
+	hkereParam.m_pEventSender = this;
+	hkereParam.m_uEvent = HMWMPTABEVENT_SELECTCHANGED;
+	hkereParam.m_lEventParam = m_uIndexSel;
+	hkereParam.m_lEventParam2 = uIndexSelOld;
+	pKeelObj->Notify( HMKEELOBJEVENT_RELAYEVENT, (LPARAM)&hkereParam );
+	//
+	if ( m_pEventListener ) {
+		m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_TABBTN_CLICK, (void*)pKeelObj, (void*)(UINT_PTR)m_uIndexSel );
+	}
+	// the arrows are consumed here.
+	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC;
+	pParamWndProc->m_bValidRes = true;
+	pParamWndProc->m_lResult = 0;
+}
+
 bool hm_wmp_tabheader::pushbackTabBtn( tabbtninfo* pTabBtnInfo ) {
 	if ( !pTabBtnInfo ) return false;
 	m_containerTabBtns.push_back( pTabBtnInfo );
