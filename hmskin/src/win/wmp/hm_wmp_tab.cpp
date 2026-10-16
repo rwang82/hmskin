@@ -132,11 +132,9 @@ void hm_wmp_tabheader::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 }
 //
 void hm_wmp_tabheader::_OnLButtonDblClk( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	int a = 0;
 }
 //
 void hm_wmp_tabheader::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	int a = 0;
 }
 //
 void hm_wmp_tabheader::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
@@ -290,14 +288,17 @@ void hm_wmp_tabheader::delAllTabBtns() {
 }
 //
 const tabbtninfo* hm_wmp_tabheader::getTabBtn( unsigned int uTabBtnIndex ) {
-	if ( m_containerTabBtns.size() == 0 
-	|| m_containerTabBtns.size() >= uTabBtnIndex ) return NULL;
+	// the comparisons were INVERTED for 9 years ( >= / < ): valid indices
+	// returned NULL while out-of-range ones walked into operator[] -
+	// flipped to the correct direction.
+	if ( m_containerTabBtns.size() == 0
+	|| m_containerTabBtns.size() <= uTabBtnIndex ) return NULL;
 	return m_containerTabBtns[ uTabBtnIndex ];
 }
 //
 bool hm_wmp_tabheader::hasTabBtn( unsigned int uTabBtndIndex ) {
 	return ( m_containerTabBtns.size() > 0 
-	&& m_containerTabBtns.size() < uTabBtndIndex );
+	&& m_containerTabBtns.size() > uTabBtndIndex );
 }
 //
 unsigned int hm_wmp_tabheader::getTabBtnCount() {
@@ -340,21 +341,11 @@ void hm_wmp_tabheader::_UpdateMemBitmap( HDC hRealDC, unsigned int uWidthNew, un
 //
 void hm_wmp_tabheader::_doDrawSkin( HDC hDC, const RECT& rcCanvas, unsigned int uIndexSel, unsigned int uIndexPre, unsigned int uIndexHover ) {
 	RECT rcCanvasMem;
-	DWORD dwLastTime;
-	DWORD dwCurTime;
-	TCHAR szMsg [ 100 ];
 
 	_UpdateMemBitmap( hDC, (rcCanvas.right - rcCanvas.left), ( rcCanvas.bottom - rcCanvas.top ) );
-
-	dwLastTime = GetTickCount();
-
 	::SetRect( &rcCanvasMem, 0, 0, m_sizeMemBitmap.cx, m_sizeMemBitmap.cy );
 	_doDrawSkinRaw( m_hMemDC, rcCanvasMem, uIndexSel, uIndexPre, uIndexHover );
 	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, rcCanvasMem.right, rcCanvasMem.bottom, m_hMemDC, 0, 0, SRCCOPY );
-	
-	dwCurTime = GetTickCount();
-	_stprintf_s( szMsg, _T("hm_wmp_tabheader::_doDrawSkin : %dms\n"), dwCurTime - dwLastTime );
-	::OutputDebugString( szMsg );
 }
 //
 void hm_wmp_tabheader::_doDrawSkinRaw( HDC hDC, const RECT& rcCanvas, unsigned int uIndexSel, unsigned int uIndexPre, unsigned int uIndexHover ) {

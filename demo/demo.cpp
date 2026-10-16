@@ -31,7 +31,6 @@
 #define WMPID_EVENTLOG (35)
 
 //hm_rawres_pic_factory::obj_id_type RAWID_RESBMP_BTN_PRE;
-void doTest();
 bool createUI( HWND hWndParent );
 void AppendEventLog( const TCHAR* szLine );
 void SwitchChapter( unsigned int uChapterIndex );
@@ -285,8 +284,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
 	//	
-   doTest();
-
    ////
    //hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,
    //   CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
@@ -306,18 +303,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-	HWND hWndParent;
-	HWND hWndParent2;
-
-	hWndParent = ::GetParent( g_hWnd );
-	if ( hWndParent ) {
-		hWndParent2 = ::GetParent( hWndParent );
-		int a = 0;
-	} else {
-		int b = 0;
-	}
-
-   //
    ::createUI( g_hWnd );
 
    //
@@ -403,16 +388,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			::TrackPopupMenu( hPopMenu, TPM_LEFTALIGN|TPM_TOPALIGN, ptCursor.x, ptCursor.y, 0, hWnd, NULL );
 		}
 		break;
-	case WM_SIZE:
-		{
-			RECT rcClient;
-			TCHAR szMsg[100];
-
-			::GetClientRect( hWnd, &rcClient );
-			_stprintf_s( szMsg, _T("rcClient. l:%d,r:%d,t:%d,b:%d\n"), rcClient.left, rcClient.right, rcClient.top, rcClient.bottom );
-			::OutputDebugString( szMsg );
-		}
-		break;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
@@ -467,17 +442,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 
-void doTest() {
-	//hm_coordsys_factory_type::obj_id_type idCoordSysMainWnd;
-	//hm_wnd_mark wndMark;
-
-	//idCoordSysMainWnd = 1;
-	//wndMark.m_eflag = hm_wnd_mark::WNDMARK_WNDPROPID;
-	//wndMark.m_uWndPropID = MAINWND_WNDPROPID;
-
-
-	//WNDMARK2CSID_TABLE->bindObjId2WndMark( idCoordSysMainWnd, wndMark );
-}
 
 bool createUI( HWND hWndParent ) {
 	//button: test1 — 原生控件换肤对照标本（ §1 基础交互）。
