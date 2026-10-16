@@ -278,6 +278,21 @@ def gen_radio():
             d.ellipse((pad, pad, W - 1 - pad, W - 1 - pad), fill=dot + (255,))
         save(im.resize((RAD, RAD), Image.LANCZOS), f'rad_{name}.png')
 
+# ---------- §2 进度条标本 PRG-12：轨道 260x8 / 填充 8x6 ----------
+# 静态标本（64%）：轨道原生尺寸 1:1；填充纯色小图横向拉伸到 dock 厚度
+# （纯色拉伸零失真，改百分比只动 manifest 厚度值）。
+PRG_W, PRG_H = 260, 8
+
+def gen_prg():
+    # 轨道（单态，凹陷面 + 发丝线描边）
+    im, d = canvas(PRG_W * SS, PRG_H * SS)
+    rrect(d, (0, 0, PRG_W * SS - 1, PRG_H * SS - 1), 2 * SS,
+          fill=SUNKEN + (255,), outline=LINE + (255,), width=SS)
+    save(im.resize((PRG_W, PRG_H), Image.LANCZOS), 'prg_track_nor.png')
+    # 填充（信号橙实心——橙=可操作进行中）
+    im, d = canvas(8 * SS, 6 * SS, ACCENT + (255,))
+    save(im.resize((8, 6), Image.LANCZOS), 'prg_fill_nor.png')
+
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
     print('生成「基准台」皮肤位图 →', os.path.normpath(OUT))
@@ -292,4 +307,5 @@ if __name__ == '__main__':
     gen_popmenu()
     gen_toggle()
     gen_radio()
+    gen_prg()
     print('完成。')
