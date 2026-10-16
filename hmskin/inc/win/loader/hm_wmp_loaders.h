@@ -189,6 +189,15 @@ public:
 public:
 	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
 };
+//
+class hm_wmp_radio_loader : public hm_wmp_display_loader {
+public:
+	hm_wmp_radio_loader();
+	virtual ~hm_wmp_radio_loader();
+
+public:
+	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
+};
 
 
 #endif //__HM_WMP_LOADERS_H__

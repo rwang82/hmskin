@@ -37,5 +37,10 @@
 // lParam1 - specify the pointer of keel object ( the scrollbar ).
 // lParam2 - the current scrollbar value ( m_nValCur ).
 #define HMSKIN_EVENT_SCROLLBAR_CHANGED (0x00000007)
+//////////////////////////////////////////////////////////////////////////
+// HMSKIN_EVENT_RADIO_CLICK
+// lParam1 - specify the pointer of keel object ( the radio item ).
+// lParam2 - always TRUE ( radio style: the clicked item stays checked ).
+#define HMSKIN_EVENT_RADIO_CLICK (0x00000008)
 
 #endif //__HMSKIN_EVENT_DEFS_H__

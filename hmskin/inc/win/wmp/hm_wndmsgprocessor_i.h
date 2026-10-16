@@ -21,12 +21,12 @@ public:
 public:
 	hm_wndmsgprocessor_i( hmskin_event_listener_base* pEventListener = NULL ) : m_pEventListener( pEventListener ), m_uId( HMWMP_ID_INVALID ) {};
 	virtual ~hm_wndmsgprocessor_i(){};
-	
+
 	// interface
 public:
 	virtual void doWndMsg( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) = 0;
 	virtual void getWndMsgs( msg_container_type& containerWndMsg ) = 0;
-	
+
 	// interface of hm_cmn_observer_i
 public:
 	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {};

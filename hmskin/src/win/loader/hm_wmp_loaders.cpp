@@ -7,6 +7,7 @@
 #include "win\wmp\hm_wmp_button.h"
 #include "win\wmp\hm_wmp_button_nca.h"
 #include "win\wmp\hm_wmp_checkbox.h"
+#include "win\wmp\hm_wmp_radio.h"
 #include "win\wmp\hm_wmp_dialogview.h"
 #include "win\wmp\hm_wmp_drawtrigger.h"
 #include "win\wmp\hm_wmp_drawtrigger_nca.h"
@@ -1077,4 +1078,17 @@ hm_wmp_checkbox_loader::~hm_wmp_checkbox_loader() {
 
 hm_wndmsgprocessor_i* hm_wmp_checkbox_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
 	HM_WMP_X_LOADER_IMPL( hm_wmp_checkbox );
+}
+
+//////////////////////////////////////////////////////////////////////////
+hm_wmp_radio_loader::hm_wmp_radio_loader() {
+
+}
+
+hm_wmp_radio_loader::~hm_wmp_radio_loader() {
+
+}
+
+hm_wndmsgprocessor_i* hm_wmp_radio_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
+	HM_WMP_X_LOADER_IMPL( hm_wmp_radio );
 }

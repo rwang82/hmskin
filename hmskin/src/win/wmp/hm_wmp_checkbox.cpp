@@ -155,7 +155,10 @@ void hm_wmp_checkbox::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 	}
 	m_uFlag &= ~HM_CHECK_FLAG_LBTDOWN;
 	if ( ( m_eCheckStatus == ECHECK_STATUS_PRESS ) || ( m_eCheckStatus == ENOCHECK_STATUS_HOVER ) || ( m_eCheckStatus == ENOCHECK_STATUS_NORMAL ) ){
-		m_eCheckStatus = ENOCHECK_STATUS_HOVER;
+		// radio subclass keeps the item checked ( _keepCheckedOnClick ):
+		// unchecking here + re-checking from the app would leave the wrong
+		// state on screen for one paint cycle ( visible flash ).
+		m_eCheckStatus = _keepCheckedOnClick() ? ECHECK_STATUS_HOVER : ENOCHECK_STATUS_HOVER;
 	} else if ( ( m_eCheckStatus == ENOCHECK_STATUS_PRESS ) || ( m_eCheckStatus == ECHECK_STATUS_HOVER ) || ( m_eCheckStatus == ECHECK_STATUS_NORMAL ) ){
 		m_eCheckStatus = ECHECK_STATUS_HOVER;
 	} else{
@@ -170,7 +173,7 @@ void hm_wmp_checkbox::_OnLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 	//
 	if ( ( ( uFlagOld & HM_CHECK_FLAG_LBTDOWN ) == HM_CHECK_FLAG_LBTDOWN ) && ::PtInRect( &rcKeelObj, ptClient ) ) {
 		if ( m_pEventListener ) {
-			m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_CHECKBOX_CLICK, (void*)pKeelObj, (void*)(UINT_PTR)isCheck() );
+			m_pEventListener->onHKSkinEvent( _getClickEventId(), (void*)pKeelObj, (void*)(UINT_PTR)isCheck() );
 		}
 		////notify parent
 		WPARAM wParam = MAKEWPARAM( GetDlgCtrlID( pWP->hwnd ), HM_CHECK_CMDEVT_DOWN );
@@ -400,4 +403,37 @@ bool hm_wmp_checkbox::isCheck(){
 
 	return ( ( m_eCheckStatus == ECHECK_STATUS_DISABLE ) || ( m_eCheckStatus == ECHECK_STATUS_HOVER ) ||
 		( m_eCheckStatus == ECHECK_STATUS_NORMAL ) || ( m_eCheckStatus == ECHECK_STATUS_PRESS ) );
+}
+
+bool hm_wmp_checkbox::setCheck( BOOL bCheck ) {
+	int nSubState;
+
+	// keep the current interaction sub-state ( NOR/HOV/PRE ), only cross
+	// between the check/nocheck family. disable states are left untouched.
+	switch ( m_eCheckStatus ) {
+	case ENOCHECK_STATUS_NORMAL:
+	case ECHECK_STATUS_NORMAL:
+		nSubState = 0;
+		break;
+	case ENOCHECK_STATUS_HOVER:
+	case ECHECK_STATUS_HOVER:
+		nSubState = 1;
+		break;
+	case ENOCHECK_STATUS_PRESS:
+	case ECHECK_STATUS_PRESS:
+		nSubState = 2;
+		break;
+	default:
+		return false;
+		break;
+	}
+	m_eCheckStatus = ( ECHECKBOXSTATUS )( ( bCheck ? ECHECK_STATUS_NORMAL : ENOCHECK_STATUS_NORMAL ) + nSubState );
+
+	// broadcast the state change: the owning keelobj subscribed at bind
+	// time and invalidates its own rect. this WMP never learns about
+	// keelobjs - callers ( e.g. radio groups unchecking siblings ) never
+	// touch invalidation.
+	Notify( HM_EVENT_WMP_STATECHANGED );
+
+	return true;
 }

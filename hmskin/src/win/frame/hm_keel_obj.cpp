@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "win\frame\hm_keel_obj.h"
 #include "win\frame\hm_layout_obj.h"
+#include "win\frame\hm_coordinate_system_hwnd.h"
 #include "win\resource_system\hm_rs_uires_i.h"
 #include "win\paint_system\hm_ps_paint_layer_i.h"
 #include "common\hm_cmn_envcfg.h"
@@ -30,6 +31,16 @@ hm_keel_obj::~hm_keel_obj()
 	_delAllLayoutObj();
 	//
 	UnRegister( this, HMKEELOBJEVENT_LAYOUTOBJ_CHANGED );
+	// drop the state-changed subscriptions on all WMPs: WMPs live in the
+	// factory and may outlive this keelobj - a stale observer pointer would
+	// dangle at their next Notify.
+	{
+		wmp_container_type::iterator itWMP, iendWMP;
+		iendWMP = m_containerWMP.end();
+		for ( itWMP = m_containerWMP.begin(); itWMP!=iendWMP; ++itWMP ) {
+			(*itWMP)->UnRegister( this, HM_EVENT_WMP_STATECHANGED );
+		}
+	}
 }
 // 
 void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue )
@@ -92,6 +103,19 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 	case cmn::ID_EVENT_POSCHANGED:
 		{
 			Notify( HMKEELOBJEVENT_POSCHANGED, (LPARAM)this );
+		}
+		break;
+	case HM_EVENT_WMP_STATECHANGED:
+		{
+			// one of my WMPs changed state from outside the message flow
+			// ( e.g. checkbox setCheck by radio-group logic ). the owner
+			// holds the rect/canvas knowledge - invalidate it and let the
+			// paint cycle redraw; the WMP never learns about keelobjs.
+			hm_layout_obj* pLayoutObjSelf = getLayoutObj();
+			const coordinate_system_hwnd* pCoordSysHwnd = pLayoutObjSelf
+				? ( const coordinate_system_hwnd* )pLayoutObjSelf->getCoordinateSystem() : NULL;
+			if ( pCoordSysHwnd && pCoordSysHwnd->getHWnd() )
+				::InvalidateRect( pCoordSysHwnd->getHWnd(), &pLayoutObjSelf->m_rect, FALSE );
 		}
 		break;
 	default:
@@ -223,6 +247,11 @@ void hm_keel_obj::pushbackWMP( hm_wndmsgprocessor_i* pWndMsgProcessor ) {
 			m_pWndMsgSource->orderWndMsg2Back( *itWndMsg, this );
 		}
 	}
+	// subscribe to the WMP's out-of-message state changes: when a state API
+	// fires HM_EVENT_WMP_STATECHANGED ( e.g. checkbox setCheck from radio
+	// group logic ), the owner invalidates its own rect. dependency stays
+	// owner -> member, the WMP never learns about keelobjs.
+	pWndMsgProcessor->Register( this, HM_EVENT_WMP_STATECHANGED );
 	m_containerWMP.push_back( pWndMsgProcessor );
 }
 
@@ -251,6 +280,10 @@ void hm_keel_obj::delWMP( hm_wndmsgprocessor_i* pWndMsgProcessor ) {
 	}
 	if ( !bFindWMP )
 		return;
+
+	// mirror of pushbackWMP's Register: the detached WMP may outlive this
+	// keelobj ( WMPs live in the factory ), drop the subscription.
+	pWndMsgProcessor->UnRegister( this, HM_EVENT_WMP_STATECHANGED );
 
 	// check if need cancel some wndmsg from m_pWndMsgSource
 	if ( m_pWndMsgSource ) {

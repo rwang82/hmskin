@@ -76,5 +76,13 @@ struct HKEREPARAM{
 // pEventParam - specify the pointer of HKEREPARAM.
 // pEventParam2 - NONE.
 #define HMKEELOBJEVENT_RELAYEVENT ( HM_EVENT_BEGIN + 13 )
+//////////////////////////////////////////////////////////////////////////
+// a WMP's state changed from OUTSIDE the message flow ( e.g. checkbox
+// setCheck called by radio-group logic ). the owning keelobj subscribes at
+// pushbackWMP and invalidates its own rect - the WMP itself stays ignorant
+// of keelobjs ( dependency stays owner -> member ).
+// pEventParam - NONE.
+// pEventParam2 - NONE.
+#define HM_EVENT_WMP_STATECHANGED ( HM_EVENT_BEGIN + 14 )
 
 #endif //__HM_EVENT_DEFS__

@@ -298,6 +298,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\loader\hm_wmp_loader_depot.cpp" />
     <ClCompile Include="src\win\resource_system\hm_rs_uires_pic.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_checkbox.cpp" />
+    <ClCompile Include="src\win\wmp\hm_wmp_radio.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -386,6 +387,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\loader\hm_wmp_loader_depot.h" />
     <ClInclude Include="inc\win\resource_system\hm_rs_uires_pic.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_checkbox.h" />
+    <ClInclude Include="inc\win\wmp\hm_wmp_radio.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="inc\win\frame\hm_coordinate_system_hwnd.h" />

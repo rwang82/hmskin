@@ -251,6 +251,33 @@ def gen_toggle():
         d.ellipse((kx, 2 * SS, kx + KNOB * SS, (2 + KNOB) * SS), fill=knob + (255,))
         save(im.resize((TGL_W, TGL_H), Image.LANCZOS), f'tgl_{name}.png')
 
+# ---------- §1 单选标本 RAD-11：15x15 圆 8 态 ----------
+# 复用 hm_wmp_checkbox（unchecked=空圈 / checked=绿点圈），选中=状态绿圆点
+# （勾选族语义一致：选中=TRUE 绿；开关才是信号橙）。与复选框同尺寸 15px。
+RAD = CHK
+
+def gen_radio():
+    HOVB = (85, 99, 109)   # 悬停描边（与复选框同）
+    states = [
+        # (名字, 选中, 描边, 圈填充, 点颜色)
+        ('off_nor', False, LINE_S, SUNKEN, None),
+        ('off_hov', False, HOVB,   SUNKEN, None),
+        ('off_pre', False, TRUE,   SUNKEN, None),
+        ('off_dis', False, (36, 43, 49), SURFACE, None),
+        ('on_nor',  True,  LINE_S, SUNKEN, TRUE),
+        ('on_hov',  True,  HOVB,   SUNKEN, TRUE),
+        ('on_pre',  True,  ACC_PRS, SUNKEN, ACC_PRS),
+        ('on_dis',  True,  (36, 43, 49), SURFACE, FAINT),
+    ]
+    for name, on, border, ring, dot in states:
+        W = RAD * SS
+        im, d = canvas(W, W)
+        d.ellipse((0, 0, W - 1, W - 1), fill=ring + (255,), outline=border + (255,), width=SS)
+        if on:
+            pad = int(W * 0.28)
+            d.ellipse((pad, pad, W - 1 - pad, W - 1 - pad), fill=dot + (255,))
+        save(im.resize((RAD, RAD), Image.LANCZOS), f'rad_{name}.png')
+
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
     print('生成「基准台」皮肤位图 →', os.path.normpath(OUT))
@@ -264,4 +291,5 @@ if __name__ == '__main__':
     gen_scrollbar_v2()
     gen_popmenu()
     gen_toggle()
+    gen_radio()
     print('完成。')

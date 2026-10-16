@@ -315,6 +315,9 @@
     <ClCompile Include="src\win\wmp\hm_wmp_checkbox.cpp">
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\win\wmp\hm_wmp_radio.cpp">
+      <Filter>wndmsgprocessor\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\win\hm_win_misc.h">
@@ -567,6 +570,9 @@
       <Filter>resource_system\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\wmp\hm_wmp_checkbox.h">
+      <Filter>wndmsgprocessor\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\wmp\hm_wmp_radio.h">
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
   </ItemGroup>

@@ -53,6 +53,7 @@ void hm_wmp_loader_depot::_init() {
 	ADD_WMP_LOADER( hm_wmp_tabheader );
 	ADD_WMP_LOADER( hm_wmp_viewbkcontent );
 	ADD_WMP_LOADER( hm_wmp_checkbox );
+	ADD_WMP_LOADER( hm_wmp_radio );
 }
 
 void hm_wmp_loader_depot::_unInit() {

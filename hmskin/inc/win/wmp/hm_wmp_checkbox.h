@@ -3,6 +3,7 @@
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\wmp\hm_wmp_display.h"
 #include "win\hm_export_defs.h"
+#include "hmskin_event_defs.h"
 
 #define HM_CHECK_FLAG_NONE (0x00000000)
 #define HM_CHECK_FLAG_LBTDOWN (0x00000001)
@@ -39,6 +40,16 @@ public:
 
 public:
 	bool isCheck();
+	// map the current interaction state ( NOR/HOV/PRE ) across the
+	// check/nocheck family without disturbing it - lets radio groups
+	// uncheck siblings from the app layer. disabled states stay disabled.
+	bool setCheck( BOOL bCheck );
+
+protected:
+	// behavior hooks ( template method ): the radio subclass flips both -
+	// checkbox itself stays a plain toggle. no mode flags on this class.
+	virtual BOOL _keepCheckedOnClick() { return FALSE; }
+	virtual unsigned int _getClickEventId() { return HMSKIN_EVENT_CHECKBOX_CLICK; }
 
 public:
 	DECLARE_MSGBIND()

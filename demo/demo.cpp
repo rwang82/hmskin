@@ -8,6 +8,7 @@
 #include "hmskin_helper.h"
 #include "win\hm_wndmsg_defs.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
+#include "win\wmp\hm_wmp_checkbox.h"
 #include <vector>
 
 //////////////////////////////////////////////////////////
@@ -57,11 +58,11 @@ static LRESULT CALLBACK PopupWndProc( HWND hWnd, UINT message, WPARAM wParam, LP
 }
 
 // ---- tab chapters ( §1..§4 ) : keelobj groups switched by visibility ----
-static const unsigned int arrChapterGroups[4][13] = {
-	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48 },  // §1 基础交互（+ 原生接管按钮 g_hBtnTest1 + 8格状态矩阵 + TGL-10 开关）
-	{ 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0, 0 },        // §2 文本与数据（字阶标本）
-	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },             // §3 菜单系统
-	{ 2, 28, 38, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0 },           // §4 滚动与容器（滚动井+内容行+滚动条）
+static const unsigned int arrChapterGroups[4][17] = {
+	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48, 49, 50, 51, 0 },  // §1 基础交互（+ 原生接管按钮 + 8格状态矩阵 + TGL-10 开关 + RAD-11 单选组）
+	{ 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },           // §2 文本与数据（字阶标本）
+	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },                // §3 菜单系统
+	{ 2, 28, 38, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },              // §4 滚动与容器（滚动井+内容行+滚动条）
 };
 
 void SwitchChapter( unsigned int uChapterIndex ) {
@@ -69,7 +70,7 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 		return;
 	for ( int nChapter = 0; nChapter < 4; ++nChapter ) {
 		BOOL bVisible = ( nChapter == (int)uChapterIndex );
-		for ( int i = 0; i < 13; ++i ) {
+		for ( unsigned int i = 0; i < ( sizeof( arrChapterGroups[ 0 ] ) / sizeof( arrChapterGroups[ 0 ][ 0 ] ) ); ++i ) {
 			unsigned int idKeelObj = arrChapterGroups[ nChapter ][ i ];
 			if ( !idKeelObj )
 				break;
@@ -346,6 +347,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			   pWMPScrollBar->setTrackThumbLen( 48 );
 			   pWMPScrollBar->setValRange( 0, 16 );
 		   }
+	   }
+   }
+
+   // §1 RAD-11 radio group ( K49..K51 / WMP72..74, hm_wmp_radio ): GDI is
+   // the default selection. stay-checked + RADIO_CLICK event are baked into
+   // the radio class; sibling unchecking is driven by the event listener.
+   {
+	   hm_keel_obj* pKeelObjRadio = NULL;
+	   if ( hm_get_keelobj( g_pHMRoot, 49, &pKeelObjRadio ) && pKeelObjRadio ) {
+		   hm_wmp_checkbox* pWMPRadio = dynamic_cast< hm_wmp_checkbox* >( pKeelObjRadio->getWMP( 72 ) );
+		   if ( pWMPRadio )
+			   pWMPRadio->setCheck( TRUE );
 	   }
    }
 

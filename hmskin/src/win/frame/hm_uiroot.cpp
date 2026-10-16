@@ -24,13 +24,19 @@ hm_uiroot::hm_uiroot( hmskin_event_listener_base* pEventListener )
 }
 
 hm_uiroot::~hm_uiroot() {
-	if ( m_pWMPFactory )
-		delete m_pWMPFactory;
-	m_pWMPFactory = NULL;
-
+	// teardown order follows the dependency direction: keelobjs reference
+	// WMPs, so the keelobj tree dies FIRST while the WMP pool is still
+	// alive ( keelobj dtors unsubscribe from their WMPs' state events ).
+	// the WMPs die afterwards and EraseAllRegister finds no dead observers.
+	// ( the old order deleted the WMP pool first - keelobj dtors then held
+	//   dangling WMP pointers. )
 	if ( m_pKeelObjFactory )
 		delete m_pKeelObjFactory;
 	m_pKeelObjFactory = NULL;
+
+	if ( m_pWMPFactory )
+		delete m_pWMPFactory;
+	m_pWMPFactory = NULL;
 
 	if ( m_pWndMark2MSIdTable )
 		delete m_pWndMark2MSIdTable;

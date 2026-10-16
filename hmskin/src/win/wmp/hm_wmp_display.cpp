@@ -38,6 +38,8 @@ void hm_wmp_display::drawSelf( hm_keel_obj* pKeelObj, HWND hWndCanvas ) {
 		return;
 
 	hDC = ::GetDC( hWndCanvas );
+	if ( !hDC )
+		return;
 	_drawWithStrategy( hDC, rcCanvas );
 	::ReleaseDC( hWndCanvas, hDC );
 }
@@ -60,6 +62,8 @@ void hm_wmp_display::_drawWithStrategy( HDC hDC, const RECT& rcCanvas ) {
 	if ( ( nW <= 0 ) || ( nH <= 0 ) )
 		return;
 	HDC hMemDC = ::CreateCompatibleDC( hDC );
+	if ( !hMemDC )
+		return;
 	HBITMAP hBmpDraw = NULL;
 	HBITMAP hBmpOld = NULL;
 	BOOL bBufOwner = FALSE;

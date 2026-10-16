@@ -4,6 +4,7 @@
 #include "hmskin_cpp.h"
 #include "win\frame\hm_keel_obj.h"
 #include "win\frame\hm_layout_obj.h"
+#include "win\wmp\hm_wmp_checkbox.h"
 #include "win\frame\hm_layout_decoders.h"
 #include "win\frame\hm_uiroot.h"
 #include "demo.h"
@@ -25,11 +26,35 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		_stprintf_s( szLine, 64, _T("BTN-%02d CLICK"), pKeelObj ? pKeelObj->getId() : 0 );
 		break;
 	case HMSKIN_EVENT_CHECKBOX_CLICK:
-		// checkbox-class WMPs share this event: K10 = CHK-02 复选框, K48 = TGL-10 开关.
-		if ( pKeelObj && pKeelObj->getId() == 48 )
-			_stprintf_s( szLine, 64, _T("TGL-10 -> %s"), lParam2 ? _T("ON") : _T("OFF") );
-		else
-			_stprintf_s( szLine, 64, _T("CHK-02 -> %s"), lParam2 ? _T("true") : _T("false") );
+		{ // checkbox-class WMPs: K10 = CHK-02 复选框, K48 = TGL-10 开关.
+		  // ( radios are the hm_wmp_radio class and fire RADIO_CLICK below. )
+			unsigned int uId = pKeelObj ? pKeelObj->getId() : 0;
+			if ( uId == 48 )
+				_stprintf_s( szLine, 64, _T("TGL-10 -> %s"), lParam2 ? _T("ON") : _T("OFF") );
+			else
+				_stprintf_s( szLine, 64, _T("CHK-02 -> %s"), lParam2 ? _T("true") : _T("false") );
+		}
+		break;
+	case HMSKIN_EVENT_RADIO_CLICK:
+		{ // RAD-11 ( K49..K51, hm_wmp_radio ): the clicked item stays checked
+		  // by the engine, this side only unchecks siblings. setCheck
+		  // invalidates via the STATECHANGED event, no view plumbing here.
+			static const TCHAR* arrOptions[3] = { _T("GDI"), _T("GDI+"), _T("AUTO") };
+			unsigned int uSel = pKeelObj ? ( pKeelObj->getId() - 49 ) : 0;
+			if ( uSel > 2 )
+				uSel = 2;
+			for ( unsigned int uSibling = 0; uSibling < 3; ++uSibling ) {
+				if ( uSibling == uSel )
+					continue;
+				hm_keel_obj* pKeelObjSibling = NULL;
+				if ( hm_get_keelobj( g_pHMRoot, 49 + uSibling, &pKeelObjSibling ) && pKeelObjSibling ) {
+					hm_wmp_checkbox* pWMPSibling = dynamic_cast< hm_wmp_checkbox* >( pKeelObjSibling->getWMP( 72 + uSibling ) );
+					if ( pWMPSibling && pWMPSibling->isCheck() )
+						pWMPSibling->setCheck( FALSE );
+				}
+			}
+			_stprintf_s( szLine, 64, _T("RAD-11 -> %s"), arrOptions[ uSel ] );
+		}
 		break;
 	case HMSKIN_EVENT_TABBTN_CLICK:
 		_stprintf_s( szLine, 64, _T("TAB-01 -> #%d"), (unsigned int)(UINT_PTR)lParam2 + 1 );
