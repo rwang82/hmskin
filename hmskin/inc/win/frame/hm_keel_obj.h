@@ -69,6 +69,10 @@ public:
 	void doDrawAll( HDC hDC, HWND hWndCanvas );
 	void setVisible( BOOL bVisible );
 	BOOL isVisible() const;
+	// scroll-container semantics: my subtree may never draw outside my
+	// rect ( draw-time property, no repaint side effects ).
+	void setClipChildren( BOOL bClipChildren );
+	BOOL isClipChildren() const;
 
 	// helper
 private:

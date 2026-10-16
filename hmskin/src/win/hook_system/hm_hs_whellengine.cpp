@@ -170,12 +170,18 @@ hm_hs_whellengine* hm_hs_whellengine::getInstance() {
 void hm_hs_whellengine::trigger() {
 	//
 	ENTER_TAGS_ACCESS()
-	// post HMWM_MOUSEWHEEL message
-	if ( m_containerWTD.size() > 0 ) {
+	// post HMWM_MOUSEWHEEL message - ONLY while new wheel tags keep coming.
+	// the original design relied on a consumer ( viewbkcontent ) calling
+	// pauseTriggerThread() when the inertia decayed to zero; with no
+	// consumer the thread posted forever once woken ( 5668 msgs per
+	// session ). no new tags = self-park.
+	if ( m_containerWTD.size() > 0 && m_uNoTriggerTagCount > 0 ) {
 		wtd_container_type::iterator itWTD;
 
 		itWTD = m_containerWTD.begin();
 		::PostMessage( itWTD->m_hWnd, HMWM_MOUSEWHEEL, m_uNoTriggerTagCount, (LPARAM)(&m_containerWTD) );
+	} else {
+		::ResetEvent( m_hEventTriggerRun );
 	}
 	// reset m_uNoTriggerTagCount.
 	m_uNoTriggerTagCount = 0;
@@ -185,12 +191,10 @@ void hm_hs_whellengine::trigger() {
 }
 
 void hm_hs_whellengine::pauseTriggerThread() {
-	::OutputDebugString(_T("pauseTriggerThread\n"));
 	::ResetEvent( m_hEventTriggerRun );
 }
 
 void hm_hs_whellengine::resumeTriggerThread() {
-	::OutputDebugString(_T("resumeTriggerThread\n"));
 	::SetEvent( m_hEventTriggerRun );
 }
 

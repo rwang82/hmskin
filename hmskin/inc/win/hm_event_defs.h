@@ -53,7 +53,7 @@ struct HETMPARAM {
 /////////////////////////////////////////////////////////////////////////
 // pEventParam - int (specify the distance that wheel moved in pixel, the value < 0 means forwards, > 0 means backwards )
 // pEventParam2 - NULL.
-#define HM_EVENT_MOUSEWHELL ( HM_EVENT_BEGIN + 9 )
+#define HM_EVENT_MOUSEWHEEL ( HM_EVENT_BEGIN + 9 )
 //////////////////////////////////////////////////////////////////////////
 // pEventParam - specify the pointer of hm_keel_obj
 // pEventParam2 - NULL.

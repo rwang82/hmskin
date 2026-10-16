@@ -15,6 +15,7 @@
 //////////////////////////////////////////////////////////////////////////
 #define HMKEELOBJ_FLAG_NONE (0x00000000)
 #define HMKEELOBJ_FLAG_VISIBLE (0x00000001)
+#define HMKEELOBJ_FLAG_CLIPCHILDREN (0x00000002)
 //////////////////////////////////////////////////////////////////////////
 hm_keel_obj::hm_keel_obj()
 : m_uFlag( HMKEELOBJ_FLAG_VISIBLE )
@@ -505,10 +506,30 @@ void hm_keel_obj::doDrawAll( HDC hDC, HWND hWndCanvas )
 {
 	if ( !isVisible() )
 		return; 
+
+	// scroll-container semantics: with clip-children on, this subtree may
+	// never draw outside my rect ( a tall content row sliding under the
+	// well edge gets cut at the edge ). SaveDC/RestoreDC keeps the clip
+	// hermetic - later siblings are unaffected.
+	int nDCSave = 0;
+	if ( m_uFlag & HMKEELOBJ_FLAG_CLIPCHILDREN ) {
+		hm_layout_obj* pLayoutObjSelf = getLayoutObj();
+		const coordinate_system_hwnd* pCoordSysHwnd = pLayoutObjSelf
+			? ( const coordinate_system_hwnd* )pLayoutObjSelf->getCoordinateSystem() : NULL;
+		RECT rcSelf;
+		if ( pCoordSysHwnd && pCoordSysHwnd->getHWnd()
+			&& pLayoutObjSelf->mapPosition( hWndCanvas, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcSelf ) ) {
+			nDCSave = ::SaveDC( hDC );
+			::IntersectClipRect( hDC, rcSelf.left, rcSelf.top, rcSelf.right, rcSelf.bottom );
+		}
+	}
 	//
 	_doDrawSelf( hDC, hWndCanvas );
 	//
 	_doDrawChildKeelObjs( hDC, hWndCanvas );
+	//
+	if ( nDCSave )
+		::RestoreDC( hDC, nDCSave );
 }
 //
 void hm_keel_obj::_doDrawSelf( HDC hDC, HWND hWndCanvas ) {
@@ -539,6 +560,17 @@ void hm_keel_obj::setVisible( BOOL bVisible ) {
 //
 BOOL hm_keel_obj::isVisible() const {
 	return m_uFlag & HMKEELOBJ_FLAG_VISIBLE;
+}
+//
+void hm_keel_obj::setClipChildren( BOOL bClipChildren ) {
+	if ( bClipChildren )
+		m_uFlag |= HMKEELOBJ_FLAG_CLIPCHILDREN;
+	else
+		m_uFlag &= ~HMKEELOBJ_FLAG_CLIPCHILDREN;
+}
+//
+BOOL hm_keel_obj::isClipChildren() const {
+	return m_uFlag & HMKEELOBJ_FLAG_CLIPCHILDREN;
 }
 //////////////////////////////////////////////////////////////////////////
 IMPLEMENT_FACTORY( hm_keel_obj )

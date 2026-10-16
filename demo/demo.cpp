@@ -318,19 +318,32 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    // tab chapters : §1 基础交互 is the default visible section.
    SwitchChapter( 0 );
 
-   // §4 scrollbar ( K47 / WMP70 ): value range drives the content-row offset
-   // ( parallax demo - full document scrolling needs container clipping ).
-   // thumb / arrow thicknesses must equal the sbthumb_* / sbbtn_* bitmap
-   // dimensions ( gen_skin.py ) - bitmaps are stretched into the districts.
+   // §4 scroll view: the well ( K2 ) clips its children, the content rows
+   // ( K38 ) are taller than the well, the scrollbar range spans exactly
+   // the overflow ( content height - well height ). thumb / arrow thicknesses
+   // must equal the sbthumb_* / sbbtn_* bitmap dimensions ( gen_skin.py ).
    {
+	   hm_keel_obj* pKeelObjWell = NULL;
+	   hm_keel_obj* pKeelObjContent = NULL;
 	   hm_keel_obj* pKeelObjScrollBar = NULL;
+	   if ( hm_get_keelobj( g_pHMRoot, 2, &pKeelObjWell ) && pKeelObjWell )
+		   pKeelObjWell->setClipChildren( TRUE );
 	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
 		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
 		   if ( pWMPScrollBar ) {
 			   pWMPScrollBar->setStartThumbLen( 20 );
 			   pWMPScrollBar->setEndThumbLen( 20 );
 			   pWMPScrollBar->setTrackThumbLen( 48 );
-			   pWMPScrollBar->setValRange( 0, 16 );
+			   int nRange = 0;
+			   if ( hm_get_keelobj( g_pHMRoot, 38, &pKeelObjContent ) && pKeelObjContent
+				   && pKeelObjContent->getLayoutObj() && pKeelObjWell->getLayoutObj() ) {
+				   RECT rcWell = pKeelObjWell->getLayoutObj()->m_rect;
+				   RECT rcContent = pKeelObjContent->getLayoutObj()->m_rect;
+				   nRange = ( rcContent.bottom - rcContent.top ) - ( rcWell.bottom - rcWell.top );
+				   if ( nRange < 0 )
+					   nRange = 0;
+			   }
+			   pWMPScrollBar->setValRange( 0, nRange );
 		   }
 	   }
    }

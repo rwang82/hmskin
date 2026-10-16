@@ -6,6 +6,9 @@
 #include "win\frame\hm_layout_obj.h"
 #include "win\hm_event_defs.h"
 
+// wheel step in value units per notch.
+#define WHEEL_STEP ( 3 )
+
 
 //////////////////////////////////////////////////////////
 hm_wmp_scrollbar::hm_wmp_scrollbar( ENUMDIRECTIONTYPE eDirectType, hmskin_event_listener_base* pEventListener )
@@ -78,6 +81,7 @@ MSGBIND_BEGIN( hm_wmp_scrollbar )
 	MSGBIND( WM_RBUTTONUP, _OnRButtonUp )
 	MSGBIND( WM_MOUSEMOVE, _OnMouseMove )
 	MSGBIND( WM_MOUSELEAVE, _OnMouseLeave )
+	MSGBIND( WM_MOUSEWHEEL, _OnMouseWheel )
 MSGBIND_END()
 //
 ORDERWNDMSG_BEGIN( hm_wmp_scrollbar )
@@ -88,6 +92,7 @@ ORDERWNDMSG_BEGIN( hm_wmp_scrollbar )
 	ORDERWNDMSG( WM_RBUTTONUP )
 	ORDERWNDMSG( WM_MOUSEMOVE )
 	ORDERWNDMSG( WM_MOUSELEAVE )
+	ORDERWNDMSG( WM_MOUSEWHEEL )
 ORDERWNDMSG_END()
 //
 void hm_wmp_scrollbar::_createDistrictObjs() {
@@ -529,6 +534,49 @@ void hm_wmp_scrollbar::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 void hm_wmp_scrollbar::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
     if ( m_pCurStateObj )
 		m_pCurStateObj->_OnMouseLeave( this, pKeelObj, pWP, pParamWndProc );
+}
+
+void hm_wmp_scrollbar::_OnMouseWheel( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
+	// wheel over the SCROLL CONTAINER ( this bar's parent keelobj ) steps
+	// the value through the existing changed-event chain, same as dragging.
+	// WM_MOUSEWHEEL is delivered to the whole window, so hit-test the
+	// cursor against the parent rect first.
+	hm_keel_obj* pParent = pKeelObj ? pKeelObj->getParent() : NULL;
+	RECT rcContainer;
+	POINT ptCursor;
+	if ( !pParent || !pParent->getLayoutObj() )
+		return;
+	if ( !pParent->getLayoutObj()->mapPosition( pWP->hwnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcContainer ) )
+		return;
+	if ( !::GetCursorPos( &ptCursor ) )
+		return;
+	if ( !::ScreenToClient( pWP->hwnd, &ptCursor ) )
+		return;
+	if ( !::PtInRect( &rcContainer, ptCursor ) )
+		return;
+
+	int nDelta = GET_WHEEL_DELTA_WPARAM( pWP->wParam );
+	int nValNew = m_nValCur - ( nDelta > 0 ? WHEEL_STEP : -WHEEL_STEP );
+	if ( nValNew < m_nValMin )
+		nValNew = m_nValMin;
+	if ( nValNew > m_nValMax )
+		nValNew = m_nValMax;
+	if ( nValNew == m_nValCur )
+		return;
+	m_nValCur = nValNew;
+
+	// the same two-part notification the drag path emits.
+	HETMPARAM* pHETMParam = new HETMPARAM();
+	pHETMParam->m_nPosCur = ( m_nValCur - m_nValMin );
+	pHETMParam->m_nPosMax = ( m_nValMax - m_nValMin );
+	pHETMParam->m_pWMPScrollbar = this;
+	Notify( HM_EVENT_TRACKTHUMB_MOVED, (LPARAM)pHETMParam );
+	delete pHETMParam;
+	if ( m_pEventListener )
+		m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_SCROLLBAR_CHANGED, ( void* )pKeelObj, ( void* )( UINT_PTR )m_nValCur );
+
+	// value moved - the thumb must follow ( drawSelf owns its DC cycle ).
+	drawSelf();
 }
 
 void hm_wmp_scrollbar::_getAllDistrictId( district_id_container_type& containerIds ) {

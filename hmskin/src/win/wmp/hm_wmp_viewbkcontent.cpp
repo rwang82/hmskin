@@ -171,7 +171,7 @@ void hm_wmp_viewbkcontent::_OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pW
 		m_uFlag &= ~HMVBKC_FLAG_WHELLSTOPED;
 	}
 	
-	this->Notify( HM_EVENT_MOUSEWHELL, (LPARAM)nDistance );
+	this->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)nDistance );
 	
 	if ( nDistance == 0 ) {
 		this->m_uFlag |= HMVBKC_FLAG_WHELLSTOPED;
