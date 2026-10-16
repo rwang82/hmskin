@@ -3408,13 +3408,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 520,
-          "m_height": 34,
-          "m_space1": 20,
-          "m_space2": 104
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 104,
+          "m_space2": 20,
+          "m_space3": 40,
+          "m_thickness": 34
         }
       },
       "WMP": [
@@ -3436,13 +3436,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 560,
-          "m_height": 22,
-          "m_space1": 20,
-          "m_space2": 142
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 142,
+          "m_space2": 20,
+          "m_space3": 40,
+          "m_thickness": 22
         }
       },
       "WMP": [
@@ -3464,13 +3464,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 560,
-          "m_height": 20,
-          "m_space1": 20,
-          "m_space2": 168
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 168,
+          "m_space2": 20,
+          "m_space3": 40,
+          "m_thickness": 20
         }
       },
       "WMP": [
@@ -3492,13 +3492,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 560,
-          "m_height": 20,
-          "m_space1": 20,
-          "m_space2": 192
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 192,
+          "m_space2": 20,
+          "m_space3": 40,
+          "m_thickness": 20
         }
       },
       "WMP": [
@@ -3520,13 +3520,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 560,
-          "m_height": 18,
-          "m_space1": 20,
-          "m_space2": 216
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 216,
+          "m_space2": 20,
+          "m_space3": 40,
+          "m_thickness": 18
         }
       },
       "WMP": [
@@ -3548,13 +3548,13 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_dock",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 560,
-          "m_height": 64,
-          "m_space1": 20,
-          "m_space2": 244
+          "m_eDockType": "DOCK_TOP",
+          "m_space1": 244,
+          "m_space2": 20,
+          "m_space3": 40,
+          "m_thickness": 64
         }
       },
       "WMP": [
