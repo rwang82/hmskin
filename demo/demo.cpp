@@ -480,11 +480,14 @@ void doTest() {
 }
 
 bool createUI( HWND hWndParent ) {
-	//button: test1 — 原生控件换肤对照标本（ §1 基础交互，位于次按钮右侧 ）
+	//button: test1 — 原生控件换肤对照标本（ §1 基础交互）。
+	// CLIENT coords ( not K12-relative ): the skin button row sits at client
+	// y=152 ( K12 top 48 + space2 104 ), K19 ends at client x=352, so this
+	// lands 16px to its right. 150x42 = bitmap native size, 1:1.
 	{
 		DWORD dwCtrlID = 20;
 		g_hBtnTest1 = ::CreateWindow( _T( "Button" ), _T( "接管"), WS_VISIBLE | WS_CHILD,
-			368, 152, 90, 42, hWndParent, ( HMENU )dwCtrlID, NULL, NULL );
+			368, 152, 150, 42, hWndParent, ( HMENU )dwCtrlID, NULL, NULL );
 		if ( !g_hBtnTest1 ) {
 			::OutputDebugString( _T("hBtnTest1 == NULL!\n") );
 			return false;

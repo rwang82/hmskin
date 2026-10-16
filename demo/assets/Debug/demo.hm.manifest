@@ -780,6 +780,22 @@
                 "m_ufixT": 10,
                 "m_ufixB": 10
               }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 1,
+                "text": "原生接管",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 5,
+                "m_nOffsetT": 5,
+                "m_nOffsetR": 5,
+                "m_nOffsetB": 5
+              }
             }
           ]
         },
@@ -795,6 +811,22 @@
                 "m_ufixT": 10,
                 "m_ufixB": 10
               }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 1,
+                "text": "原生接管",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 5,
+                "m_nOffsetT": 5,
+                "m_nOffsetR": 5,
+                "m_nOffsetB": 5
+              }
             }
           ]
         },
@@ -809,6 +841,22 @@
                 "m_ufixR": 10,
                 "m_ufixT": 10,
                 "m_ufixB": 10
+              }
+            },
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_text",
+                "Font": 0,
+                "Color": 1,
+                "text": "原生接管",
+                "Alignment": 1
+              },
+              "PosDecoder": {
+                "PDCName": "hm_posdecoder_offset",
+                "m_nOffsetL": 5,
+                "m_nOffsetT": 5,
+                "m_nOffsetR": 5,
+                "m_nOffsetB": 5
               }
             }
           ]
@@ -2942,11 +2990,11 @@
         "LayoutDecoder": {
           "DecoderType": "hm_layoutdecoder_corner",
           "RefKeelObjId": 12,
-          "m_eCornerType": "CORNER_RT",
-          "m_width": 220,
-          "m_height": 40,
-          "m_space1": 10,
-          "m_space2": 10
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 150,
+          "m_height": 42,
+          "m_space1": 352,
+          "m_space2": 104
         }
       },
       "WMP": [
