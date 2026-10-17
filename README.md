@@ -1,7 +1,22 @@
 # hmskin
 
-Win32 桌面应用换肤库（skin library）。不要求重写控件——通过 Hook 已有窗口的消息流程，
-配合 JSON 皮肤清单（manifest）与 GDI / GDI+ 自绘，把标准 Win32 窗口"就地"换肤。
+**把已有 Win32 应用的界面，整体替换为 DirectUI 自绘引擎**——不重写 UI 代码，
+也不依赖原生控件渲染。
+
+hmskin 结合了 Windows 界面史上两条互不相通的路线：
+
+| | 传统换肤方案 | 主流 DirectUI 方案 | **hmskin** |
+|---|---|---|---|
+| 接管已有程序 | ✓ hook + 子类化，宿主零改造 | ✗ 必须用它的框架重写 UI | ✓ **hook 已有窗口，宿主零改造** |
+| 控件渲染 | 皮肤位图模板，按标准控件类型逐一适配 | 完全自绘（无句柄逻辑控件） | ✓ **完全自绘**：keelobj 绘制树 + 控件状态机 |
+| 皮肤形态 | 二进制皮肤文件，外观只读 | XML 布局 + 代码驱动 | ✓ **JSON manifest**：外观/布局/行为全声明式 |
+| 控件行为 | 沿用系统控件逻辑 | 自绘控件类 | ✓ WMP 行为类 + 8 种事件回调 |
+
+> 一句话：**换肤方案的接入成本，DirectUI 的渲染与行为自由度**——这是两类传统路线
+> 都不具备的组合。宿主窗口的客户区被引擎变成一块 DirectUI 画布：原生控件被替换
+> 为自绘控件树（按钮/复选框/开关/单选/Tab/滚动条/菜单/进度条…），连标题栏三钮、
+> 根菜单栏与 `TrackPopupMenu` 弹出菜单一并接管；渲染后端三选一
+> （GDI / GDI+ / Direct2D+DirectWrite）。
 
 **宿主程序零配合**：你的代码照常调 `CreateWindow`、`TrackPopupMenu`、响应 `WM_COMMAND`，
 hmskin 在引擎内部透明接管渲染与交互。
@@ -220,7 +235,7 @@ python tools\smoke_test.py --perf Gdiplus
 
 | 目录 | 说明 |
 |---|---|
-| `hmskin/` | 核心 DLL（换肤引擎） |
+| `hmskin/` | 核心 DLL（hook × DirectUI 换肤引擎） |
 | `demo/` | 集成示例（「基准台」Gallery：四章节控件标本 + 事件日志 + token 表） |
 | `scrolldecorator/` | 独立自绘滚动条 DLL（可脱离 hmskin 单独使用） |
 | `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 |
