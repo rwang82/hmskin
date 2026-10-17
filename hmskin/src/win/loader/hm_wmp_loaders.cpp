@@ -22,6 +22,7 @@
 #include "win\resource_system\hm_rs_uires_color.h"
 #include "win\paint_system\hm_ps_drawtool_gdi.h"
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
+#include "win\paint_system\hm_ps_drawtool_d2d.h"
 #include "win\frame\hm_uiroot.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "common\FuncPack.h"
@@ -98,6 +99,9 @@ bool hm_wmp_display_loader::_fillDrawTool( const Json::Value& valWMP, hm_wmp_dis
 		pDrawTool = hm_ps_drawtool_gdiplus::getInstance();
 	} else if ( 0 == strcmp( strDrawTool.c_str(), "Gdi" ) ) {
 		pDrawTool = hm_ps_drawtool_gdi::getInstance();
+	} else if ( 0 == strcmp( strDrawTool.c_str(), "D2D" ) ) {
+		// hybrid M1 backend: text via D2D/DirectWrite, rest forwarded to gdiplus
+		pDrawTool = hm_ps_drawtool_d2d::getInstance();
 	} else {
 		assert( false );
 		return false;

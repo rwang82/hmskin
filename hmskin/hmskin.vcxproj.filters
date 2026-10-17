@@ -177,6 +177,9 @@
     <ClCompile Include="src\win\paint_system\hm_ps_drawtool_gdiplus.cpp">
       <Filter>paint_system\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\win\paint_system\hm_ps_drawtool_d2d.cpp">
+      <Filter>paint_system\src</Filter>
+    </ClCompile>
     <ClCompile Include="src\win\resource_system\hm_rs_rawres_base.cpp">
       <Filter>resource_system\src</Filter>
     </ClCompile>
@@ -390,6 +393,9 @@
       <Filter>paint_system\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\paint_system\hm_ps_drawtool_gdiplus.h">
+      <Filter>paint_system\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\paint_system\hm_ps_drawtool_d2d.h">
       <Filter>paint_system\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\paint_system\hm_ps_drawtool_i.h">

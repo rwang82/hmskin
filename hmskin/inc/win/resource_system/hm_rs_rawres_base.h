@@ -72,7 +72,7 @@ public:
 public:
 #pragma warning(push)
 #pragma warning(disable:4251)
-	string_type m_strFaceName; // as "ºÚÌå", "Arial"
+	string_type m_strFaceName; // as "ï¿½ï¿½ï¿½ï¿½", "Arial"
 #pragma warning(pop)
 	unsigned int m_uSize; // specifies the size of the font measured in units identified by the third argument.
 	unsigned int m_uFlagSizeUnit; // FONTUNIT_PIXEL, FONTUNIT_POINT is Specifies that a unit is 1 point or 1/72 inch. 
@@ -106,6 +106,9 @@ public:
 	void freeHFont();
 	Gdiplus::Font* getGPFont();
 	void freeGPFont();
+	// raw 96-dpi font params ( face/size/unit/style ) for backends that build
+	// their own font objects ( e.g. hm_ps_drawtool_d2d / DirectWrite )
+	const hm_rs_font_param& getFontParam() const { return m_fontParam; }
 
 	// helper
 protected:
