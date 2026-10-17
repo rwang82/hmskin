@@ -142,6 +142,7 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
 | `HMSKIN_EVENT_POPUPMENU_CLICK` (6) | keelobj*（弹窗） | 命令 id（菜单项 id） |
 | `HMSKIN_EVENT_SCROLLBAR_CHANGED` (7) | keelobj* | 当前值 |
 | `HMSKIN_EVENT_RADIO_CLICK` (8) | keelobj* | 恒 TRUE（radio 不翻转） |
+| `HMSKIN_EVENT_POPUPMENU_CLICK` (6) | keelobj*（弹窗） | 命令 id（菜单项 id）——引擎弹窗选中时 WM_COMMAND 已同时投递属主 |
 
 外部改控件状态（如灭单选兄弟）调 `setCheck`——它内部广播状态事件，
 宿主 keelobj 自动作废矩形重画，**应用层不需要碰任何 InvalidateRect**。
@@ -171,7 +172,12 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
 - **DPI**：Phase 1 已落——`hm_startup_param` 第三参 `uDpi`（96 基准 manifest 在加载咽喉点缩放；
   GDI+ 点制字体由 Graphics 真实 DPI 自动换算，**切勿再手动乘 scale**）；专用 Cfg 几何
   （菜单条目/NC 边框厚度）同步缩放。Phase 2 backlog：Per-Monitor 动态换档 + 多倍率位图集。
-- **未做**：完整焦点模型+焦点环（backlog）、TrackPopupMenu inline hook（休眠代码，启用/删除待决断）。
+- **透明菜单接管**（opt-in）：`hm_lib_enable_trackpopupmenu_hook(root, TRUE)` 后，宿主的原生
+  `TrackPopupMenu` 调用被引擎接管并皮肤化，选单按**原生语义** `PostMessage(WM_COMMAND, id)`
+  送回属主窗口——宿主零配合、现有 WM_COMMAND 处理器无感工作。manifest 需声明
+  `"PopupSkin": {"PropId": N}`（引擎弹窗连接的皮肤槽位）。主动式弹窗走
+  `hm_lib_popupmenu_show(root, hMenu, x, y, hWndOwner)`（同一引擎路径）。
+- **未做**：完整焦点模型+焦点环（backlog）。
 - 滚动视图的正确姿势：容器 keelobj `setClipChildren(TRUE)` + 内容 keelobj 高于容器 +
   滚动条值域 = 内容高 − 容器高；三路输入（拖/端钮/滚轮）开箱即用。
 
