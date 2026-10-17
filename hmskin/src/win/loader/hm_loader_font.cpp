@@ -85,7 +85,7 @@ bool hm_loader_font::load( hm_manifest_json* pManifestData, hm_uiroot* pHMUIRoot
 		valTmp = fontVal["Size"];
 		if ( !valTmp.isInt() )
 			return false;
-		nFontSize = (int)( valTmp.asInt() * pHMUIRoot->m_dblLayoutScale + 0.5 );  // GDI+ converts POINT on a fixed 96dpi grid - scale to physical
+		nFontSize = valTmp.asInt();  // NOT scaled: GDI+ Graphics reports the REAL display DPI ( probe: 120 @125% ) and converts POINTS natively - scaling here double-sizes
 
 		//
 		fontParam.m_strFaceName = tstrFaceName;

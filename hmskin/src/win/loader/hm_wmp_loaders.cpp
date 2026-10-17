@@ -721,22 +721,22 @@ bool hm_wmp_bkgnd_nca_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproc
 	//
 	valTmp = valThick[ "L" ];
 	if ( valTmp.isInt() ) {
-		pWMPBkgndNCA->setThickL( valTmp.asInt() );
+		pWMPBkgndNCA->setThickL( _ScalePx( m_dblScale, valTmp.asInt() ) );
 	}
 	//
 	valTmp = valThick[ "R" ];
 	if ( valTmp.isInt() ) {
-		pWMPBkgndNCA->setThickR( valTmp.asInt() );
+		pWMPBkgndNCA->setThickR( _ScalePx( m_dblScale, valTmp.asInt() ) );
 	}
 	//
 	valTmp = valThick[ "T" ];
 	if ( valTmp.isInt() ) {
-		pWMPBkgndNCA->setThickT( valTmp.asInt() );
+		pWMPBkgndNCA->setThickT( _ScalePx( m_dblScale, valTmp.asInt() ) );
 	}
 	//
 	valTmp = valThick[ "B" ];
 	if ( valTmp.isInt() ) {
-		pWMPBkgndNCA->setThickB( valTmp.asInt() );
+		pWMPBkgndNCA->setThickB( _ScalePx( m_dblScale, valTmp.asInt() ) );
 	}
 
 	return true;
@@ -901,6 +901,7 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 	unsigned int uMIHeight = 25;
 	unsigned int uMIWidth = 160;
 	unsigned int uSpace = 6;
+	// ( defaults scaled too - they are geometry )
 	valTmp = valWMP[ "MenuCfg" ];
 	if ( valTmp.isObject() ) {
 		Json::Value valCfgItem;
@@ -908,7 +909,8 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 		valCfgItem = valTmp[ "m_uMIWidth" ]; if ( valCfgItem.isInt() ) uMIWidth = valCfgItem.asInt();
 		valCfgItem = valTmp[ "m_uSpace" ]; if ( valCfgItem.isInt() ) uSpace = valCfgItem.asInt();
 	}
-	dimension_menuwnd_default* pDimensionMenuWnd = new dimension_menuwnd_default( uMIHeight, uMIWidth, uSpace );
+	dimension_menuwnd_default* pDimensionMenuWnd = new dimension_menuwnd_default(
+		_ScalePx( m_dblScale, (int)uMIHeight ), _ScalePx( m_dblScale, (int)uMIWidth ), _ScalePx( m_dblScale, (int)uSpace ) );
 	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_popupmenu, dimension_menuwnd_i*, hmskin_event_listener_base* >(
 		idWMP, ( dimension_menuwnd_i* )pDimensionMenuWnd, pHMUIRoot->m_pEventListener );
 }
@@ -946,21 +948,21 @@ bool hm_wmp_rootmenu_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproce
 		assert( false );
 		return false;
 	}
-	rmCfg.m_uLenMenuItem = valTmp.asInt();
+	rmCfg.m_uLenMenuItem = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valRMCfg[ "m_uSpaceH" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	rmCfg.m_uSpaceH = valTmp.asInt();
+	rmCfg.m_uSpaceH = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valRMCfg[ "m_uSpaceV" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	rmCfg.m_uSpaceV = valTmp.asInt();
+	rmCfg.m_uSpaceV = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	pWMPRootMenu->setConfigure( rmCfg );
 	return true;

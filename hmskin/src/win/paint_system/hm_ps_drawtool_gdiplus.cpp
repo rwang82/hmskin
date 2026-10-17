@@ -97,7 +97,10 @@ bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_
 	pTextData = new TCHAR[ sizeTextData ];
 	CFuncPack fpkDelBuf( ::gfnDelBuf< TCHAR >, pTextData );
 	_tcscpy_s( pTextData, sizeTextData, pText->m_tstrData.c_str() );
-	Gdiplus::StringFormat strFormat( bMultiLine ? 0 : Gdiplus::StringFormatFlagsLineLimit, LANG_NEUTRAL );
+	// single-line labels: NoWrap ( never wrap ) and NO LineLimit - a line slightly taller
+	// than a knife-edge rect must still render ( bottom-clipped a pixel );
+	// LineLimit made whole lines vanish at fractional DPI scales.
+	Gdiplus::StringFormat strFormat( bMultiLine ? (Gdiplus::StringFormatFlags)0 : Gdiplus::StringFormatFlagsNoWrap, LANG_NEUTRAL );
 	Gdiplus::SolidBrush brushTextClr( pRawResColor->getGPColor() );
 	//
 	if ( pText->m_eAlginment == hm_uires_text_data::EALGINMENT_RIGHT ) {

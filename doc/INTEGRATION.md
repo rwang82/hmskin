@@ -168,8 +168,10 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
 ## 7. 能力边界（诚实清单）
 
 - **不支持**：阴影/模糊（设计立场：深度靠面层级+发丝线）、保留模式合成、alpha 混合窗口。
-- **未做**：DPI 缩放（绝对像素引擎，当前靠 DWM 虚拟化，专项排期中）、
-  完整焦点模型+焦点环（backlog）、TrackPopupMenu inline hook（休眠代码，启用/删除待决断）。
+- **DPI**：Phase 1 已落——`hm_startup_param` 第三参 `uDpi`（96 基准 manifest 在加载咽喉点缩放；
+  GDI+ 点制字体由 Graphics 真实 DPI 自动换算，**切勿再手动乘 scale**）；专用 Cfg 几何
+  （菜单条目/NC 边框厚度）同步缩放。Phase 2 backlog：Per-Monitor 动态换档 + 多倍率位图集。
+- **未做**：完整焦点模型+焦点环（backlog）、TrackPopupMenu inline hook（休眠代码，启用/删除待决断）。
 - 滚动视图的正确姿势：容器 keelobj `setClipChildren(TRUE)` + 内容 keelobj 高于容器 +
   滚动条值域 = 内容高 − 容器高；三路输入（拖/端钮/滚轮）开箱即用。
 
