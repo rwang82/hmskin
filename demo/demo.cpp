@@ -353,7 +353,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		   }
 	   }
 	   TCHAR szRail[ 128 ];
-	   _stprintf_s( szRail, 128, _T("● LIVE   9-PATCH · 3-SEG · ALPHA · GDI+ · DPI %u"), uRailDpi );
+	   _stprintf_s( szRail, 128, _T("● LIVE   9-PATCH · 3-SEG · ALPHA · D2D · DPI %u"), uRailDpi );
 	   hm_keel_obj* pKeelObjRail = NULL;
 	   if ( hm_get_keelobj( g_pHMRoot, 16, &pKeelObjRail ) && pKeelObjRail ) {
 		   void* pWMPRail = pKeelObjRail->getWMP( 37 );

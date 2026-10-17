@@ -111,7 +111,7 @@ components:
 **Product context:** hmskin（C++ Win32 换肤库）的 demo 展示程序；观众是集成该库的 C++ 开发者；对标品类是 WinUI Gallery / Qt 示例，但气质取"检定记录单"而非"产品目录"。  
 **Mode per surface:** 全部为 Operate 表面（可交互的控件陈列），无营销页。  
 **Reference sites:** WinUI Gallery（信息架构参考）、Fluent 2（尺寸/圆角惯例参考）。  
-**Key characteristics:** 碳黑台面上唯一的信号橙；每个控件带 mono 标本代号（BTN-01）与 1px 引出线；皮肤标题栏/关闭钮是第一件展品；底部状态栏读出引擎能力（9-PATCH · ALPHA · GDI+）。
+**Key characteristics:** 碳黑台面上唯一的信号橙；每个控件带 mono 标本代号（BTN-01）与 1px 引出线；皮肤标题栏/关闭钮是第一件展品；底部状态栏读出引擎能力（9-PATCH · ALPHA · D2D）。
 
 ## Colors
 
@@ -146,7 +146,7 @@ components:
 - **§3 菜单系统**：MENU-05 弹出菜单标本（由根菜单栏触发，含勾选项/悬停/禁用项/语义分隔线/mono 快捷键右对齐）。
 - **§4 滚动与容器**：VIEW-06 滚动视图（真文档滚动：内容井 setClipChildren 裁剪子树，内容 600px 高出井，拖 thumb/点端钮/滚轮三路输入滚动，值域=内容高−井高）；SB-07 独立滚动条标本（thumb 三态并排）；BG-08 背景三级面（surface/sunken/raised）对照。2016 的 viewbkcontent/keelctrl_scrollview 骨架被此组合方案取代（去留另议）。
 
-右侧 TOK-04 交互 token 表（button 行白拿悬停高亮；左列语义说明、右列 mono 色值右对齐）；状态栏读出实测引擎能力（`● LIVE 9-PATCH · 3-SEG · ALPHA · GDI+ · DPI <动态值>`）。
+右侧 TOK-04 交互 token 表（button 行白拿悬停高亮；左列语义说明、右列 mono 色值右对齐）；状态栏读出实测引擎能力（`● LIVE 9-PATCH · 3-SEG · ALPHA · D2D · DPI <动态值>`）。
 
 §3 补充：右键菜单为透明接管标本——demo 调原生 `TrackPopupMenu` 被引擎劫持皮肤化，选单以原生 `WM_COMMAND` 投递（宿主零配合）。
 
@@ -169,7 +169,7 @@ components:
 ## Do's and Don'ts
 
 - Do: 每个控件配 mono 标本代号 + 1px 引出线（BTN-01/CHK-02/TAB-03/SB-04）
-- Do: 状态栏读出引擎真实能力（9-PATCH · 3-SEG · ALPHA · GDI+ · DPI 动态实测值）
+- Do: 状态栏读出引擎真实能力（9-PATCH · 3-SEG · ALPHA · D2D · DPI 动态实测值）
 - Do: 深度用面层级和发丝线，橙绿红严格按语义
 - Don't: 不做紫渐变、三列卡片阵列、居中排版、发光边缘、圆角图标贴片
 - Don't: 不给禁用态用透明度替代专色（位图皮肤要为禁用单独出色板）

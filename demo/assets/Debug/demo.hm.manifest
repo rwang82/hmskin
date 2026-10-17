@@ -485,7 +485,7 @@
     {
       "idWMP": 1,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -511,7 +511,7 @@
     {
       "idWMP": 4,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -614,7 +614,7 @@
         }
       ],
       "DefaultBtn": 0,
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 1,
@@ -769,7 +769,7 @@
     {
       "idWMP": 7,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -891,7 +891,7 @@
         "T": 80,
         "B": 10
       },
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1050,7 +1050,7 @@
     {
       "idWMP": 15,
       "WMPClsName": "hm_wmp_button_nca",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1089,7 +1089,7 @@
     {
       "idWMP": 62,
       "WMPClsName": "hm_wmp_button_nca",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1128,7 +1128,7 @@
     {
       "idWMP": 63,
       "WMPClsName": "hm_wmp_button_nca",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1172,7 +1172,7 @@
         "m_uSpaceH": 5,
         "m_uSpaceV": 2
       },
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1254,7 +1254,7 @@
     {
       "idWMP": 19,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1279,7 +1279,7 @@
     {
       "idWMP": 21,
       "WMPClsName": "hm_wmp_checkbox",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1614,7 +1614,7 @@
     {
       "idWMP": 22,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1648,7 +1648,7 @@
     {
       "idWMP": 30,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1666,7 +1666,7 @@
     {
       "idWMP": 31,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1694,7 +1694,7 @@
     {
       "idWMP": 32,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1722,7 +1722,7 @@
     {
       "idWMP": 33,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1740,7 +1740,7 @@
     {
       "idWMP": 34,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1768,7 +1768,7 @@
     {
       "idWMP": 35,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1796,7 +1796,7 @@
     {
       "idWMP": 36,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1842,7 +1842,7 @@
     {
       "idWMP": 40,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1930,7 +1930,7 @@
     {
       "idWMP": 41,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1958,7 +1958,7 @@
     {
       "idWMP": 42,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1986,7 +1986,7 @@
     {
       "idWMP": 43,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2014,7 +2014,7 @@
     {
       "idWMP": 44,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2042,7 +2042,7 @@
     {
       "idWMP": 45,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2070,7 +2070,7 @@
     {
       "idWMP": 46,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2098,7 +2098,7 @@
     {
       "idWMP": 47,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2126,7 +2126,7 @@
     {
       "idWMP": 48,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2154,7 +2154,7 @@
     {
       "idWMP": 49,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2182,7 +2182,7 @@
     {
       "idWMP": 50,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2224,7 +2224,7 @@
     {
       "idWMP": 51,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2266,7 +2266,7 @@
     {
       "idWMP": 52,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2308,7 +2308,7 @@
     {
       "idWMP": 53,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2350,7 +2350,7 @@
     {
       "idWMP": 54,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2392,7 +2392,7 @@
     {
       "idWMP": 55,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2434,7 +2434,7 @@
     {
       "idWMP": 56,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2476,7 +2476,7 @@
     {
       "idWMP": 57,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2518,7 +2518,7 @@
     {
       "idWMP": 60,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2546,7 +2546,7 @@
     {
       "idWMP": 61,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2569,7 +2569,7 @@
         "m_uMIWidth": 160,
         "m_uSpace": 6
       },
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2617,7 +2617,7 @@
       "ScrollBarCfg": {
         "Direction": "T2B"
       },
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2675,7 +2675,7 @@
     {
       "idWMP": 71,
       "WMPClsName": "hm_wmp_checkbox",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2714,7 +2714,7 @@
     {
       "idWMP": 72,
       "WMPClsName": "hm_wmp_radio",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2753,7 +2753,7 @@
     {
       "idWMP": 73,
       "WMPClsName": "hm_wmp_radio",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2792,7 +2792,7 @@
     {
       "idWMP": 74,
       "WMPClsName": "hm_wmp_radio",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2831,7 +2831,7 @@
     {
       "idWMP": 75,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2842,7 +2842,7 @@
     {
       "idWMP": 76,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2853,7 +2853,7 @@
     {
       "idWMP": 77,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2872,7 +2872,7 @@
     {
       "idWMP": 78,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2891,7 +2891,7 @@
     {
       "idWMP": 79,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2910,7 +2910,7 @@
     {
       "idWMP": 80,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2929,7 +2929,7 @@
     {
       "idWMP": 81,
       "WMPClsName": "hm_wmp_button",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
