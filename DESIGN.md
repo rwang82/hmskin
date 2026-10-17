@@ -146,9 +146,13 @@ components:
 - **§3 菜单系统**：MENU-05 弹出菜单标本（由根菜单栏触发，含勾选项/悬停/禁用项/语义分隔线/mono 快捷键右对齐）。
 - **§4 滚动与容器**：VIEW-06 滚动视图（真文档滚动：内容井 setClipChildren 裁剪子树，内容 600px 高出井，拖 thumb/点端钮/滚轮三路输入滚动，值域=内容高−井高）；SB-07 独立滚动条标本（thumb 三态并排）；BG-08 背景三级面（surface/sunken/raised）对照。2016 的 viewbkcontent/keelctrl_scrollview 骨架被此组合方案取代（去留另议）。
 
+右侧 TOK-04 交互 token 表（button 行白拿悬停高亮；左列语义说明、右列 mono 色值右对齐）；状态栏读出实测引擎能力（`● LIVE 9-PATCH · 3-SEG · ALPHA · GDI+ · DPI <动态值>`）。
+
+§3 补充：右键菜单为透明接管标本——demo 调原生 `TrackPopupMenu` 被引擎劫持皮肤化，选单以原生 `WM_COMMAND` 投递（宿主零配合）。
+
 右侧事件日志（反馈模式的核心应用）：每次控件交互追加一行 mono 记录，如 `BTN-01 CLICK`、`CHK-02 → true`、`TAB-01 → §3`——把库的 `HMSKIN_EVENT_*` 回调 API 变成可见的事件流，这是给集成者最直接的演示。
 
-交互规则：tab 支持键盘方向键循环；所有可交互控件有可见橙色焦点环（键盘可达性）；每章节至少含一个禁用态标本（禁用专用配色，不用透明度）。
+交互规则：tab 支持键盘方向键循环；焦点环体系（引擎焦点模型，backlog——方向键循环已兑现）；每章节至少含一个禁用态标本（禁用专用配色，不用透明度）。
 
 ## Elevation & Depth
 
@@ -165,7 +169,7 @@ components:
 ## Do's and Don'ts
 
 - Do: 每个控件配 mono 标本代号 + 1px 引出线（BTN-01/CHK-02/TAB-03/SB-04）
-- Do: 状态栏读出引擎真实能力（9-PATCH · 3-SEG · ALPHA · GDI+ · DPI 96）
+- Do: 状态栏读出引擎真实能力（9-PATCH · 3-SEG · ALPHA · GDI+ · DPI 动态实测值）
 - Do: 深度用面层级和发丝线，橙绿红严格按语义
 - Don't: 不做紫渐变、三列卡片阵列、居中排版、发光边缘、圆角图标贴片
 - Don't: 不给禁用态用透明度替代专色（位图皮肤要为禁用单独出色板）
@@ -204,8 +208,14 @@ hm_wmp_display
 └── _render(hDC, rcCanvas) 纯虚 ← 控件唯一要写的部分
 ```
 
-**迁移纪律**：不单开重构提交；下一个碰到谁就迁谁（RAD-11 迁 checkbox、下次碰滚动条迁其
-drawSelf、再下次 button/bkgnd），一个控件一个提交带实测验证。
+**当前状态**（2026-10-17）：checkbox 已迁（drawSelf + BUF_ALLOC）+ radio 继承之；
+tabheader 已迁（armMouseLeaveTracking）；滚动条/button/bkgnd 待迁。
+
+**新增：脏区裁剪**（2026-10-17 已落）：doDrawAll 脏矩形重载——无交集子树整棵跳过 +
+drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制成本从控件数量降为
+损坏面积（33 行改动，125% 档实测无白屏）。
+
+**迁移纪律**：不单开重构提交；下一个碰到谁就迁谁，一个控件一个提交带实测验证。
 
 **明确不做**：保留模式合成器（控件只失效矩形、框架统一合成脏区）——等于重写交互模型；
 直绘存在的意义就是免整窗重绘的即时反馈，三层规则已拿到该架构的性价比。
@@ -226,3 +236,9 @@ drawSelf、再下次 button/bkgnd），一个控件一个提交带实测验证�
 | 2026-10-13 | 禁用阴影/模糊为立场而非约束                    | 发丝线+面层级的仪器感；与引擎能力一致                                                                                  |
 | 2026-10-16 | §1 新增 TGL-10 开关标本（复选框引擎换肤）         | 36×20 药丸八态；证明 checkbox 位图族=开关语义零引擎改动                                                                    |
 | 2026-10-16 | 绘制缓冲三层规则 + 框架化 backlog（见「引擎演进」节） | checkbox 切换闪屏根因=直绘无缓冲；规则定型并立项收编基类，控件越多迁移代价越大                                     |
+| 2026-10-16 | RAD-11 单选独立成类 hm_wmp_radio | 用户架构裁决：概念应在类型系统有名；继承 checkbox 状态机 + 模板方法钩子，独立 RADIO_CLICK 事件 |
+| 2026-10-16 | 绘制缓冲框架化落地（hm_wmp_display 基类 drawSelf + 三档策略） | checkbox 首迁实测通过；checkbox→radio→button 逐步迁移中 |
+| 2026-10-17 | TrackPopupMenu 透明接管（M1-4 决断=启用） | 用户拍板"干"；引擎全权处理（PopupSkin manifest 槽位 + 模态环 + WM_COMMAND 原生投递）；宿主零配合；ARM64 补丁器首验 |
+| 2026-10-17 | DPI Phase 1（加载咽喉点缩放） | 96 基准 manifest 直达物理像素；GDI+ 点制字体自动换算（勿手动乘）；专用 Cfg 几何三处补缩放 |
+| 2026-10-17 | 脏区裁剪（doDrawAll 脏矩形重载 + ps.rcPaint） | BeginPaint 送上门的 update region 被忽视 9 年——接上后绘制成本从控件数量降为损坏面积 |
+| 2026-10-17 | 冒烟测试基建（tools/smoke_test.py 三阶段） | manifest 校验 / 事件链断言 / 金图容差比对；后续危险改动的安全网 |
