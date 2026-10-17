@@ -108,9 +108,9 @@ components:
 ## Overview
 
 **Creative North Star:** 一台让人手痒想拨开关的测量仪器，不是营销页——每个控件都是检定台上的标本。  
-**Product context:** hmskin（C++ Win32 换肤库）的 demo 展示程序；观众是集成该库的 C++ 开发者；对标品类是 WinUI Gallery / Qt 示例，但气质取"检定记录单"而非"产品目录"。  
+**Product context:** hmskin（C++ Win32 换肤库）的 demo 展示程序；观众是集成该库的 C++ 开发者；对标品类是各主流系统的控件画廊示例，但气质取"检定记录单"而非"产品目录"。  
 **Mode per surface:** 全部为 Operate 表面（可交互的控件陈列），无营销页。  
-**Reference sites:** WinUI Gallery（信息架构参考）、Fluent 2（尺寸/圆角惯例参考）。  
+**Reference sites:** 主流系统级控件画廊（信息架构参考）、主流设计系统（尺寸/圆角惯例参考）。  
 **Key characteristics:** 碳黑台面上唯一的信号橙；每个控件带 mono 标本代号（BTN-01）与 1px 引出线；皮肤标题栏/关闭钮是第一件展品；底部状态栏读出引擎能力（9-PATCH · ALPHA · D2D）。
 
 ## Colors
