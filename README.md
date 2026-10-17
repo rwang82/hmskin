@@ -6,6 +6,11 @@ Win32 桌面应用换肤库（skin library）。不要求重写控件——通�
 **宿主程序零配合**：你的代码照常调 `CreateWindow`、`TrackPopupMenu`、响应 `WM_COMMAND`，
 hmskin 在引擎内部透明接管渲染与交互。
 
+![hmskin Gallery — 皮肤基准台](doc/img/demo_gallery.png)
+
+> 上图即 `demo/` 演示程序（零皮肤概念的原生代码写成）：标题栏、菜单栏、弹出菜单、
+> 按钮矩阵、复选框/开关/单选、Tab、滚动条——全部由引擎自绘。
+
 ## 核心特色
 
 ### 透明接管（Transparent Takeover）
