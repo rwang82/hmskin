@@ -33,6 +33,20 @@ HMLIB_API void hm_lib_shutdown( hm_uiroot* pHMUIRoot );
 //////////////////////////////////////////////////////////////////////////
 HMLIB_API bool hm_wndpropid_connect( hm_uiroot* pHMUIRoot, HWND hWnd, unsigned int idWndProp );
 //////////////////////////////////////////////////////////////////////////
+// transparent TrackPopupMenu skinning ( opt-in ): patches user32!TrackPopupMenu;
+// native calls are redirected to HMSKIN_EVENT_TRACKPOPUPMENU so the app
+// listener can open its skinned popup. the listener MUST handle the event
+// ( there is no forwarding trampoline ). disable before shutdown is not
+// required - hm_lib_shutdown unhooks itself.
+// transparent mode: native calls are handled ENGINE-side ( hm_lib_popupmenu_show
+// with the manifest "PopupSkin" slot ); selection is delivered as native
+// WM_COMMAND - apps need NO listener code for hooked menus.
+HMLIB_API bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable );
+// engine popup: show a skinned popup menu for hMenu at SCREEN x/y; the
+// selected command is delivered to hWndOwner as native WM_COMMAND ( plus
+// HMSKIN_EVENT_POPUPMENU_CLICK ). requires the manifest "PopupSkin" slot.
+HMLIB_API bool hm_lib_popupmenu_show( hm_uiroot* pHMUIRoot, HMENU hMenu, int x, int y, HWND hWndOwner );
+//////////////////////////////////////////////////////////////////////////
 HMLIB_API bool hm_wndpropid_disconnect( hm_uiroot* pHMUIRoot, HWND hWnd, unsigned int idWndProp );
 //////////////////////////////////////////////////////////////////////////
 class hm_keel_obj;

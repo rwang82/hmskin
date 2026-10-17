@@ -243,9 +243,6 @@
     <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_base.cpp">
       <Filter>wndctrl_repository\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_popmenu.cpp">
-      <Filter>wndctrl_repository\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\hm_cmn_pattern_observer.cpp">
       <Filter>common\src</Filter>
     </ClCompile>
@@ -262,6 +259,9 @@
       <Filter>loader\src</Filter>
     </ClCompile>
     <ClCompile Include="src\win\loader\hm_loader_wndstyle.cpp">
+      <Filter>loader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win\loader\hm_loader_popupskin.cpp">
       <Filter>loader\src</Filter>
     </ClCompile>
     <ClCompile Include="src\win\loader\hm_loader_coordinatesystem.cpp">
@@ -470,9 +470,6 @@
     <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_base.h">
       <Filter>wndctrl_repository\inc</Filter>
     </ClInclude>
-    <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_popmenu.h">
-      <Filter>wndctrl_repository\inc</Filter>
-    </ClInclude>
     <ClInclude Include="inc\hm_export_defs.h">
       <Filter>interface</Filter>
     </ClInclude>
@@ -516,6 +513,9 @@
       <Filter>loader\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\loader\hm_loader_wndstyle.h">
+      <Filter>loader\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\loader\hm_loader_popupskin.h">
       <Filter>loader\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\loader\hm_loader_coordinatesystem.h">

@@ -284,6 +284,9 @@
       }
     ]
   },
+  "PopupSkin": {
+    "PropId": 21
+  },
   "WndStyle": {
     "Corner": "DEFAULT"
   },

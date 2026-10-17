@@ -158,10 +158,15 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 					memset( &miinfo, 0, sizeof( miinfo ) );
 					miinfo.cbSize = sizeof( miinfo );
 					miinfo.fMask = MIIM_ID;
-					if ( ::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) && miinfo.wID
-						&& m_pEventListener ) {
-						m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_POPUPMENU_CLICK,
-							( void* )pKeelObj, ( void* )( UINT_PTR )miinfo.wID );
+					if ( ::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) && miinfo.wID ) {
+						// native semantics: WM_COMMAND to the owner ( engine-driven
+						// popups ) - host menu handlers work unchanged. the listener
+						// event stays as well.
+						if ( m_hWndOwner )
+							::PostMessage( m_hWndOwner, WM_COMMAND, MAKEWPARAM( miinfo.wID, 0 ), 0 );
+						if ( m_pEventListener )
+							m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_POPUPMENU_CLICK,
+								( void* )pKeelObj, ( void* )( UINT_PTR )miinfo.wID );
 					}
 					break;
 				}
@@ -200,6 +205,9 @@ void hm_wmp_popupmenu::_OnHMWMBindMenu( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 	//
 	
 	m_hMenu = (HMENU)pWP->wParam;
+	// owner window ( engine-driven popups ): selected commands are forwarded
+	// as native WM_COMMAND, so host apps keep their existing menu handlers.
+	m_hWndOwner = (HWND)pWP->lParam;
 	if ( m_pDimensionMenuWndObj && m_pDimensionMenuWndObj->getWndSize( m_hMenu, &sizeMenuWnd ) ) {
 		::GetWindowRect( pWP->hwnd, &rcCurWnd );
 		::MoveWindow( pWP->hwnd, rcCurWnd.left, rcCurWnd.top, sizeMenuWnd.cx, sizeMenuWnd.cy, TRUE );

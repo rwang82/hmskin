@@ -293,6 +293,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\hmskin.cpp" />
     <ClCompile Include="src\win\loader\hm_loader_rawpic.cpp" />
     <ClCompile Include="src\win\loader\hm_loader_wndstyle.cpp" />
+    <ClCompile Include="src\win\loader\hm_loader_popupskin.cpp" />
     <ClCompile Include="src\win\loader\hm_wmp_loaders.cpp" />
     <ClCompile Include="src\win\loader\hm_wmp_loader_base.cpp" />
     <ClCompile Include="src\win\loader\hm_wmp_loader_depot.cpp" />
@@ -358,7 +359,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\wmp\hm_wmp_viewbkcontent.cpp" />
     <ClCompile Include="src\win\wmp\hm_wndmsgprocessor_i.cpp" />
     <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_base.cpp" />
-    <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_popmenu.cpp" />
     <ClCompile Include="src\common\hm_cmn_pattern_observer.cpp" />
     <ClCompile Include="src\common\hm_cmn_refcnt.cpp" />
     <ClCompile Include="src\common\hm_wndmsg_publisher.cpp" />
@@ -382,6 +382,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\hm_win_misc.h" />
     <ClInclude Include="inc\win\loader\hm_loader_rawpic.h" />
     <ClInclude Include="inc\win\loader\hm_loader_wndstyle.h" />
+    <ClInclude Include="inc\win\loader\hm_loader_popupskin.h" />
     <ClInclude Include="inc\win\loader\hm_wmp_loaders.h" />
     <ClInclude Include="inc\win\loader\hm_wmp_loader_base.h" />
     <ClInclude Include="inc\win\loader\hm_wmp_loader_depot.h" />
@@ -437,7 +438,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\wmp\hm_wmp_viewbkcontent.h" />
     <ClInclude Include="inc\win\wmp\hm_wndmsgprocessor_i.h" />
     <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_base.h" />
-    <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_popmenu.h" />
     <ClInclude Include="inc\hm_export_defs.h" />
     <ClInclude Include="inc\hmskin.h" />
     <ClInclude Include="inc\hmskin_cpp.h" />

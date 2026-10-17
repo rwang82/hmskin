@@ -48,15 +48,6 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
 HWND g_hBtnTest1 = NULL;
 
-// §3 : skinned popup menu window ( MENU-01, see DESIGN.md ).
-#define POPUPWND_WNDPROPID (21)
-static HWND g_hWndPopup = NULL;
-static ATOM s_atomPopupCls = 0;
-
-static LRESULT CALLBACK PopupWndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) {
-	return DefWindowProc( hWnd, message, wParam, lParam );
-}
-
 // ---- tab chapters ( §1..§4 ) : keelobj groups switched by visibility ----
 static const unsigned int arrChapterGroups[4][17] = {
 	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48, 49, 50, 51, 0 },  // §1 基础交互（+ 原生接管按钮 + 8格状态矩阵 + TGL-10 开关 + RAD-11 单选组）
@@ -90,56 +81,17 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 // MsgSink 12 / keelobj K46 / hm_wmp_popupmenu ), then HMWM_BINDMENU binds the
 // submenu HMENU - the WMP resizes the window to fit and draws the items.
 void OpenSkinPopupMenu( unsigned int uRootItemIndex ) {
-	if ( !g_pHMRoot || !g_hWnd )
-		return;
-	// the popup owns its prop-id slot ( one propid <-> one hwnd in the skin ):
-	// release it for BOTH death paths before binding a new popup window.
-	if ( g_hWndPopup ) {
-		hm_wndpropid_disconnect( g_pHMRoot, g_hWndPopup, POPUPWND_WNDPROPID );
-		if ( ::IsWindow( g_hWndPopup ) )
-			::DestroyWindow( g_hWndPopup );
-		g_hWndPopup = NULL;
-	}
-	//
+	// §3 menu-bar items: resolve the submenu and let the ENGINE popup take
+	// over ( window/skin slot/command delivery are all engine-side now ).
 	HMENU hRootMenu = ::GetMenu( g_hWnd );
 	HMENU hSubMenu = ::GetSubMenu( hRootMenu, (int)uRootItemIndex );
 	if ( !hSubMenu )
 		return;
-	//
-	if ( !s_atomPopupCls ) {
-		WNDCLASSEX wcexPopup;
-		wcexPopup.cbSize = sizeof( WNDCLASSEX );
-		wcexPopup.style = CS_SAVEBITS;
-		wcexPopup.lpfnWndProc = PopupWndProc;
-		wcexPopup.cbClsExtra = 0;
-		wcexPopup.cbWndExtra = 0;
-		wcexPopup.hInstance = hInst;
-		wcexPopup.hIcon = NULL;
-		wcexPopup.hCursor = LoadCursor( NULL, IDC_ARROW );
-		wcexPopup.hbrBackground = NULL;
-		wcexPopup.lpszMenuName = NULL;
-		wcexPopup.lpszClassName = _T( "hmskinPopupCls" );
-		wcexPopup.hIconSm = NULL;
-		s_atomPopupCls = RegisterClassEx( &wcexPopup );
-	}
-	if ( !s_atomPopupCls )
-		return;
-	//
 	RECT rcWnd;
 	::GetWindowRect( g_hWnd, &rcWnd );
-	// position under the clicked menu-bar item ( rootmenu cfg: bar x20, item space 5, len 60, bar y54-80 ).
-	int x = rcWnd.left + hm_layout_scale_px( 20 + 5 + (int)uRootItemIndex * 60 );
-	int y = rcWnd.top + hm_layout_scale_px( 80 );
-	//
-	g_hWndPopup = ::CreateWindowEx( WS_EX_TOOLWINDOW | WS_EX_TOPMOST, _T( "hmskinPopupCls" ),
-		NULL, WS_POPUP, x, y, 160, 100, g_hWnd, NULL, hInst, NULL );
-	if ( !g_hWndPopup )
-		return;
-	//
-	hm_wndpropid_connect( g_pHMRoot, g_hWndPopup, POPUPWND_WNDPROPID );
-	//
-	::SendMessage( g_hWndPopup, HMWM_BINDMENU, (WPARAM)hSubMenu, 0 );
-	::ShowWindow( g_hWndPopup, SW_SHOW );
+	hm_lib_popupmenu_show( g_pHMRoot, hSubMenu,
+		rcWnd.left + hm_layout_scale_px( 20 + 5 + (int)uRootItemIndex * 60 ),
+		rcWnd.top + hm_layout_scale_px( 80 ), g_hWnd );
 }
 
 // event log ( EVT-08 ) : prepend newest line, keep last 12, refresh the text WMP.
@@ -330,6 +282,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    //
    hm_wndpropid_connect( g_pHMRoot, g_hWnd, MAINWND_WNDPROPID );
 
+   // transparent native-popup skinning: right-click TrackPopupMenu calls are
+   // intercepted and handled ENGINE-side ( PopupSkin slot + WM_COMMAND back
+   // to us ) - this demo carries zero popup code of its own.
+   hm_lib_enable_trackpopupmenu_hook( g_pHMRoot, TRUE );
+
    // event log ( EVT-08 ) : fetch the text WMP of keelobj 18 for runtime updates.
    {
 	   hm_keel_obj* pKeelObjEvtLog = NULL;
@@ -416,10 +373,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			::GetCursorPos( &ptCursor );
 			hPopMenu = ::CreatePopupMenu();
 			menuInfo.cbSize = sizeof( MENUITEMINFO );
-			menuInfo.fMask = MIIM_STRING;
+			menuInfo.fMask = MIIM_STRING | MIIM_ID;   // without MIIM_ID InsertMenuItem ignores wID ( item id stays 0 = silent close )
 			menuInfo.fType = MFT_STRING;
 			menuInfo.dwTypeData = _T("rom sub menu1");
-			::InsertMenuItem( hPopMenu, 208, FALSE, &menuInfo );
+			menuInfo.wID = 208;   // transparent-hook specimen: id arrives via native WM_COMMAND
+			::InsertMenuItem( hPopMenu, 0, TRUE, &menuInfo );
 			::TrackPopupMenu( hPopMenu, TPM_LEFTALIGN|TPM_TOPALIGN, ptCursor.x, ptCursor.y, 0, hWnd, NULL );
 		}
 		break;
@@ -429,6 +387,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Parse the menu selections:
 		switch (wmId)
 		{
+		case 208:
+			// right-click popup item ( transparent TrackPopupMenu hook ):
+			// proof the engine delivers selections as native WM_COMMAND.
+			AppendEventLog( _T("CTX-MENU 208 via WM_COMMAND") );
+			break;
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;

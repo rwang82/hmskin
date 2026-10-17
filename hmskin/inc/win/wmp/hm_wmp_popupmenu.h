@@ -58,6 +58,7 @@ private:
 
 private:
 	HMENU m_hMenu;
+	HWND m_hWndOwner;   // set by HMWM_BINDMENU ( lParam ): WM_COMMAND forward target
 	dimension_menuwnd_i* m_pDimensionMenuWndObj;
 	int m_nHoverMIIndex;
 };

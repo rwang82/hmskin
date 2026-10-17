@@ -80,14 +80,6 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		_stprintf_s( szLine, 64, _T("MENU-BAR -> #%u"), (unsigned int)(UINT_PTR)lParam2 + 1 );
 		OpenSkinPopupMenu( (unsigned int)(UINT_PTR)lParam2 );
 		break;
-	case HMSKIN_EVENT_POPUPMENU_CLICK:
-		{ // a skinned popup menu item was chosen: execute known commands.
-			unsigned int uCmdId = (unsigned int)(UINT_PTR)lParam2;
-			_stprintf_s( szLine, 64, _T("MENU-POP cmd=%u"), uCmdId );
-			if ( uCmdId == IDM_ABOUT || uCmdId == IDM_EXIT )
-				::SendMessage( g_hWnd, WM_COMMAND, MAKEWPARAM( uCmdId, 0 ), 0 );
-		}
-		break;
 	case HMSKIN_EVENT_SCROLLBAR_CHANGED:
 		{ // §4 : scrollbar value moves the content rows ( parallax demo,
 		  // K38 base offset y=22, value 0..16 moves content up 0..16px ).
@@ -107,6 +99,11 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 					::InvalidateRect( g_hWnd, &pLayoutObj->m_rect, FALSE );
 				}
 			}
+		}
+		break;
+	case HMSKIN_EVENT_POPUPMENU_CLICK:
+		{ // engine popup delivered WM_COMMAND to the owner already; log only.
+			_stprintf_s( szLine, 64, _T("MENU-POP cmd=%u"), (unsigned int)(UINT_PTR)lParam2 );
 		}
 		break;
 	default:

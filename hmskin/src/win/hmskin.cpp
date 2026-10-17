@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "hmskin_event_listener_base.h"
+#include "win\frame\hm_hook_trackpopupmenu.h"
 #include "hm_layout_scale.h"
 #include <intrin.h>
 #include "hmskin.h"
@@ -131,15 +133,43 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 	//
 	hs_mouse_proc_hook_start( g_hModule );
 	//
-	//APIHOOK_INSTANCE->hookOnTrackPopupMenu( _T("TrackPopupMenu"), _T("user32.dll") );
 
 	mfpkDestroyHMUIRoot.Cancel();
 	*ppHMUIRoot = pHMUIRootNew;
 	return true;
 }
 
+static bool s_bTPMHookEnabled = false;
+bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable )
+{
+	if ( !pHMUIRoot )
+		return false;
+	if ( bEnable ) {
+		if ( s_bTPMHookEnabled )
+			return true;
+		hm_tpm_set_root( pHMUIRoot );
+		if ( !APIHOOK_INSTANCE->hookOnTrackPopupMenu( _T("TrackPopupMenu"), _T("user32.dll") ) )
+			return false;
+		s_bTPMHookEnabled = true;
+	} else {
+		if ( !s_bTPMHookEnabled )
+			return true;
+		APIHOOK_INSTANCE->hookOff( _T("TrackPopupMenu"), _T("user32.dll") );
+		hm_tpm_set_root( NULL );
+		s_bTPMHookEnabled = false;
+	}
+	return true;
+}
+
 void hm_lib_shutdown( hm_uiroot* pHMUIRoot )
 {
+	// restore patched user32 bytes BEFORE anything tears down - a patched
+	// API pointing into a dying DLL would crash the host at next menu call.
+	if ( s_bTPMHookEnabled ) {
+		APIHOOK_INSTANCE->hookOff( _T("TrackPopupMenu"), _T("user32.dll") );
+		hm_tpm_set_root( NULL );
+		s_bTPMHookEnabled = false;
+	}
 	//
 	//g_instanceAPIHook.hookOff( _T("TrackPopupMenu"), _T("user32.dll") );
 	//

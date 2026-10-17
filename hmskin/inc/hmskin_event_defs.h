@@ -42,5 +42,14 @@
 // lParam1 - specify the pointer of keel object ( the radio item ).
 // lParam2 - always TRUE ( radio style: the clicked item stays checked ).
 #define HMSKIN_EVENT_RADIO_CLICK (0x00000008)
+//////////////////////////////////////////////////////////////////////////
+// HMSKIN_EVENT_TRACKPOPUPMENU
+// the app enabled the transparent TrackPopupMenu hook ( opt-in via
+// hm_lib_enable_trackpopupmenu_hook ); a native TrackPopupMenu call was
+// intercepted. the listener should open its skinned popup at the screen
+// position and return - the native menu is NOT shown.
+// lParam1 - hm_trackpopupmenu_param* ( hmskin.h ): menu, screen x/y, owner.
+// lParam2 - NONE.
+#define HMSKIN_EVENT_TRACKPOPUPMENU (0x00000009)
 
 #endif //__HMSKIN_EVENT_DEFS_H__
