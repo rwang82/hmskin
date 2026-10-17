@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-hmskin 冒烟测试——金图比对 + 事件链断言 + manifest 校验
+hmskin smoke tests - golden-image compare + event-chain assertion + manifest validation
 
-用法（Windows VM 上，任意 cmd）:
-    python tools\\smoke_test.py                # 全部三阶段
-    python tools\\smoke_test.py --gold         # 首次生成金图（人工确认截图无误后）
-    python tools\\smoke_test.py --no-screenshot  # 跳过金图（只跑 manifest + 事件链）
-    python tools\\smoke_test.py --perf D2D     # A/B 性能：后端覆盖 + EVT 滚轮场景 + 优雅退出后打印 hmskin_perf.log
+Usage ( Windows VM, any cmd ):
+python tools\\smoke_test.py                # all three phases
+python tools\\smoke_test.py --gold         # first-time golden capture ( verify the shot by hand )
+python tools\\smoke_test.py --no-screenshot  # skip golden ( manifest + event chain only )
+python tools\\smoke_test.py --perf D2D     # A/B perf: backend override + EVT wheel scenario + graceful close -> prints hmskin_perf.log
     python tools\\smoke_test.py --perf Gdiplus
 
-阶段:
-  1. manifest 校验——三份 manifest JSON 语法 + 结构完整性（ K/WMP 引用一致性 ）
-  2. 事件链断言——启动 demo → 模拟交互 → 检查 hmskin_trace.log 中的预期事件序列
-  3. 金图比对——demo 稳定后截屏 → 与 tools/golden/*.png 容差比对
+Phases:
+1. manifest validation - JSON syntax + structure of both manifests ( K/WMP reference consistency )
+2. event-chain assertion - launch demo -> simulate interaction -> expected events in hmskin_trace.log
+3. golden compare - screenshot after settle -> tolerance compare against tools/golden/*.png
 
-退出码: 0=全过, 非 0=有失败（ CI 可判 ）。
+Exit code: 0 = all pass, non-zero = failures ( CI friendly ).
 """
 import os, sys, json, re, time, subprocess, argparse
 
@@ -288,7 +288,7 @@ def main():
         results.append((ok, msg))
         if not ok: fail += 1
 
-    # phase 2+3 ( Windows only — demo.exe can't run elsewhere ).
+    # phase 2+3 ( Windows only - demo.exe can't run elsewhere ).
     # skipped entirely in perf mode ( the perf run IS the demo launch ).
     if args.perf and sys.platform == "win32":
         pass
@@ -308,7 +308,7 @@ def main():
             results.append((False, f"[golden] capture failed: {trace_msg}"))
             fail += 1
     elif not args.no_screenshot:
-        # full mode: launch → screenshot → golden compare + trace check
+        # full mode: launch -> screenshot -> golden compare + trace check
         shot, trace_msg = grab_screenshot()
         if shot:
             ok, msg = compare_golden(shot)

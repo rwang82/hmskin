@@ -115,17 +115,11 @@ bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_
 	} else {
 		strFormat.SetAlignment( Gdiplus::StringAlignmentNear );
 	}
-//typedef enum {
-//    StringFormatFlagsDirectionRightToLeft = 0x00000001,	�����������˳����ʾ�ı�.
-//    StringFormatFlagsDirectionVertical = 0x00000002,		�ı���ֱ����.
-//    StringFormatFlagsNoFitBlackBox = 0x00000004,			���������ַ�������ַ����Ĳ��־���.Ĭ������£������¶�λ�ַ��Ա����κ�����.
-//    StringFormatFlagsDisplayFormatControl = 0x00000020,	�����ַ�(������ұ��)����д����Եı�־����һ����ʾ�������.
-//    StringFormatFlagsNoFontFallback = 0x00000400,
-//    StringFormatFlagsMeasureTrailingSpaces = 0x00000800,
-//    StringFormatFlagsNoWrap = 0x00001000,					�ھ��������ø�ʽʱ�������ı����й���.
-//    StringFormatFlagsLineLimit = 0x00002000,				
-//    StringFormatFlagsNoClip = 0x00004000					������ʾ��־���ŵ�������ֺ����쵽�߿����δ�����ı�.
-//} StringFormatFlags;
+//	StringFormatFlags quick reference ( GDI+ docs have the full list ):
+//	  NoWrap    0x00001000   never word-wrap inside the layout rect
+//	  LineLimit 0x00002000   NOT used here - whole lines vanish at fractional
+//	                        DPI scales when the rect is a hair too short
+//	  NoClip    0x00004000   let glyphs overhang the layout rect
 
 	USES_CONVERSION;
 	graph.DrawString( T2W( pTextData ), _tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &brushTextClr );

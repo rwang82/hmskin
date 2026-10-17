@@ -215,7 +215,7 @@ void hm_rs_rawres_font::doFirstRef( refres_id_type rrId ) {
 			hFontDC = ::GetDC( NULL );
 			CFuncPack fpkReleaseDC( ::ReleaseDC, (HWND)NULL, hFontDC );
 			memset( &logFont, 0, sizeof(LOGFONT) );
-			logFont.lfHeight = MulDiv( m_fontParam.m_uSize, -::GetDeviceCaps( hFontDC,  LOGPIXELSY ), 72 );//设置字体高度为12
+			logFont.lfHeight = MulDiv( m_fontParam.m_uSize, -::GetDeviceCaps( hFontDC,  LOGPIXELSY ), 72 );// pt -> px through the DC real DPI ( negative = char height )
 			logFont.lfWeight = FontStyle2Weight( m_fontParam.m_uFlagStyle );
 			logFont.lfCharSet = FaceName2CharSet( m_fontParam.m_strFaceName );
 			logFont.lfItalic = ( m_fontParam.m_uFlagStyle & FONTSTYLE_ITALIC );

@@ -27,7 +27,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		_stprintf_s( szLine, 64, _T("BTN-%02d CLICK"), pKeelObj ? pKeelObj->getId() : 0 );
 		break;
 	case HMSKIN_EVENT_CHECKBOX_CLICK:
-		{ // checkbox-class WMPs: K10 = CHK-02 复选框, K48 = TGL-10 开关.
+		{	{ // checkbox-class WMPs: K10 = CHK-02 checkbox, K48 = TGL-10 toggle.
 		  // ( radios are the hm_wmp_radio class and fire RADIO_CLICK below. )
 			unsigned int uId = pKeelObj ? pKeelObj->getId() : 0;
 			if ( uId == 48 )
@@ -81,7 +81,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		OpenSkinPopupMenu( (unsigned int)(UINT_PTR)lParam2 );
 		break;
 	case HMSKIN_EVENT_SCROLLBAR_CHANGED:
-		{ // §4 : scrollbar value moves the content rows ( parallax demo,
+		{	{ // sec.4 : scrollbar value moves the content rows ( parallax demo,
 		  // K38 base offset y=22, value 0..16 moves content up 0..16px ).
 			int nVal = (int)(UINT_PTR)lParam2;
 			_stprintf_s( szLine, 64, _T("SCB-03 -> %d"), nVal );

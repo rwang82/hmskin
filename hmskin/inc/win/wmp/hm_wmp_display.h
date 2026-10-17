@@ -73,7 +73,7 @@ public:
 
 	// buffering policy for interaction draws ( straight to the screen DC ):
 	// the framework applies it, controls only declare it. see DESIGN.md
-	// "引擎演进" - the paint path ( memory DC of the root canvas ) always
+	// "engine evolution" - the paint path ( memory DC of the root canvas ) always
 	// draws direct regardless of strategy.
 	typedef enum _ENUMBUFSTRATEGY {
 		BUF_NONE = 0,       // draw straight onto the target DC

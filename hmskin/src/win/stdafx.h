@@ -26,8 +26,6 @@
 //#define ULONG_PTR unsigned long*
 //#endif //ULONG_PTR
 //
-////#include "H:\code\vss_code_qhm\CommonLib\GDIPlus\includes\gdiplus.h"   ////请修改为你的头文件路径
 //#include "E:\Lib\GDIPlus\Includes\gdiplus.h"
 //using namespace Gdiplus;  
-////#pragma comment(lib, "H:\\code\\vss_code_qhm\\CommonLib\\GDIPlus\\lib\\gdiplus.lib") ////请修改为你的.lib文件路径
 //#pragma comment(lib, "E:\\Lib\\GDIPlus\\Lib\\gdiplus.lib")

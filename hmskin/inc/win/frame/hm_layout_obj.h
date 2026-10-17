@@ -23,7 +23,7 @@ public:
 public:
 	virtual void update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue );
 	
-	//²¼¾Ö½âÊÍÆ÷
+	// layout decoder
 public:
 	bool hasLayoutDecoder() const { return m_pLayoutDecoder != NULL; }
 	void setLayoutDecoder( decoder_ptr_type pLayoutDecoder) { m_pLayoutDecoder = pLayoutDecoder; }

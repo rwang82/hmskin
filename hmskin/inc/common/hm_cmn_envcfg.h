@@ -7,10 +7,10 @@
 
 CMN_NAMESPACE_START
 
-//事件ID定义 begin////////////////////////////////////////////////////////////////////////
+// event id definitions begin //////////////////////////////////////////////////////////////////////////////
 const UINT ID_QEVENT_UILIB_BASE = WM_USER + 200;
 
-//位置Layout位置改变的通知 
+// notification: a layout position has changed
 const UINT ID_EVENT_POSCHANGED = ID_QEVENT_UILIB_BASE + 1;
 
 

@@ -55,12 +55,12 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
 HWND g_hBtnTest1 = NULL;
 
-// ---- tab chapters ( §1..§4 ) : keelobj groups switched by visibility ----
+// ---- tab chapters ( sec.1..sec.4 ) : keelobj groups switched by visibility ----
 static const unsigned int arrChapterGroups[4][17] = {
-	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48, 49, 50, 51, 0 },  // §1 基础交互（+ 原生接管按钮 + 8格状态矩阵 + TGL-10 开关 + RAD-11 单选组）
-	{ 21, 22, 23, 24, 25, 26, 52, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0 },           // §2 文本与数据（字阶标本 + PRG-12 进度条）
-	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },                // §3 菜单系统
-	{ 2, 28, 38, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },              // §4 滚动与容器（滚动井+内容行+滚动条）
+	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48, 49, 50, 51, 0 },	// sec.1 basics (+ native-adoption button + 8-state checkbox grid)
+	{ 21, 22, 23, 24, 25, 26, 52, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.2 text & data ( type-scale specimens + PRG progress )
+	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.3 menus
+	{ 2, 28, 38, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.4 scrolling & containers ( well + content rows + scrollbar )
 };
 
 void SwitchChapter( unsigned int uChapterIndex ) {
@@ -77,18 +77,18 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 				pKeelObj->setVisible( bVisible );
 		}
 	}
-	// 原生接管按钮（ §1 对照标本）随章节显隐。
+	// the native-adoption button ( sec.1 contrast specimen ) follows chapter visibility.
 	if ( g_hBtnTest1 )
 		::ShowWindow( g_hBtnTest1, ( uChapterIndex == 0 ) ? SW_SHOW : SW_HIDE );
 	::InvalidateRect( g_hWnd, NULL, FALSE );
 }
 
-// §3 : open the skinned popup menu for root menu item uRootItemIndex.
+// sec.3 : open the skinned popup menu for root menu item uRootItemIndex.
 // creates a borderless popup window, connects it to the skin ( prop id 21 ->
 // MsgSink 12 / keelobj K46 / hm_wmp_popupmenu ), then HMWM_BINDMENU binds the
 // submenu HMENU - the WMP resizes the window to fit and draws the items.
 void OpenSkinPopupMenu( unsigned int uRootItemIndex ) {
-	// §3 menu-bar items: resolve the submenu and let the ENGINE popup take
+	// sec.3 menu-bar items: resolve the submenu and let the ENGINE popup take
 	// over ( window/skin slot/command delivery are all engine-side now ).
 	HMENU hRootMenu = ::GetMenu( g_hWnd );
 	HMENU hSubMenu = ::GetSubMenu( hRootMenu, (int)uRootItemIndex );
@@ -340,10 +340,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		   g_pWMPEvtLog = pKeelObjEvtLog->getWMP( WMPID_EVENTLOG );
    }
 
-   // tab chapters : §1 基础交互 is the default visible section.
+   // tab chapters : sec.1 basics is the default visible section.
    SwitchChapter( 0 );
 
-   // §4 scroll view: the well ( K2 ) clips its children, the content rows
+   // sec.4 scroll view: the well ( K2 ) clips its children, the content rows
    // ( K38 ) are taller than the well, the scrollbar range spans exactly
    // the overflow ( content height - well height ). thumb / arrow thicknesses
    // must equal the sbthumb_* / sbbtn_* bitmap dimensions ( gen_skin.py ).
@@ -373,7 +373,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   }
    }
 
-   // §1 RAD-11 radio group ( K49..K51 / WMP72..74, hm_wmp_radio ): GDI is
+   // sec.1 RAD-11 radio group ( K49..K51 / WMP72..74, hm_wmp_radio ): GDI is
    // the default selection. stay-checked + RADIO_CLICK event are baked into
    // the radio class; sibling unchecking is driven by the event listener.
    {
@@ -511,7 +511,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 bool createUI( HWND hWndParent ) {
-	//button: test1 — 原生控件换肤对照标本（ §1 基础交互）。
+//button: test1 - contrast specimen: a native control adopted by the skin ( sec.1 ).
 	// CLIENT coords ( not K12-relative ): the skin button row sits at client
 	// y=152 ( K12 top 48 + space2 104 ), K19 ends at client x=352, so this
 	// lands 16px to its right. 150x42 = bitmap native size, 1:1.
