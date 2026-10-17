@@ -1,59 +1,66 @@
 # hmskin
 
-中文 | **[English](README.en-US.md)**
+[中文](README.zh-CN.md) | **English**
 
-**把已有 Win32 应用的界面，整体替换为 DirectUI 自绘引擎**——不重写 UI 代码，
-也不依赖原生控件渲染。
+**Replace the entire UI of an existing Win32 application with a DirectUI
+self-drawing engine** — no UI code rewrite, no reliance on native control
+rendering.
 
-hmskin 结合了 Windows 界面史上两条互不相通的路线：
+hmskin combines two traditionally separate branches of Windows UI history:
 
-| | 传统换肤方案 | 主流 DirectUI 方案 | **hmskin** |
+| | Classic skin libraries | Mainstream DirectUI frameworks | **hmskin** |
 |---|---|---|---|
-| 接管已有程序 | ✓ hook + 子类化，宿主零改造 | ✗ 必须用它的框架重写 UI | ✓ **hook 已有窗口，宿主零改造** |
-| 控件渲染 | 皮肤位图模板，按标准控件类型逐一适配 | 完全自绘（无句柄逻辑控件） | ✓ **完全自绘**：keelobj 绘制树 + 控件状态机 |
-| 皮肤形态 | 二进制皮肤文件，外观只读 | XML 布局 + 代码驱动 | ✓ **JSON manifest**：外观/布局/行为全声明式 |
-| 控件行为 | 沿用系统控件逻辑 | 自绘控件类 | ✓ WMP 行为类 + 8 种事件回调 |
+| Takes over existing apps | ✓ hook + subclassing, zero host changes | ✗ must rewrite UI on its framework | ✓ **hooks existing windows, zero host changes** |
+| Control rendering | bitmap skin templates, adapted per standard control type | fully self-drawn (handle-less logical controls) | ✓ **fully self-drawn**: keelobj draw tree + control state machines |
+| Skin format | binary skin files, appearance read-only | XML layout + code-driven | ✓ **JSON manifest**: appearance/layout/behavior fully declarative |
+| Control behavior | reuses system control logic | self-drawn control classes | ✓ WMP behavior classes + 8 event callbacks |
 
-> 一句话：**换肤方案的接入成本，DirectUI 的渲染与行为自由度**——这是两类传统路线
-> 都不具备的组合。宿主窗口的客户区被引擎变成一块 DirectUI 画布：原生控件被替换
-> 为自绘控件树（按钮/复选框/开关/单选/Tab/滚动条/菜单/进度条…），连标题栏三钮、
-> 根菜单栏与 `TrackPopupMenu` 弹出菜单一并接管；渲染后端三选一
-> （GDI / GDI+ / Direct2D+DirectWrite）。
+> In one sentence: **the integration cost of a skin library, the rendering
+> and behavioral freedom of DirectUI** — a combination neither traditional
+> approach offers. The engine turns the host window's client area into a
+> DirectUI canvas: native controls are replaced by a self-drawn control tree
+> (buttons / checkboxes / toggles / radios / tabs / scrollbars / menus /
+> progress bars…), taking over the title-bar buttons, the root menu bar and
+> even `TrackPopupMenu` popups; the rendering backend is a one-string choice
+> (GDI / GDI+ / Direct2D+DirectWrite).
 
-**宿主程序零配合**：你的代码照常调 `CreateWindow`、`TrackPopupMenu`、响应 `WM_COMMAND`，
-hmskin 在引擎内部透明接管渲染与交互。
+**Zero host cooperation**: your code keeps calling `CreateWindow`,
+`TrackPopupMenu` and handling `WM_COMMAND` as usual — hmskin transparently
+takes over rendering and interaction inside the engine.
 
-![hmskin Gallery — 皮肤基准台](doc/img/demo_gallery.png)
+![hmskin Gallery — skin benchmark bench](doc/img/demo_gallery.png)
 
-> 上图即 `demo/` 演示程序（零皮肤概念的原生代码写成）：标题栏、菜单栏、弹出菜单、
-> 按钮矩阵、复选框/开关/单选、Tab、滚动条——全部由引擎自绘。
+> The screenshot is the `demo/` application (written as plain native code
+> with zero skin concepts): title bar, menu bar, popup menus, button matrix,
+> checkboxes/toggles/radios, tabs, scrollbars — all drawn by the engine.
 
-## 核心特色
+## Highlights
 
-### 透明接管（Transparent Takeover）
+### Transparent Takeover
 
 ```cpp
-// 宿主代码 —— 完全原生写法，零皮肤概念
+// host code — 100% native style, zero skin concepts
 case WM_RBUTTONDOWN:
     hMenu = ::CreatePopupMenu();
     ::InsertMenuItem( hMenu, IDM_ABOUT, FALSE, &mi );
-    ::TrackPopupMenu( hMenu, TPM_LEFTALIGN, x, y, 0, hWnd, NULL );  // ← 被 hmskin 劫持
+    ::TrackPopupMenu( hMenu, TPM_LEFTALIGN, x, y, 0, hWnd, NULL );  // ← intercepted by hmskin
     break;
 
 case WM_COMMAND:
     switch ( LOWORD(wParam) ) {
-    case IDM_ABOUT:   // ← 选单按原生语义投递回来，现有 handler 无感工作
+    case IDM_ABOUT:   // ← selection delivered back with native semantics; existing handlers just work
         ...
     }
 ```
 
-调用 `hm_lib_enable_trackpopupmenu_hook(root, TRUE)` 后，原生 `TrackPopupMenu` 调用
-被引擎接管并皮肤化，选单按 `PostMessage(WM_COMMAND, id)` 送回属主窗口。
+After `hm_lib_enable_trackpopupmenu_hook(root, TRUE)`, native `TrackPopupMenu`
+calls are taken over and skinned by the engine; the selection is posted back
+to the owner window via `PostMessage(WM_COMMAND, id)`.
 
-### 声明式皮肤（JSON Manifest）
+### Declarative Skins (JSON Manifest)
 
-皮肤的全部定义——位图、布局、字体、色板、行为配置——在 JSON 里。
-美术改皮肤不碰 C++、不改引擎重编译。
+Everything a skin defines — bitmaps, layout, fonts, palette, behavior config —
+lives in JSON. Artists change skins without touching C++ or rebuilding the engine.
 
 ```json
 "KeelObj": [
@@ -72,202 +79,219 @@ case WM_COMMAND:
 ]
 ```
 
-### 组合式控件（一份状态机，多种控件）
+### Composable Controls (one state machine, several controls)
 
-checkbox 的八态状态机 + 位图族 + 继承钩子 = 复选框 / 开关(Toggle) / 单选(Radio) 三种控件。
-换肤只需换位图，行为引擎不变。
+The checkbox's eight-state state machine + bitmap families + inheritance
+hooks = three controls: checkbox, toggle, radio. Reskinning is just swapping
+bitmaps; the behavioral engine stays untouched.
 
-## 支持的控件
+## Supported Controls
 
-| 控件 | WMP 类 | 要点 |
+| Control | WMP class | Notes |
 |---|---|---|
-| 按钮 | `hm_wmp_button` | 三态位图（normal/hover/press）+ 禁用态 |
-| 复选框 | `hm_wmp_checkbox` | `setCheck()` 状态 API；八态状态机 |
-| 开关(Toggle) | `hm_wmp_checkbox` 换肤 | 药丸位图族即开关，零引擎改动 |
-| 单选(Radio) | `hm_wmp_radio` | 继承 checkbox；已选中点击不翻转；组语义由应用层驱动 |
-| Tab 标签条 | `hm_wmp_tabheader` | 雪碧图三态 + 选中态；键盘 ←/→ 循环切换 |
-| 滚动条 | `hm_wmp_scrollbar` | 值域 API；拖动/端钮/滚轮三路输入；容器内自动步进 |
-| 根菜单栏 | `hm_wmp_rootmenu` | 标签直接读 HMENU（`GetMenuItemInfo`） |
-| 弹出菜单 | `hm_wmp_popupmenu` | 引擎自建弹窗、自适尺寸、自绘条目；透明接管或主动调用 |
-| 静态面/文本 | `hm_wmp_bkgnd` | 文字走 `setWMPDisplayText()` 实时刷新 |
-| 非客户区 | `button_nca` / `bkgnd_nca` / `drawtrigger_nca` | 皮肤标题栏、边框、最小化/最大化/关闭三钮 |
-| 进度条 | 纯 manifest 拼装 | 轨道 + 填充 dock 厚度即百分比，零引擎改动 |
+| Button | `hm_wmp_button` | tri-state bitmaps (normal/hover/press) + disabled state |
+| Checkbox | `hm_wmp_checkbox` | `setCheck()` state API; eight-state machine |
+| Toggle | `hm_wmp_checkbox` reskinned | pill bitmap family is a toggle, zero engine changes |
+| Radio | `hm_wmp_radio` | inherits checkbox; stays checked on re-click; group semantics app-driven |
+| Tab header | `hm_wmp_tabheader` | sprite tri-state + selected state; keyboard ←/→ cycling |
+| Scrollbar | `hm_wmp_scrollbar` | value-range API; drag/arrow/wheel input paths; auto-step inside containers |
+| Root menu bar | `hm_wmp_rootmenu` | labels read directly from HMENU (`GetMenuItemInfo`) |
+| Popup menu | `hm_wmp_popupmenu` | engine-created window, auto-sized, self-drawn items; takeover or direct call |
+| Static / text | `hm_wmp_bkgnd` | text refreshes live via `setWMPDisplayText()` |
+| Non-client area | `button_nca` / `bkgnd_nca` / `drawtrigger_nca` | skins the title bar, borders, min/max/close buttons |
+| Progress bar | pure manifest assembly | track + docked fill thickness = percentage, zero engine changes |
 
-## 可扩展架构
+## Extensible Architecture
 
-### 绘制引擎可插拔（DrawTool）
-
-```
-hm_ps_drawtool_i (抽象基类)
-├── hm_ps_drawtool_gdi      ← GDI 后端
-├── hm_ps_drawtool_gdiplus  ← GDI+ 后端（Release 默认）
-└── hm_ps_drawtool_d2d      ← Direct2D + DirectWrite 后端（Debug 全启用）
-```
-
-manifest 里每个 WMP 声明 `"DrawTool": "D2D" / "Gdiplus" / "Gdi"`，换后端只改一个字符串；
-宿主程序还可用 `demo.exe --drawtool D2D` 式参数在运行时整体覆盖（性能对比、环境适配）。
-
-D2D 后端当前为混合形态（M1）：**文字绘制走 DirectWrite**（质量与 GDI+ 持平、
-字形抗锯齿更现代），位图/纯色/文本测量转发 GDI+（布局度量零位移）。
-位图路径的 D2D 原生化（M2）按 A/B 性能数据推进——实测 D2D 文字路径
-每次绘制含 DC render target 往返（1394µs vs GDI+ 166µs），往返成本
-是 M2 的头号设计约束，性能观测设施已常开（每次运行自动产出
-`hmskin_perf.log`）。
-
-### 皮肤加载器可插拔（Loader）
+### Pluggable Renderers (DrawTool)
 
 ```
-hm_wmp_loader_base (抽象基类)
+hm_ps_drawtool_i (abstract base)
+├── hm_ps_drawtool_gdi      ← GDI backend
+├── hm_ps_drawtool_gdiplus  ← GDI+ backend (Release default)
+└── hm_ps_drawtool_d2d      ← Direct2D + DirectWrite backend (Debug default)
+```
+
+Each WMP declares `"DrawTool": "D2D" / "Gdiplus" / "Gdi"` in the manifest —
+switching backends is a one-string edit; the host can also override globally
+at runtime (`demo.exe --drawtool D2D`, useful for perf comparisons and
+environment adaptation).
+
+The D2D backend is currently a hybrid (M1): **text renders via DirectWrite**
+(quality on par with GDI+, more modern glyph antialiasing) while bitmap/
+solid/measurement calls forward to GDI+ (layout metrics unchanged). Migrating
+the bitmap path to native D2D (M2) is driven by A/B perf data — measured,
+each D2D text draw pays a DC render target round trip (1394µs vs 166µs for
+GDI+), making round-trip cost the top M2 design constraint. Perf telemetry
+is always on (every run automatically produces `hmskin_perf.log`).
+
+### Pluggable Skin Loaders
+
+```
+hm_wmp_loader_base (abstract base)
 ├── hm_wmp_button_loader
 ├── hm_wmp_checkbox_loader
 ├── hm_wmp_radio_loader
 ├── hm_wmp_scrollbar_loader
 ├── hm_wmp_popupmenu_loader
-├── ... ( 16 个控件加载器 )
-└── hm_wmp_loader_depot     ← 按类名分发（"hm_wmp_button" → button_loader）
+├── ... ( 16 control loaders )
+└── hm_wmp_loader_depot     ← dispatches by class name ("hm_wmp_button" → button_loader)
 ```
 
-新增控件 = 新增一个 WMP 类 + 一个 loader + depot 注册一行。
-`DECLARE_FACTORY` 宏自动生成工厂注册，manifest 按类名实例化。
+A new control = one WMP class + one loader + one depot registration line.
+The `DECLARE_FACTORY` macro generates the factory registration; the manifest
+instantiates by class name.
 
-### 布局系统（LayoutDecoder）
+### Layout System (LayoutDecoder)
 
-| 解码器 | 语义 | resize 时 |
+| Decoder | Semantics | On resize |
 |---|---|---|
-| `corner` | 某角 + 定宽高 | 只跟角走，尺寸不变 |
-| `dock` | 贴某边 + 定厚 | 厚度不变，其余贴满 |
-| `offset` | 四边内缩 | 宽高随参考伸缩 |
-| `clientarea` | = 宿主客户区 | 跟随（被接管的原生控件） |
+| `corner` | anchored to a corner, fixed size | follows the corner, size unchanged |
+| `dock` | docked to an edge, fixed thickness | thickness unchanged, rest fills |
+| `offset` | inset on four sides | width/height stretch with the reference |
+| `clientarea` | = host client area | follows (for adopted native controls) |
 
-写新解码器继承 `hm_layoutdecoder_i`，loader 注册即可。
+New decoders inherit `hm_layoutdecoder_i` and register with the loader.
 
-### 绘制缓冲框架（hm_wmp_display 基类）
+### Drawing Buffer Framework (hm_wmp_display base)
 
-新控件继承 `hm_wmp_display`，只实现 `_render(hDC, rcCanvas)`（局部坐标系，
-对"画到屏幕还是离屏"无感），交互处理器里一行 `drawSelf(pKeelObj, hwnd)`。
-缓冲策略三档声明式：`BUF_NONE`（直画）/ `BUF_ALLOC`（点击级现建）/
-`BUF_CACHE_SIZE`（拖动级按尺寸缓存）。
+New controls inherit `hm_wmp_display` and implement only
+`_render(hDC, rcCanvas)` (local coordinates, unaware of screen vs offscreen);
+interaction handlers call `drawSelf(pKeelObj, hwnd)`. Buffering is a
+three-level declarative choice: `BUF_NONE` (direct), `BUF_ALLOC`
+(allocate per click-rate draw), `BUF_CACHE_SIZE` (cache by size for
+drag-rate draws).
 
-### DPI 感知
+### DPI Awareness
 
-`hm_startup_param` 第三参 `uDpi`（默认 96）——manifest 按 96dpi 基准编写，
-loader 在咽喉点自动缩放到物理像素。GDI+ 点制字体由 Graphics 真实 DPI 自动换算。
+The third `hm_startup_param` argument `uDpi` (default 96) — manifests are
+authored on a 96dpi baseline and the loader scales to physical pixels at a
+single choke point. GDI+ point-based fonts convert automatically through the
+Graphics DPI.
 
-## 工作原理
+## How It Works
 
 ```
-hm_lib_startup( manifest )          ← 解析 JSON → 装配 keelobj 树 + WMP + 资源
+hm_lib_startup( manifest )          ← parse JSON → assemble keelobj tree + WMPs + resources
     ↓
-hm_wndpropid_connect( hWnd, id )    ← 把皮肤绑到已有 HWND
+hm_wndpropid_connect( hWnd, id )    ← bind the skin to an existing HWND
     ↓
-Hook 拦截窗口消息                    ← WH_CALLWNDPROC / WH_MOUSE / API hook
+Hooks intercept window messages     ← WH_CALLWNDPROC / WH_MOUSE / API hooks
     ↓
-消息分发给各 WMP                     ← 按消息类型路由到控件处理器
+Messages routed to WMPs             ← dispatched by message type to control handlers
     ↓
-WMP 自绘替代默认渲染                 ← GDI/GDI+ 位图 + 文字 + 九宫格拉伸
+WMPs self-draw over default render  ← GDI/GDI+ bitmaps + text + 9-patch stretching
     ↓
-交互回调宿主( onHKSkinEvent )        ← 观察者模式，8 种事件
+Interaction callbacks ( onHKSkinEvent )  ← observer pattern, 8 event kinds
 ```
 
-## 快速集成
+## Quick Integration
 
 ```cpp
 #include "hmskin.h"
 #include "hmskin_event_listener_base.h"
 
-// ① 实现事件监听器
+// ① implement an event listener
 class my_listener : public hmskin_event_listener_base {
     virtual void onHKSkinEvent( unsigned int uEventId, void* lParam1, void* lParam2 ) {
-        // 8 种事件：BTN/CHK/RADIO/TAB/MENU-POP/MENU-BAR/SCROLLBAR/TRACKPOPUP
+        // 8 event kinds: BTN/CHK/RADIO/TAB/MENU-POP/MENU-BAR/SCROLLBAR/TRACKPOPUP
     }
 };
 
-// ② 启动引擎
+// ② start the engine
 my_listener listener;
-hm_startup_param param( hInstance, &listener, 120 );  // 120 = 系统 DPI
+hm_startup_param param( hInstance, &listener, 120 );  // 120 = system DPI
 hm_lib_startup( &param, _T("myapp.hm.manifest"), &g_pHMRoot );
 
-// ③ 连接窗口
+// ③ connect a window
 CreateWindow( ... );
 hm_wndpropid_connect( g_pHMRoot, hWnd, 258 );
 
-// ④（可选）启用透明菜单接管
+// ④ (optional) enable transparent menu takeover
 hm_lib_enable_trackpopupmenu_hook( g_pHMRoot, TRUE );
 
-// ⑤ 退出
+// ⑤ shutdown
 hm_lib_shutdown( g_pHMRoot );
 ```
 
-详细指南见 **`doc/INTEGRATION.md`**（五步接入 / manifest 速查 / WMP 清单 / 事件表 / 已知坑）。
+Full guide: **`doc/INTEGRATION.md`** (five-step integration / manifest
+reference / WMP catalog / event table / known pitfalls).
 
-## 构建
+## Building
 
-### 命令行（推荐 CI / 远程协作）
+### Command line (recommended for CI / remote collaboration)
 
 ```
-build.cmd Debug ARM64        ← 日常开发
-build.cmd                    ← 全 6 配置
+build.cmd Debug ARM64        ← daily development
+build.cmd                    ← all 6 configurations
 ```
 
-全量输出重定向到 `build.log`，任一失败 exit code 非零。详见 `doc/BUILDING.md`。
+All output is redirected to `build.log`; any failure yields a non-zero exit
+code. See `doc/BUILDING.md` (Chinese).
 
 ### Visual Studio
 
-打开 `hmskin.sln`，配置矩阵 **{Win32, x64, ARM64} × {Debug, Release}**，直接生成。
+Open `hmskin.sln`; the configuration matrix is
+**{Win32, x64, ARM64} × {Debug, Release}** — just build.
 
-### 前置
+### Prerequisites
 
-- Visual Studio 2026，工作负载 "Desktop development with C++"
-- 组件 **"C++ ATL for v145 build tools"**（代码使用 `AtlConv.h`）
+- Visual Studio 2026, workload "Desktop development with C++"
+- Component **"C++ ATL for v145 build tools"** (the code uses `AtlConv.h`)
 - Windows 10/11 SDK
 
-### 冒烟测试
+### Smoke Tests
 
 ```
-python tools\smoke_test.py --no-screenshot    ← manifest 校验 + 事件链
-python tools\smoke_test.py                    ← + 金图容差比对
-python tools\smoke_test.py --perf D2D         ← 渲染后端性能 A/B（滚轮场景）
+python tools\smoke_test.py --no-screenshot    ← manifest validation + event chain
+python tools\smoke_test.py                    ← + golden-image tolerance compare
+python tools\smoke_test.py --perf D2D         ← renderer A/B perf (wheel scenario)
 python tools\smoke_test.py --perf Gdiplus
 ```
 
-金图基线（`tools/golden/`）守护当前 D2D 渲染外观；`--perf` 模式自动
-切后端跑滚轮场景，优雅退出后打印 `hmskin_perf.log`（count/avg/p50/p95/直方图）。
+The golden baseline (`tools/golden/`) guards the current D2D appearance;
+`--perf` runs the wheel scenario per backend and prints `hmskin_perf.log`
+(count/avg/p50/p95/histogram) after a graceful exit.
 
-## 仓库结构
+## Repository Layout
 
-| 目录 | 说明 |
+| Path | Description |
 |---|---|
-| `hmskin/` | 核心 DLL（hook × DirectUI 换肤引擎） |
-| `demo/` | 集成示例（「基准台」Gallery：四章节控件标本 + 事件日志 + token 表） |
-| `scrolldecorator/` | 独立自绘滚动条 DLL（可脱离 hmskin 单独使用） |
-| `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 |
-| `doc/` | `INTEGRATION.md` 集成指南 + `BUILDING.md` 构建指南 + `img/` 截图 |
-| `tools/golden/` | 金图回归基线（冒烟守护的渲染外观） |
-| `DESIGN.md` | 设计系统（色板/字阶/布局/组件规范） |
+| `hmskin/` | core DLL (hook × DirectUI skinning engine) |
+| `demo/` | integration sample (the "benchmark bench" gallery: four chapters of control specimens + event log + token table) |
+| `scrolldecorator/` | standalone self-drawn scrollbar DLL (usable without hmskin) |
+| `tools/` | `gen_skin.py` bitmap generator + `smoke_test.py` smoke tests |
+| `doc/` | `INTEGRATION.md` integration guide + `BUILDING.md` build guide + `img/` screenshots |
+| `tools/golden/` | golden-image regression baseline (the appearance the smoke test guards) |
+| `DESIGN.md` | design system (palette / type scale / layout / component specs, Chinese) |
 
-## 平台与依赖
+## Platform & Dependencies
 
-- **语言**：C++ (Win32 API + GDI/GDI+)，无 MFC 依赖
-- **平台**：Win32 / x64 / **ARM64**（Windows 10/11 SDK）
-- **工具集**：Visual Studio 2026 (v145)
-- **依赖**：gdiplus + jsoncpp 1.9.6（源码已内置 `hmskin/dependence/json/`）
+- **Language**: C++ (Win32 API + GDI/GDI+), no MFC
+- **Platforms**: Win32 / x64 / **ARM64** (Windows 10/11 SDK)
+- **Toolset**: Visual Studio 2026 (v145)
+- **Dependencies**: gdiplus + jsoncpp 1.9.6 (source vendored in `hmskin/dependence/json/`)
 
-## 注意事项
+## Notes
 
-- 部分源文件含 GBK 中文注释，请勿"以其他编码重新保存"
-- `TreatWarningAsError` 关闭（历史告警 C4267/C4244/C4996 不影响功能）
-- DPI Phase 1 已落（静态缩放）；Per-Monitor 动态换档属后续专项
+- Some source files contain GBK Chinese comments — do NOT "re-save with a
+  different encoding"
+- `TreatWarningAsError` is off (legacy warnings C4267/C4244/C4996 are harmless)
+- DPI Phase 1 (static scaling) is done; per-monitor dynamic switching is a
+  future milestone
 
-## 项目历史
+## History
 
-| 时间 | 事件 |
+| When | What |
 |---|---|
-| 2016 | 初版：VS2008 起步，VS2013 v120_xp，仅 32 位，jsoncpp 0.5 预编译库 |
-| 2026-10 | 现代化：VS2026 v145、三平台、jsoncpp 1.9.6 源码、UTF-8 manifest、指针宽度安全化、透明 TrackPopupMenu 接管、DPI Phase 1、脏区裁剪、绘制缓冲框架、冒烟测试基建、集成文档、**Direct2D/DirectWrite 文字后端（M1）+ 渲染性能 A/B 设施**、金图回归基线、装载时序根因修复 |
+| 2016 | first version: VS2008 → VS2013 v120_xp, 32-bit only, jsoncpp 0.5 prebuilt |
+| 2026-10 | modernization: VS2026 v145, three platforms, jsoncpp 1.9.6 source, UTF-8 manifests, pointer-width safety, transparent TrackPopupMenu takeover, DPI Phase 1, dirty-rect clipping, drawing-buffer framework, smoke-test infrastructure, integration docs, **Direct2D/DirectWrite text backend (M1) + renderer A/B perf harness**, golden-image baseline, loader-order root-cause fix |
 
-## 许可
+## License
 
-双重许可：个人学习与非商业用途**免费使用**；集成进盈利性商业产品需邮件取得
-作者书面授权（r4o5m6e8o@163.com）。详见 [LICENSE](LICENSE)。
+Dual licensing: **free** for personal learning and non-commercial use;
+integrating into commercial products for profit requires prior written
+consent by email (r4o5m6e8o@163.com). See [LICENSE](LICENSE) (Chinese).
 
-内置的 jsoncpp 组件按其自带许可（Public Domain / MIT）分发，不受上述限制。
+The vendored jsoncpp component is distributed under its own license
+(Public Domain / MIT) and is not subject to the above.
