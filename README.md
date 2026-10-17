@@ -262,3 +262,10 @@ python tools\smoke_test.py --perf Gdiplus
 |---|---|
 | 2016 | 初版：VS2008 起步，VS2013 v120_xp，仅 32 位，jsoncpp 0.5 预编译库 |
 | 2026-10 | 现代化：VS2026 v145、三平台、jsoncpp 1.9.6 源码、UTF-8 manifest、指针宽度安全化、透明 TrackPopupMenu 接管、DPI Phase 1、脏区裁剪、绘制缓冲框架、冒烟测试基建、集成文档、**Direct2D/DirectWrite 文字后端（M1）+ 渲染性能 A/B 设施**、金图回归基线、装载时序根因修复 |
+
+## 许可
+
+双重许可：个人学习与非商业用途**免费使用**；集成进盈利性商业产品需邮件取得
+作者书面授权（r4o5m6e8o@163.com）。详见 [LICENSE](LICENSE)。
+
+内置的 jsoncpp 组件按其自带许可（Public Domain / MIT）分发，不受上述限制。
