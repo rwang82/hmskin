@@ -72,7 +72,7 @@ public:
 public:
 #pragma warning(push)
 #pragma warning(disable:4251)
-	// face name, e.g. "SimSun", "Arial"
+	string_type m_strFaceName; // face name, e.g. "SimSun", "Arial"
 #pragma warning(pop)
 	unsigned int m_uSize; // specifies the size of the font measured in units identified by the third argument.
 	unsigned int m_uFlagSizeUnit; // FONTUNIT_PIXEL, FONTUNIT_POINT is Specifies that a unit is 1 point or 1/72 inch. 
