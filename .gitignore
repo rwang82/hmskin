@@ -26,3 +26,6 @@ Release/
 
 # hmskin exported binaries (post-build copies)
 hmskin/lib/
+
+# command-line build log ( build.cmd )
+build.log
