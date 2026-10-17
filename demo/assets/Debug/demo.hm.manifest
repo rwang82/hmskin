@@ -2849,6 +2849,101 @@
           "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 3, "text": "PRG-12 · 进度条标本 · 64%", "Alignment": 0 } } ]
         }
       ]
+    },
+    {
+      "idWMP": 77,
+      "WMPClsName": "hm_wmp_button",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 10, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "accent  ·  可操作/焦点", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#FF5C1F", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 11, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "accent  ·  可操作/焦点", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#FF5C1F", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 12, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "accent  ·  可操作/焦点", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#FF5C1F", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 78,
+      "WMPClsName": "hm_wmp_button",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 10, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "success ·  状态为真", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#3DDC97", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 11, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "success ·  状态为真", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#3DDC97", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 12, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "success ·  状态为真", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#3DDC97", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 79,
+      "WMPClsName": "hm_wmp_button",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 10, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "surface ·  面板/标题栏", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#161B21", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 11, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "surface ·  面板/标题栏", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#161B21", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 12, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "surface ·  面板/标题栏", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#161B21", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 80,
+      "WMPClsName": "hm_wmp_button",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 10, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "hairline ·  发丝线", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#262C34", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 11, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "hairline ·  发丝线", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#262C34", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 12, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "hairline ·  发丝线", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "#262C34", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        }
+      ]
+    },
+    {
+      "idWMP": 81,
+      "WMPClsName": "hm_wmp_button",
+      "DrawTool": "Gdiplus",
+      "DistrictObjs": [
+        {
+          "id": 0,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 10, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "radius  ·  控件圆角", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "4 / 8 px", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 1,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 11, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "radius  ·  控件圆角", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "4 / 8 px", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        },
+        {
+          "id": 2,
+          "ShowObjs": [ { "UIRes": { "UIResName": "hm_rs_uires_pic", "RawPicId": 12, "m_ufixL": 2, "m_ufixR": 2, "m_ufixT": 0, "m_ufixB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 5, "Color": 3, "text": "radius  ·  控件圆角", "Alignment": 0 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 10, "m_nOffsetT": 0, "m_nOffsetR": 0, "m_nOffsetB": 0 } }, { "UIRes": { "UIResName": "hm_rs_uires_text", "Font": 3, "Color": 1, "text": "4 / 8 px", "Alignment": 2 }, "PosDecoder": { "PDCName": "hm_posdecoder_offset", "m_nOffsetL": 0, "m_nOffsetT": 0, "m_nOffsetR": 10, "m_nOffsetB": 0 } } ]
+        }
+      ]
     }
   ],
   "MsgSink": [
@@ -4216,6 +4311,146 @@
       "WMP": [
         {
           "id": 75,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 54,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 13,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 344,
+          "m_height": 24,
+          "m_space1": 8,
+          "m_space2": 464
+        }
+      },
+      "WMP": [
+        {
+          "id": 77,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 55,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 13,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 344,
+          "m_height": 24,
+          "m_space1": 8,
+          "m_space2": 490
+        }
+      },
+      "WMP": [
+        {
+          "id": 78,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 56,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 13,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 344,
+          "m_height": 24,
+          "m_space1": 8,
+          "m_space2": 516
+        }
+      },
+      "WMP": [
+        {
+          "id": 79,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 57,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 13,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 344,
+          "m_height": 24,
+          "m_space1": 8,
+          "m_space2": 542
+        }
+      },
+      "WMP": [
+        {
+          "id": 80,
+          "RegEvts": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "idKeelObj": 58,
+      "WndMsgSource": {
+        "Type": "MsgSink",
+        "MsgSinkId": 10
+      },
+      "ParentKeelObjId": 13,
+      "LayoutObj": {
+        "CSId": 1,
+        "LayoutDecoder": {
+          "DecoderType": "hm_layoutdecoder_corner",
+          "RefKeelObjId": 13,
+          "m_eCornerType": "CORNER_LT",
+          "m_width": 344,
+          "m_height": 24,
+          "m_space1": 8,
+          "m_space2": 568
+        }
+      },
+      "WMP": [
+        {
+          "id": 81,
           "RegEvts": [
             6
           ]

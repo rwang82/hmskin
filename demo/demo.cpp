@@ -339,6 +339,29 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   }
    }
 
+   // statusbar RAIL: live engine capability readout ( DESIGN.md ).
+   {
+	   // read the LIVE dpi via the same dynamic resolve as WinMain
+	   UINT uRailDpi = 96;
+	   {
+		   typedef UINT (WINAPI *FN_GetDpiForSystem)( void );
+		   HMODULE hUser32 = ::GetModuleHandle( _T("user32.dll") );
+		   if ( hUser32 ) {
+			   FN_GetDpiForSystem pfnGetDpi = (FN_GetDpiForSystem)::GetProcAddress( hUser32, "GetDpiForSystem" );
+			   if ( pfnGetDpi && pfnGetDpi() )
+				   uRailDpi = pfnGetDpi();
+		   }
+	   }
+	   TCHAR szRail[ 128 ];
+	   _stprintf_s( szRail, 128, _T("● LIVE   9-PATCH · 3-SEG · ALPHA · GDI+ · DPI %u"), uRailDpi );
+	   hm_keel_obj* pKeelObjRail = NULL;
+	   if ( hm_get_keelobj( g_pHMRoot, 16, &pKeelObjRail ) && pKeelObjRail ) {
+		   void* pWMPRail = pKeelObjRail->getWMP( 37 );
+		   if ( pWMPRail )
+			   setWMPDisplayText( pWMPRail, szRail );
+	   }
+   }
+
    ShowWindow( g_hWnd, nCmdShow );
    UpdateWindow( g_hWnd );
 
