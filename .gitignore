@@ -29,3 +29,6 @@ hmskin/lib/
 
 # command-line build log ( build.cmd )
 build.log
+
+# smoke test transient screenshot ( tools/smoke_test.py )
+tools/_smoke_shot.png
