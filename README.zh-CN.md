@@ -77,6 +77,23 @@ case WM_COMMAND:
 checkbox 的八态状态机 + 位图族 + 继承钩子 = 复选框 / 开关(Toggle) / 单选(Radio) 三种控件。
 换肤只需换位图，行为引擎不变。
 
+### 面向 AI Agent 的内省与操控（Agent-Ready Introspection）
+
+demo 内嵌一个极小的 agent 服务（TCP 127.0.0.1:9321，JSON 行协议），
+暴露实时控件树、截图与合成输入。`tools/hmskin_mcp.py` 将其封装为
+六个 MCP 工具——`load_manifest` / `dump_tree` / `live_tree` /
+`screenshot` / `click_keelobj` / `stop_demo`——经 ssh 隧道可达，
+任何 AI Agent 都能直查结构、直接操控 UI，无需从截图像素反推：
+
+```
+live_tree 节点 -> { "id": 3, "parentId": 1, "visible": true,
+                    "rect": { "l": 46, "t": 160, "r": 256, "b": 202 } }
+click_keelobj(3) -> WM_LBUTTONDOWN/UP 经消息 trace 实证
+```
+
+引擎本身零网络——只提供内省接口，由宿主程序自行决定服务方式
+（见 `tools/hmskin_mcp.py --selftest`）。
+
 ## 支持的控件
 
 | 控件 | WMP 类 | 要点 |
@@ -228,6 +245,7 @@ python tools\smoke_test.py --no-screenshot    ← manifest 校验 + 事件链
 python tools\smoke_test.py                    ← + 金图容差比对
 python tools\smoke_test.py --perf D2D         ← 渲染后端性能 A/B（滚轮场景）
 python tools\smoke_test.py --perf Gdiplus
+python tools\smoke_test.py --tree           # 控件树转储 + 断言
 ```
 
 金图基线（`tools/golden/`）守护当前 D2D 渲染外观；`--perf` 模式自动
@@ -240,7 +258,7 @@ python tools\smoke_test.py --perf Gdiplus
 | `hmskin/` | 核心 DLL（hook × DirectUI 换肤引擎） |
 | `demo/` | 集成示例（「基准台」Gallery：四章节控件标本 + 事件日志 + token 表） |
 | `scrolldecorator/` | 独立自绘滚动条 DLL（可脱离 hmskin 单独使用） |
-| `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 |
+| `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 + `hmskin_mcp.py` agent 桥 |
 | `doc/` | `INTEGRATION.md` 集成指南 + `BUILDING.md` 构建指南 + `img/` 截图 |
 | `tools/golden/` | 金图回归基线（冒烟守护的渲染外观） |
 | `DESIGN.md` | 设计系统（色板/字阶/布局/组件规范） |
@@ -254,7 +272,7 @@ python tools\smoke_test.py --perf Gdiplus
 
 ## 注意事项
 
-- 部分源文件含 GBK 中文注释，请勿"以其他编码重新保存"
+- 源码注释已全英文；少数 UI 字符串与一处字体名匹配仍为中文（i18n 待办）
 - `TreatWarningAsError` 关闭（历史告警 C4267/C4244/C4996 不影响功能）
 - DPI Phase 1 已落（静态缩放）；Per-Monitor 动态换档属后续专项
 

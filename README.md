@@ -85,6 +85,26 @@ The checkbox's eight-state state machine + bitmap families + inheritance
 hooks = three controls: checkbox, toggle, radio. Reskinning is just swapping
 bitmaps; the behavioral engine stays untouched.
 
+### Agent-Ready Introspection ( AI-agent infrastructure )
+
+The demo embeds a tiny agent service ( TCP 127.0.0.1:9321, JSON line
+protocol ) exposing the live control tree, screenshots and synthetic
+input. `tools/hmskin_mcp.py` serves it as six MCP tools —
+`load_manifest` / `dump_tree` / `live_tree` / `screenshot` /
+`click_keelobj` / `stop_demo` — reachable over an ssh tunnel, so any
+AI agent can query structures and drive the UI directly instead of
+reverse-engineering pixels:
+
+```
+live_tree node -> { "id": 3, "parentId": 1, "visible": true,
+                    "rect": { "l": 46, "t": 160, "r": 256, "b": 202 } }
+click_keelobj(3) -> WM_LBUTTONDOWN/UP verified in the message trace
+```
+
+The engine itself stays network-free — it only provides the
+introspection interfaces; the host application chooses how to serve
+them ( see `tools/hmskin_mcp.py --selftest` ).
+
 ## Supported Controls
 
 | Control | WMP class | Notes |
@@ -247,6 +267,7 @@ python tools\smoke_test.py --no-screenshot    ← manifest validation + event ch
 python tools\smoke_test.py                    ← + golden-image tolerance compare
 python tools\smoke_test.py --perf D2D         ← renderer A/B perf (wheel scenario)
 python tools\smoke_test.py --perf Gdiplus
+python tools\smoke_test.py --tree           # keelobj tree dump + assertions
 ```
 
 The golden baseline (`tools/golden/`) guards the current D2D appearance;
@@ -260,7 +281,7 @@ The golden baseline (`tools/golden/`) guards the current D2D appearance;
 | `hmskin/` | core DLL (hook × DirectUI skinning engine) |
 | `demo/` | integration sample (the "benchmark bench" gallery: four chapters of control specimens + event log + token table) |
 | `scrolldecorator/` | standalone self-drawn scrollbar DLL (usable without hmskin) |
-| `tools/` | `gen_skin.py` bitmap generator + `smoke_test.py` smoke tests |
+| `tools/` | `gen_skin.py` bitmap generator + `smoke_test.py` smoke tests + `hmskin_mcp.py` agent bridge |
 | `doc/` | `INTEGRATION.md` integration guide + `BUILDING.md` build guide + `img/` screenshots |
 | `tools/golden/` | golden-image regression baseline (the appearance the smoke test guards) |
 | `DESIGN.md` | design system (palette / type scale / layout / component specs, Chinese) |
@@ -274,8 +295,8 @@ The golden baseline (`tools/golden/`) guards the current D2D appearance;
 
 ## Notes
 
-- Some source files contain GBK Chinese comments — do NOT "re-save with a
-  different encoding"
+- Source comments are English throughout; a few UI strings and one
+  font-name match are still Chinese ( i18n backlog )
 - `TreatWarningAsError` is off (legacy warnings C4267/C4244/C4996 are harmless)
 - DPI Phase 1 (static scaling) is done; per-monitor dynamic switching is a
   future milestone
