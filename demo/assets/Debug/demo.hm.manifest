@@ -1940,7 +1940,7 @@
                 "UIResName": "hm_rs_uires_text",
                 "Font": 3,
                 "Color": 3,
-                "text": "TOK-04 · DESIGN TOKENS\n\naccent  #FF5C1F\nsurface #161B21\nhairline #262C34\nradius  4 / 8 px",
+                "text": "TOK-04 · DESIGN TOKENS",
                 "Alignment": 1
               },
               "PosDecoder": {
@@ -3816,7 +3816,9 @@
           "RefKeelObjId": 13,
           "m_eCornerType": "CORNER_LT",
           "m_width": 360,
-          "m_height": 110,
+          "m_height": 24,
+          "m_space1": 16,
+          "m_space2": 344110,
           "m_space1": 16,
           "m_space2": 344
         }
@@ -4333,7 +4335,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 444
+          "m_space2": 382
         }
       },
       "WMP": [
@@ -4361,7 +4363,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 470
+          "m_space2": 408
         }
       },
       "WMP": [
@@ -4389,7 +4391,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 496
+          "m_space2": 434
         }
       },
       "WMP": [
@@ -4417,7 +4419,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 522
+          "m_space2": 460
         }
       },
       "WMP": [
@@ -4445,7 +4447,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 548
+          "m_space2": 486
         }
       },
       "WMP": [
