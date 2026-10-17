@@ -5,6 +5,7 @@
 #include "win\frame\hm_keel_obj.h"
 #include "win\frame\hm_layout_obj.h"
 #include "win\wmp\hm_wmp_checkbox.h"
+#include "hm_layout_scale.h"
 #include "win\frame\hm_layout_decoders.h"
 #include "win\frame\hm_uiroot.h"
 #include "demo.h"
@@ -98,7 +99,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 				hm_layoutdecoder_corner* pDecoder = pLayoutObj
 					? dynamic_cast< hm_layoutdecoder_corner* >( pLayoutObj->getLayoutDecoder() ) : NULL;
 				if ( pDecoder ) {
-					pDecoder->m_space2 = 22 - nVal;
+					pDecoder->m_space2 = hm_layout_scale_px( 22 ) - nVal;
 					pLayoutObj->calcPosition();
 					// invalidate ONLY the content rows rect: the scrollbar
 					// redraws itself directly while dragging, a wider

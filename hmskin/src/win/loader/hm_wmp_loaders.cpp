@@ -30,6 +30,13 @@
 #include <assert.h>
 #include <atlconv.h>
 //
+
+// DPI: posdecoder parse sites sit below the createWMP choke point and read
+// the loader-base scale snapshot ( m_dblScale, taken from the uiroot ).
+static int _ScalePx( double dblScale, int nValue96 ) {
+	return (int)( nValue96 * dblScale + 0.5 );
+}
+
 const char STR_DRAWTOOL[] = "DrawTool";
 const char STR_DISTRICTOBJS[] = "DistrictObjs";
 const char STR_ROOTMENUCFG[] = "RootMenuCfg";
@@ -243,28 +250,28 @@ bool hm_wmp_display_loader::_createPosDecoder_Dock( const Json::Value& valPDC, h
 		assert( false );
 		return false;
 	}
-	pPDCDock->m_space1 = valTmp.asInt();
+	pPDCDock->m_space1 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space2" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCDock->m_space2 = valTmp.asInt();
+	pPDCDock->m_space2 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space3" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCDock->m_space3 = valTmp.asInt();
+	pPDCDock->m_space3 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nThickness" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCDock->m_nThickness = valTmp.asInt();
+	pPDCDock->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
 
 	*ppPDC = pPDCDock;
 	return true;
@@ -308,14 +315,14 @@ bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC,
 		assert( false );
 		return false;
 	}
-	pPDCSlider->m_space1 = valTmp.asInt();
+	pPDCSlider->m_space1 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space2" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCSlider->m_space2 = valTmp.asInt();
+	pPDCSlider->m_space2 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_distance" ];
 	if ( !valTmp.isInt() ) {
@@ -329,7 +336,7 @@ bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC,
 		assert( false );
 		return false;
 	}
-	pPDCSlider->m_nThickness = valTmp.asInt();
+	pPDCSlider->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
 
 	*ppPDC = pPDCSlider;
 
@@ -386,21 +393,21 @@ bool hm_wmp_display_loader::_createPosDecoder_Stack( const Json::Value& valPDC, 
 		assert( false );
 		return false;
 	}
-	pPDCStack->m_space1 = valTmp.asInt();
+	pPDCStack->m_space1 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space2" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCStack->m_space2 = valTmp.asInt();
+	pPDCStack->m_space2 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nThickness" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCStack->m_nThickness = valTmp.asInt();
+	pPDCStack->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
 
 	*ppPDC = pPDCStack;
 
@@ -428,28 +435,28 @@ bool hm_wmp_display_loader::_createPosDecoder_Offset( const Json::Value& valPDC,
 		assert( false );
 		return false;
 	}
-	pPDCOffset->m_nOffsetL = valTmp.asInt();
+	pPDCOffset->m_nOffsetL = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nOffsetT" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCOffset->m_nOffsetT = valTmp.asInt();
+	pPDCOffset->m_nOffsetT = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nOffsetR" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCOffset->m_nOffsetR = valTmp.asInt();
+	pPDCOffset->m_nOffsetR = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nOffsetB" ];
 	if ( !valTmp.isInt() ) {
 		assert( false );
 		return false;
 	}
-	pPDCOffset->m_nOffsetB = valTmp.asInt();
+	pPDCOffset->m_nOffsetB = _ScalePx( m_dblScale, valTmp.asInt() );
 
 	*ppPDC = pPDCOffset;
 

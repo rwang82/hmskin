@@ -9,6 +9,12 @@
 #include <assert.h>
 
 
+// DPI: scale from the session owner ( uiroot ), see hm_layout_scale.h.
+static int _ScalePx( hm_uiroot* pHMUIRoot, int nValue96 ) {
+	return (int)( nValue96 * pHMUIRoot->m_dblLayoutScale + 0.5 );
+}
+
+
 hm_loader_keelobj::hm_loader_keelobj() {
 
 }
@@ -301,28 +307,28 @@ BOOL hm_loader_keelobj::_CreateLayoutDecoderCorner( hm_uiroot* pHMUIRoot, const 
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_space1 = valTmp.asInt();
+	pLayoutDecoderNew->m_space1 = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get m_space2.
 	valTmp = valLayoutDecoder[ "m_space2" ];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_space2 = valTmp.asInt();
+	pLayoutDecoderNew->m_space2 = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get m_width
 	valTmp = valLayoutDecoder[ "m_width" ];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_width = valTmp.asInt();
+	pLayoutDecoderNew->m_width = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get m_height.
 	valTmp = valLayoutDecoder[ "m_height" ];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_height = valTmp.asInt();
+	pLayoutDecoderNew->m_height = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	//
 	valTmp = valLayoutDecoder[ "RefKeelObjId" ];
 	if ( !valTmp.isInt() ) {
@@ -390,28 +396,28 @@ BOOL hm_loader_keelobj::_CreateLayoutDecoderDock( hm_uiroot* pHMUIRoot, const Js
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_space1 = valTmp.asInt();
+	pLayoutDecoderNew->m_space1 = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get m_space2
 	valTmp = valLayoutDecoder["m_space2"];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_space2 = valTmp.asInt();
+	pLayoutDecoderNew->m_space2 = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get m_space3
 	valTmp = valLayoutDecoder["m_space3"];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_space3 = valTmp.asInt();
+	pLayoutDecoderNew->m_space3 = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get m_thickness
 	valTmp = valLayoutDecoder["m_thickness"];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	pLayoutDecoderNew->m_thickness = valTmp.asInt();
+	pLayoutDecoderNew->m_thickness = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get objIdKeelObjRef
 	valTmp = valLayoutDecoder[ "RefKeelObjId" ];
 	if ( !valTmp.isInt() ) {
@@ -476,28 +482,28 @@ BOOL hm_loader_keelobj::_CreateLayoutDecoderOffset( hm_uiroot* pHMUIRoot, const 
 		assert( FALSE );
 		return FALSE;
 	}
-	nOffsetL = valTmp.asInt();
+	nOffsetL = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	// get nOffsetR
 	valTmp = valLayoutDecoder[ "m_nOffsetR" ];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	nOffsetR = valTmp.asInt();
+	nOffsetR = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	//
 	valTmp = valLayoutDecoder[ "m_nOffsetT" ];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	nOffsetT = valTmp.asInt();
+	nOffsetT = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	//
 	valTmp = valLayoutDecoder[ "m_nOffsetB" ];
 	if ( !valTmp.isInt() ) {
 		assert( FALSE );
 		return FALSE;
 	}
-	nOffsetB = valTmp.asInt();
+	nOffsetB = _ScalePx( pHMUIRoot, valTmp.asInt() );
 	
 	//
 	pLayoutDecoderNew = new hm_layoutdecoder_offset( pLayoutOutObj );

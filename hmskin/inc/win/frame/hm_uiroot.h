@@ -29,6 +29,11 @@ public:
 	hm_keel_obj_factory* m_pKeelObjFactory;
 	hm_wmp_factory* m_pWMPFactory;
 	hmskin_event_listener_base* m_pEventListener;
+	// DPI layout scale of this skin session ( set by hm_lib_startup from
+	// hm_startup_param::m_uDpi BEFORE the manifest loads; loaders read it
+	// at parse time. the session owner - hm_layout_scale() mirrors it
+	// process-wide as an app-facing convenience ).
+	double m_dblLayoutScale;
 
 	// window style adaptation, see hm_loader_wndstyle.h ( -1 = not configured ).
 	int m_nWndCornerPref;

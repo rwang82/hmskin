@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\loader\hm_loader_font.h"
+#include "win\frame\hm_uiroot.h"
 #include "win\resource_system\hm_rs_rawres_base.h"
 #include "win\hm_win_misc.h"
 
@@ -84,7 +85,7 @@ bool hm_loader_font::load( hm_manifest_json* pManifestData, hm_uiroot* pHMUIRoot
 		valTmp = fontVal["Size"];
 		if ( !valTmp.isInt() )
 			return false;
-		nFontSize = valTmp.asInt();
+		nFontSize = (int)( valTmp.asInt() * pHMUIRoot->m_dblLayoutScale + 0.5 );  // GDI+ converts POINT on a fixed 96dpi grid - scale to physical
 
 		//
 		fontParam.m_strFaceName = tstrFaceName;

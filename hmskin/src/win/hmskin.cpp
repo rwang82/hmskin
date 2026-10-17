@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "hm_layout_scale.h"
 #include <intrin.h>
 #include "hmskin.h"
 #include "tchar.h"
@@ -61,6 +62,17 @@ static bool ReadResFromFile( const TCHAR* szResFilePath );
 static bool ParseUIManifest( const TCHAR* szUIManifestFilePath, hm_uiroot* pHMUIRoot );
 static bool hm_wndcls_reg( HINSTANCE hInst );
 ///////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////
+// DPI layout scale ( see hm_layout_scale.h )
+static double g_dblLayoutScale = 1.0;
+double hm_layout_scale() {
+	return g_dblLayoutScale;
+}
+int hm_layout_scale_px( int nValue96 ) {
+	return (int)( nValue96 * g_dblLayoutScale + 0.5 );
+}
+
 bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_uiroot** ppHMUIRoot )
 {
 	if ( !g_hModule ) {
@@ -101,6 +113,14 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 	//// read resource data from file
 	//if ( !ReadResFromFile( szResFilePath ) )
 	//	return false;
+	// DPI: apply the layout scale BEFORE any manifest number is parsed
+	// ( hm_startup_param::m_uDpi, 96 baseline ). authors write 96dpi
+	// manifests; the runtime works in physical pixels. the session value
+	// lives on the uiroot ( loaders read it ); the global is only the
+	// app-facing mirror ( hm_layout_scale/hm_layout_scale_px ).
+	pHMUIRootNew->m_dblLayoutScale = ( pParam->m_uDpi > 0 ? pParam->m_uDpi : 96 ) / 96.0;
+	g_dblLayoutScale = pHMUIRootNew->m_dblLayoutScale;
+
 	if ( !ParseUIManifest( szResFilePath, pHMUIRootNew ) )
 		return false;
 

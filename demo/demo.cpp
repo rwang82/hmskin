@@ -9,6 +9,7 @@
 #include "win\hm_wndmsg_defs.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
 #include "win\wmp\hm_wmp_checkbox.h"
+#include "hm_layout_scale.h"
 #include <vector>
 
 //////////////////////////////////////////////////////////
@@ -127,8 +128,8 @@ void OpenSkinPopupMenu( unsigned int uRootItemIndex ) {
 	RECT rcWnd;
 	::GetWindowRect( g_hWnd, &rcWnd );
 	// position under the clicked menu-bar item ( rootmenu cfg: bar x20, item space 5, len 60, bar y54-80 ).
-	int x = rcWnd.left + 20 + 5 + (int)uRootItemIndex * 60;
-	int y = rcWnd.top + 80;
+	int x = rcWnd.left + hm_layout_scale_px( 20 + 5 + (int)uRootItemIndex * 60 );
+	int y = rcWnd.top + hm_layout_scale_px( 80 );
 	//
 	g_hWndPopup = ::CreateWindowEx( WS_EX_TOOLWINDOW | WS_EX_TOPMOST, _T( "hmskinPopupCls" ),
 		NULL, WS_POPUP, x, y, 160, 100, g_hWnd, NULL, hInst, NULL );
@@ -182,10 +183,31 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: Place code here.
+	// DPI ( M1-1 ): declare awareness so DWM stops bitmap-stretching the
+	// window on scaled displays; the skin lays out in physical pixels via
+	// hm_startup_param::m_uDpi ( manifests stay 96dpi-authored ).
+	// resolved dynamically: the header declarations are NTDDI-gated and
+	// host apps may target older toolsets/SDKs.
+	UINT uDpi = 96;
+	{
+		typedef BOOL (WINAPI *FN_SetDpiAwarenessCtx)( void* );
+		typedef UINT (WINAPI *FN_GetDpiForSystem)( void );
+		HMODULE hUser32 = ::GetModuleHandle( _T("user32.dll") );
+		if ( hUser32 ) {
+			FN_SetDpiAwarenessCtx pfnSetCtx = (FN_SetDpiAwarenessCtx)::GetProcAddress( hUser32, "SetProcessDpiAwarenessContext" );
+			FN_GetDpiForSystem pfnGetDpi = (FN_GetDpiForSystem)::GetProcAddress( hUser32, "GetDpiForSystem" );
+			if ( pfnSetCtx )
+				pfnSetCtx( (void*)(INT_PTR)-4 );   // DPI_AWARENESS_CONTEXT_SYSTEM_AWARE
+			if ( pfnGetDpi ) {
+				UINT uDpiSys = pfnGetDpi();
+				if ( uDpiSys )
+					uDpi = uDpiSys;
+			}
+		}
+	}
 	MSG msg;
 	HACCEL hAccelTable;
-	hm_startup_param paramHMStartup( hInstance, &g_HMSkinEventListener );
+	hm_startup_param paramHMStartup( hInstance, &g_HMSkinEventListener, uDpi );
 	TCHAR szCurModulePath[ MAX_PATH +1 ];
 	DWORD dwRet;
 	TCHAR* posT;
@@ -292,8 +314,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
 	   int nScrW = ::GetSystemMetrics( SM_CXSCREEN );
 	   int nScrH = ::GetSystemMetrics( SM_CYSCREEN );
-	   int nWndW = 1100;
-	   int nWndH = 750;
+	   int nWndW = hm_layout_scale_px( 1100 );
+	   int nWndH = hm_layout_scale_px( 750 );
 	   g_hWnd = CreateWindow( szWindowClass, _T("hmskin Gallery — 皮肤基准台"), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
 		   ( nScrW - nWndW ) / 2, ( nScrH - nWndH ) / 2, nWndW, nWndH, NULL, NULL, hInstance, NULL);
    }
@@ -331,9 +353,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
 		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
 		   if ( pWMPScrollBar ) {
-			   pWMPScrollBar->setStartThumbLen( 20 );
-			   pWMPScrollBar->setEndThumbLen( 20 );
-			   pWMPScrollBar->setTrackThumbLen( 48 );
+			   pWMPScrollBar->setStartThumbLen( hm_layout_scale_px( 20 ) );
+			   pWMPScrollBar->setEndThumbLen( hm_layout_scale_px( 20 ) );
+			   pWMPScrollBar->setTrackThumbLen( hm_layout_scale_px( 48 ) );
 			   int nRange = 0;
 			   if ( hm_get_keelobj( g_pHMRoot, 38, &pKeelObjContent ) && pKeelObjContent
 				   && pKeelObjContent->getLayoutObj() && pKeelObjWell->getLayoutObj() ) {
@@ -464,7 +486,7 @@ bool createUI( HWND hWndParent ) {
 	{
 		DWORD dwCtrlID = 20;
 		g_hBtnTest1 = ::CreateWindow( _T( "Button" ), _T( "接管"), WS_VISIBLE | WS_CHILD,
-			368, 152, 150, 42, hWndParent, ( HMENU )dwCtrlID, NULL, NULL );
+			hm_layout_scale_px( 368 ), hm_layout_scale_px( 152 ), hm_layout_scale_px( 150 ), hm_layout_scale_px( 42 ), hWndParent, ( HMENU )dwCtrlID, NULL, NULL );
 		if ( !g_hBtnTest1 ) {
 			::OutputDebugString( _T("hBtnTest1 == NULL!\n") );
 			return false;

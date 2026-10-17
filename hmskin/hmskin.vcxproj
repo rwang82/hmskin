@@ -388,6 +388,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\resource_system\hm_rs_uires_pic.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_checkbox.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_radio.h" />
+    <ClInclude Include="inc\hm_layout_scale.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="inc\win\frame\hm_coordinate_system_hwnd.h" />

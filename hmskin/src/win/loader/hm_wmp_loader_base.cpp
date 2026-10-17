@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "win\frame\hm_uiroot.h"
 #include "win\loader\hm_wmp_loader_base.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "common\FuncPack.h"
@@ -11,6 +12,7 @@ static const char STR_WMPIDWMP[] = "idWMP";
 hm_wndmsgprocessor_i* hm_wmp_loader_base::createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
 	if ( !pHMUIRoot )
 		return NULL;
+	m_dblScale = pHMUIRoot->m_dblLayoutScale;
 	hm_wndmsgprocessor_i* pWMPNew = NULL;
 	unsigned int uWMPId;
 	// create pWMPNew
