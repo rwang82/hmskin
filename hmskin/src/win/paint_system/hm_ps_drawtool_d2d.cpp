@@ -9,12 +9,12 @@
 #include "win\frame\hm_perf_stats.h"
 
 // forwarding target for everything but text draw ( hybrid M1 backend )
-static hm_ps_drawtool_gdiplus* _gp() {
+static hm_ps_drawtool_gdiplus* _gdiplus() {
 	return hm_ps_drawtool_gdiplus::getInstance();
 }
 
 // ---- private state ( hidden from the header via m_pImpl ) ----
-struct _d2d_impl {
+struct D2DImpl {
 	ID2D1Factory* m_pD2DFactory;
 	IDWriteFactory* m_pDWriteFactory;
 	ID2D1DCRenderTarget* m_pDCRT;
@@ -22,14 +22,14 @@ struct _d2d_impl {
 	// are set per-draw so LEFT and VCENTER consumers can't pollute each other
 	std::map< hm_rs_rawres_font*, IDWriteTextFormat* > m_mapFont2TextFormat;
 
-	_d2d_impl() : m_pD2DFactory( NULL ), m_pDWriteFactory( NULL ), m_pDCRT( NULL ) {}
+	D2DImpl() : m_pD2DFactory( NULL ), m_pDWriteFactory( NULL ), m_pDCRT( NULL ) {}
 	// INTENTIONALLY no Release() here: this struct lives in a process-wide
 	// singleton whose destructor runs during static destruction / DLL unload
 	// ( loader-lock context ) - releasing D2D/DWrite objects there crashes
-	// ( hm_ps_drawtool_d2d.cpp:54 abort ). the singleton never dies mid-run
+	// ( observed abort at process exit ). the singleton never dies mid-run
 	// ( only the process exit tears it down ), so the "leak" is reclaimed by
 	// the OS and harmless. standard practice for D2D/DXGI in statics.
-	~_d2d_impl() {}
+	~D2DImpl() {}
 
 	// lazy idempotent init of the two factories
 	bool ensureFactories() {
@@ -71,10 +71,10 @@ struct _d2d_impl {
 	// probed from hDC ( same semantics as the HFONT path in
 	// hm_rs_rawres_base.cpp: MulDiv( pt, LOGPIXELSY, 72 ) )
 	IDWriteTextFormat* getTextFormat( HDC hDC, hm_rs_rawres_font* pRawResFont ) {
-		std::map< hm_rs_rawres_font*, IDWriteTextFormat* >::iterator it =
+		std::map< hm_rs_rawres_font*, IDWriteTextFormat* >::iterator itFormat =
 		    m_mapFont2TextFormat.find( pRawResFont );
-		if ( it != m_mapFont2TextFormat.end() )
-			return it->second;
+		if ( itFormat != m_mapFont2TextFormat.end() )
+			return itFormat->second;
 		if ( !ensureFactories() )
 			return NULL;
 
@@ -104,11 +104,11 @@ struct _d2d_impl {
 };
 
 hm_ps_drawtool_d2d::hm_ps_drawtool_d2d()
-	: m_pImpl( new _d2d_impl() ) {
+	: m_pImpl( new D2DImpl() ) {
 }
 
 hm_ps_drawtool_d2d::~hm_ps_drawtool_d2d() {
-	delete ( _d2d_impl* )m_pImpl;
+	delete ( D2DImpl* )m_pImpl;
 	m_pImpl = NULL;
 }
 
@@ -120,27 +120,27 @@ hm_ps_drawtool_d2d* hm_ps_drawtool_d2d::getInstance() {
 // ---- forwarded: bitmap / color / measurement ( hybrid M1 ) ----
 
 bool hm_ps_drawtool_d2d::loadRes( hm_rs_rawres_pic* pRawResPic ) {
-	return _gp()->loadRes( pRawResPic );
+	return _gdiplus()->loadRes( pRawResPic );
 }
 bool hm_ps_drawtool_d2d::unloadRes( hm_rs_rawres_pic* pRawResPic ) {
-	return _gp()->unloadRes( pRawResPic );
+	return _gdiplus()->unloadRes( pRawResPic );
 }
 void hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_rs_rawres_pic* pRawResPic, const RECT& rcRawResPart ) {
-	_gp()->draw( hDC, rcCanvas, pRawResPic, rcRawResPart );
+	_gdiplus()->draw( hDC, rcCanvas, pRawResPic, rcRawResPart );
 }
 bool hm_ps_drawtool_d2d::loadRes( hm_rs_rawres_color* pRawResColor ) {
-	return _gp()->loadRes( pRawResColor );
+	return _gdiplus()->loadRes( pRawResColor );
 }
 bool hm_ps_drawtool_d2d::unloadRes( hm_rs_rawres_color* pRawResColor ) {
-	return _gp()->unloadRes( pRawResColor );
+	return _gdiplus()->unloadRes( pRawResColor );
 }
 bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_rs_rawres_color* pRawResColor ) {
-	return _gp()->draw( hDC, rcCanvas, pRawResColor );
+	return _gdiplus()->draw( hDC, rcCanvas, pRawResColor );
 }
 bool hm_ps_drawtool_d2d::calcRect( HDC hDC, RECT& rcCanvas, const TCHAR* szText, hm_rs_rawres_font* pRawResFont, hm_rs_rawres_color* pRawResColor, bool bMultiLine ) {
 	// GDI+ metrics on purpose: layouts built on them must not shift while the
 	// draw side A/Bs glyph quality ( see header comment )
-	return _gp()->calcRect( hDC, rcCanvas, szText, pRawResFont, pRawResColor, bMultiLine );
+	return _gdiplus()->calcRect( hDC, rcCanvas, szText, pRawResFont, pRawResColor, bMultiLine );
 }
 
 // ---- font lifecycle: forward for the GDI+ object, own the DWrite format ----
@@ -149,18 +149,18 @@ bool hm_ps_drawtool_d2d::loadRes( hm_rs_rawres_font* pRawResFont ) {
 	// keep the GDI+ font object/refcount alive ( forwarded paths may still
 	// measure with it ); the DirectWrite format is created lazily on first
 	// draw, when an hDC is available for the DPI probe
-	return _gp()->loadRes( pRawResFont );
+	return _gdiplus()->loadRes( pRawResFont );
 }
 bool hm_ps_drawtool_d2d::unloadRes( hm_rs_rawres_font* pRawResFont ) {
-	_d2d_impl* p = ( _d2d_impl* )m_pImpl;
-	std::map< hm_rs_rawres_font*, IDWriteTextFormat* >::iterator it =
-	    p->m_mapFont2TextFormat.find( pRawResFont );
-	if ( it != p->m_mapFont2TextFormat.end() ) {
-		if ( it->second )
-			it->second->Release();
-		p->m_mapFont2TextFormat.erase( it );
+	D2DImpl* pImpl = ( D2DImpl* )m_pImpl;
+	std::map< hm_rs_rawres_font*, IDWriteTextFormat* >::iterator itFormat =
+	    pImpl->m_mapFont2TextFormat.find( pRawResFont );
+	if ( itFormat != pImpl->m_mapFont2TextFormat.end() ) {
+		if ( itFormat->second )
+			itFormat->second->Release();
+		pImpl->m_mapFont2TextFormat.erase( itFormat );
 	}
-	return _gp()->unloadRes( pRawResFont );
+	return _gdiplus()->unloadRes( pRawResFont );
 }
 
 // ---- text draw: the point of this backend ----
@@ -170,11 +170,11 @@ bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
 	if ( !pText || !pRawResFont || !pRawResColor )
 		return false;
 	hm_perf_text_guard perf( HM_PERF_TOOL_D2D, (unsigned int)pText->m_tstrData.size() );
-	_d2d_impl* p = ( _d2d_impl* )m_pImpl;
-	IDWriteTextFormat* pFormat = p->getTextFormat( hDC, pRawResFont );
+	D2DImpl* pImpl = ( D2DImpl* )m_pImpl;
+	IDWriteTextFormat* pFormat = pImpl->getTextFormat( hDC, pRawResFont );
 	if ( !pFormat )
 		return false;
-	if ( !p->ensureDCRT( hDC, rcCanvas ) )
+	if ( !pImpl->ensureDCRT( hDC, rcCanvas ) )
 		return false;
 
 	// alignment mapping mirrors hm_ps_drawtool_gdiplus::draw exactly,
@@ -210,23 +210,23 @@ bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
 
 	HRESULT hr = S_OK;
 	ID2D1SolidColorBrush* pBrush = NULL;
-	if ( FAILED( p->m_pDCRT->CreateSolidColorBrush( clrF, &pBrush ) ) )
+	if ( FAILED( pImpl->m_pDCRT->CreateSolidColorBrush( clrF, &pBrush ) ) )
 		return false;
-	p->m_pDCRT->BeginDraw();
-	p->m_pDCRT->DrawTextW( szText, uTextLen, pFormat, rcLayout, pBrush );
-	hr = p->m_pDCRT->EndDraw();
+	pImpl->m_pDCRT->BeginDraw();
+	pImpl->m_pDCRT->DrawTextW( szText, uTextLen, pFormat, rcLayout, pBrush );
+	hr = pImpl->m_pDCRT->EndDraw();
 	pBrush->Release();
 	if ( hr == D2DERR_RECREATE_TARGET ) {
 		// fresh target, mandatory rebind; text formats survive ( they belong
 		// to the DWrite factory, not the render target ). one retry.
-		p->m_pDCRT->Release();
-		p->m_pDCRT = NULL;
-		if ( p->ensureDCRT( hDC, rcCanvas ) ) {
+		pImpl->m_pDCRT->Release();
+		pImpl->m_pDCRT = NULL;
+		if ( pImpl->ensureDCRT( hDC, rcCanvas ) ) {
 			ID2D1SolidColorBrush* pBrush2 = NULL;
-			if ( SUCCEEDED( p->m_pDCRT->CreateSolidColorBrush( clrF, &pBrush2 ) ) ) {
-				p->m_pDCRT->BeginDraw();
-				p->m_pDCRT->DrawTextW( szText, uTextLen, pFormat, rcLayout, pBrush2 );
-				hr = p->m_pDCRT->EndDraw();
+			if ( SUCCEEDED( pImpl->m_pDCRT->CreateSolidColorBrush( clrF, &pBrush2 ) ) ) {
+				pImpl->m_pDCRT->BeginDraw();
+				pImpl->m_pDCRT->DrawTextW( szText, uTextLen, pFormat, rcLayout, pBrush2 );
+				hr = pImpl->m_pDCRT->EndDraw();
 				pBrush2->Release();
 			} else {
 				hr = E_FAIL;
