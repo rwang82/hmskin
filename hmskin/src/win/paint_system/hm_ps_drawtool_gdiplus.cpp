@@ -2,9 +2,29 @@
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
 #include "common\FuncPack.h"
 #include "win\frame\hm_debug_utils.h"
+#include "win\frame\hm_perf_stats.h"
 #include "win\resource_system\hm_rs_uires_text.h"
 #include <stdexcept>
 #include <AtlConv.h>
+//
+// RAII timing guard: destructor records one draw on EVERY return path
+namespace {
+struct _perf_text_guard {
+	LARGE_INTEGER m_t0;
+	int m_nTool;
+	unsigned int m_uChars;
+	_perf_text_guard( int nTool, unsigned int uChars ) : m_nTool( nTool ), m_uChars( uChars ) {
+		::QueryPerformanceCounter( &m_t0 );
+	}
+	~_perf_text_guard() {
+		LARGE_INTEGER t1, f;
+		::QueryPerformanceCounter( &t1 );
+		::QueryPerformanceFrequency( &f );
+		double us = (double)( t1.QuadPart - m_t0.QuadPart ) * 1e6 / (double)f.QuadPart;
+		hm_perf_text_draw( m_nTool, us, m_uChars );
+	}
+};
+} // namespace
 //
 hm_ps_drawtool_gdiplus::hm_ps_drawtool_gdiplus() {}
 
@@ -88,6 +108,7 @@ bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_rs_rawres_c
 //
 bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data* pText, hm_rs_rawres_font* pRawResFont, hm_rs_rawres_color* pRawResColor, bool bMultiLine ) {
 	if ( !pText || !pRawResFont || !pRawResColor ) return false;
+	_perf_text_guard perf( HM_PERF_TOOL_GP, (unsigned int)pText->m_tstrData.size() );
 	TCHAR* pTextData = NULL;
 	int sizeTextData = 0;
 	Gdiplus::Graphics graph( hDC );

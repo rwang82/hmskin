@@ -18,6 +18,7 @@
 #include "win\frame\hm_coordinate_system_hwnd.h"
 #include "win\frame\hm_layout_decoders.h"
 #include "win\frame\hm_uiroot.h"
+#include "win\frame\hm_perf_stats.h"
 #include "win\hm_layoutobj_defs.h"
 #include "win\paint_system\hm_ps_paint_layer_pic.h"
 #include "win\wmp\hm_wmp_button.h"
@@ -163,6 +164,10 @@ bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable )
 
 void hm_lib_shutdown( hm_uiroot* pHMUIRoot )
 {
+	// A/B perf counters outlast everything else ( plain statics, no engine
+	// state ) - dump first thing so even a crashy teardown never eats them.
+	hm_perf_dump();
+
 	// restore patched user32 bytes BEFORE anything tears down - a patched
 	// API pointing into a dying DLL would crash the host at next menu call.
 	if ( s_bTPMHookEnabled ) {

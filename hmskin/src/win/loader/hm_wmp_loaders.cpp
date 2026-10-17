@@ -70,13 +70,19 @@ bool hm_wmp_display_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproces
 		assert( false );
 		return false;
 	}
-	// fill drawtool to pWMPDisplay.
-	if ( !_fillDrawTool( valWMP, pWMPDisplay ) ) {
+	// fill district objects to pWMPDisplay FIRST: _fillDrawTool's setDrawTool
+	// loads every district's resources - with the old order ( tool first )
+	// districts were still empty at that moment, so the load pass was a
+	// no-op and nothing was ever preloaded ( resources lived on draw-time
+	// lazy get/free instead ). that made a later setDrawTool unload
+	// resources nobody loaded -> refcount underflow. districts must be
+	// populated before the tool loads them.
+	if ( !_fillDistrictObjs( valWMP, pWMPDisplay ) ) {
 		assert( false );
 		return false;
 	}
-	// fill district objects to pWMPDisplay.
-	if ( !_fillDistrictObjs( valWMP, pWMPDisplay ) ) {
+	// fill drawtool to pWMPDisplay.
+	if ( !_fillDrawTool( valWMP, pWMPDisplay ) ) {
 		assert( false );
 		return false;
 	}

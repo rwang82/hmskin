@@ -138,6 +138,9 @@
     <ClCompile Include="src\win\frame\hm_msg_sink.cpp">
       <Filter>frame\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\win\frame\hm_perf_stats.cpp">
+      <Filter>frame\src</Filter>
+    </ClCompile>
     <ClCompile Include="src\win\frame\hm_pos_decoders.cpp">
       <Filter>frame\src</Filter>
     </ClCompile>
@@ -342,6 +345,9 @@
       <Filter>frame\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\frame\hm_hook_trackpopupmenu.h">
+      <Filter>frame\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\frame\hm_perf_stats.h">
       <Filter>frame\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\frame\hm_keel_obj.h">

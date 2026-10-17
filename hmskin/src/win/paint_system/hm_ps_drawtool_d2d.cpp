@@ -6,6 +6,26 @@
 #include <d2d1helper.h>
 #include <dwrite.h>
 #include <map>
+#include "win\frame\hm_perf_stats.h"
+
+// RAII timing guard: destructor records one draw on EVERY return path
+namespace {
+struct _perf_text_guard {
+	LARGE_INTEGER m_t0;
+	int m_nTool;
+	unsigned int m_uChars;
+	_perf_text_guard( int nTool, unsigned int uChars ) : m_nTool( nTool ), m_uChars( uChars ) {
+		::QueryPerformanceCounter( &m_t0 );
+	}
+	~_perf_text_guard() {
+		LARGE_INTEGER t1, f;
+		::QueryPerformanceCounter( &t1 );
+		::QueryPerformanceFrequency( &f );
+		double us = (double)( t1.QuadPart - m_t0.QuadPart ) * 1e6 / (double)f.QuadPart;
+		hm_perf_text_draw( m_nTool, us, m_uChars );
+	}
+};
+} // namespace
 
 // forwarding target for everything but text draw ( hybrid M1 backend )
 static hm_ps_drawtool_gdiplus* _gp() {
@@ -22,17 +42,13 @@ struct _d2d_impl {
 	std::map< hm_rs_rawres_font*, IDWriteTextFormat* > m_mapFont2TextFormat;
 
 	_d2d_impl() : m_pD2DFactory( NULL ), m_pDWriteFactory( NULL ), m_pDCRT( NULL ) {}
-	~_d2d_impl() {
-		std::map< hm_rs_rawres_font*, IDWriteTextFormat* >::iterator it;
-		for ( it = m_mapFont2TextFormat.begin(); it != m_mapFont2TextFormat.end(); ++it ) {
-			if ( it->second )
-				it->second->Release();
-		}
-		m_mapFont2TextFormat.clear();
-		if ( m_pDCRT ) { m_pDCRT->Release(); m_pDCRT = NULL; }
-		if ( m_pDWriteFactory ) { m_pDWriteFactory->Release(); m_pDWriteFactory = NULL; }
-		if ( m_pD2DFactory ) { m_pD2DFactory->Release(); m_pD2DFactory = NULL; }
-	}
+	// INTENTIONALLY no Release() here: this struct lives in a process-wide
+	// singleton whose destructor runs during static destruction / DLL unload
+	// ( loader-lock context ) - releasing D2D/DWrite objects there crashes
+	// ( hm_ps_drawtool_d2d.cpp:54 abort ). the singleton never dies mid-run
+	// ( only the process exit tears it down ), so the "leak" is reclaimed by
+	// the OS and harmless. standard practice for D2D/DXGI in statics.
+	~_d2d_impl() {}
 
 	// lazy idempotent init of the two factories
 	bool ensureFactories() {
@@ -172,6 +188,7 @@ bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
                                hm_rs_rawres_font* pRawResFont, hm_rs_rawres_color* pRawResColor, bool bMultiLine ) {
 	if ( !pText || !pRawResFont || !pRawResColor )
 		return false;
+	_perf_text_guard perf( HM_PERF_TOOL_D2D, (unsigned int)pText->m_tstrData.size() );
 	_d2d_impl* p = ( _d2d_impl* )m_pImpl;
 	IDWriteTextFormat* pFormat = p->getTextFormat( hDC, pRawResFont );
 	if ( !pFormat )

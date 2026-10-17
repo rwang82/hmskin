@@ -323,6 +323,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\frame\hm_keel_obj.cpp" />
     <ClCompile Include="src\win\frame\hm_layout_decoders.cpp" />
     <ClCompile Include="src\win\frame\hm_layout_obj.cpp" />
+    <ClCompile Include="src\win\frame\hm_perf_stats.cpp" />
     <ClCompile Include="src\win\frame\hm_msg_sink.cpp" />
     <ClCompile Include="src\win\frame\hm_pos_decoders.cpp" />
     <ClCompile Include="src\win\frame\hm_uiroot.cpp" />
@@ -395,6 +396,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="targetver.h" />
     <ClInclude Include="inc\win\frame\hm_coordinate_system_hwnd.h" />
     <ClInclude Include="inc\win\frame\hm_debug_utils.h" />
+    <ClInclude Include="inc\win\frame\hm_perf_stats.h" />
     <ClInclude Include="inc\win\frame\hm_hook_trackpopupmenu.h" />
     <ClInclude Include="inc\win\frame\hm_keel_obj.h" />
     <ClInclude Include="inc\win\frame\hm_layout_decoders.h" />
