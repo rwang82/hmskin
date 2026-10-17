@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "hmskin": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/hmskin_mcp.py",
+        "--ssh",
+        "YOUR_VM_USER@YOUR_VM_HOST"
+      ],
+      "env": {
+        "HMSKIN_VM_REPO": "\\\\Mac\\data_2T_990pro_samsung\\win_dev\\vm_data\\hmskin"
+      }
+    }
+  }
+}

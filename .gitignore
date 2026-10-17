@@ -32,3 +32,10 @@ build.log
 
 # smoke test transient screenshot ( tools/smoke_test.py )
 tools/_smoke_shot.png
+tools/_tree_dump.json
+tools/_mcp_tree.json
+tools/_mcp_shot.png
+ARM64/Debug/_dump_req
+
+# local MCP mount ( copy from .mcp.json.example, fill in your ssh host )
+.mcp.json

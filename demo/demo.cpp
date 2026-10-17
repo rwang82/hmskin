@@ -18,6 +18,9 @@
 #include "hm_layout_scale.h"
 #include <vector>
 #include <exception>
+#include <stdio.h>
+#include <gdiplus.h>
+#pragma comment( lib, "gdiplus.lib" )
 
 //////////////////////////////////////////////////////////
 #define MAINWND_WNDPROPID (258)
@@ -54,6 +57,10 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
 HWND g_hBtnTest1 = NULL;
+// "--dump-tree <path>" mode: dump the keelobj tree after the first frame
+// settles and exit ( empty = interactive mode, no dump ).
+TCHAR g_szDumpTreePath[ MAX_PATH ] = _T("");
+TCHAR g_szAgentDumpPath[ MAX_PATH ] = _T("");   // WM_APP+3 target, set by the agent thread
 
 // ---- tab chapters ( sec.1..sec.4 ) : keelobj groups switched by visibility ----
 static const unsigned int arrChapterGroups[4][17] = {
@@ -126,6 +133,111 @@ void AppendEventLog( const TCHAR* szLine ) {
 	hm_keel_obj* pKeelObjEvtLog = NULL;
 	if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog && pKeelObjEvtLog->getLayoutObj() )
 		::InvalidateRect( g_hWnd, &pKeelObjEvtLog->getLayoutObj()->m_rect, FALSE );
+}
+
+
+
+// ============================================================
+// AI-agent service thread ( v4 architecture, see tools/hmskin_mcp.py ):
+// the ENGINE stays network-free - it only offers hmsh_* interfaces; the
+// DEMO, as the host application, serves them over a local TCP endpoint
+// ( 127.0.0.1:9321, one JSON request line in -> one JSON response line
+// out ). the mac-side shell reaches it through an ssh -L tunnel, which
+// sidesteps every logon-session / window-station wall.
+// ops: ping | live | click <x,y> | shot | dump <path> | quit
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdarg.h>
+#pragma comment( lib, "ws2_32.lib" )
+
+#define HMSH_AGENT_PORT 9321
+
+static void hmsh_agent_reply( SOCKET s, bool bOk, const char* szFmt, ... ) {
+	// the wire protocol is pure ascii on purpose
+	char szBody[ 512 ];
+	va_list args;
+	va_start( args, szFmt );
+	vsprintf_s( szBody, 512, szFmt, args );
+	va_end( args );
+	char szLine[ 700 ];
+	sprintf_s( szLine, 700, "{\"ok\": %s, \"data\": \"%s\"}\n", bOk ? "true" : "false", szBody );
+	send( s, szLine, (int)strlen( szLine ), 0 );
+}
+
+static DWORD WINAPI hmsh_agent_thread( LPVOID ) {
+	WSADATA wsa;
+	if ( WSAStartup( MAKEWORD( 2, 2 ), &wsa ) != 0 )
+		return 1;
+	SOCKET sListen = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+	if ( sListen == INVALID_SOCKET )
+		return 1;
+	sockaddr_in addr = { 0 };
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons( HMSH_AGENT_PORT );
+	InetPtonA( AF_INET, "127.0.0.1", &addr.sin_addr );
+	if ( bind( sListen, ( sockaddr* )&addr, sizeof( addr ) ) != 0 || listen( sListen, 4 ) != 0 ) {
+		closesocket( sListen );
+		return 1;
+	}
+	for ( ; ; ) {
+		SOCKET s = accept( sListen, NULL, NULL );
+		if ( s == INVALID_SOCKET )
+			continue;
+		char szReq[ 1024 ] = { 0 };
+		int n = recv( s, szReq, sizeof( szReq ) - 1, 0 );
+		if ( n <= 0 ) { closesocket( s ); continue; }
+		// parse: "op arg1 arg2" ( space separated, deliberately dumb )
+		char szOp[ 32 ] = { 0 }, szA1[ MAX_PATH ] = { 0 };
+		sscanf_s( szReq, "%31s %511s", szOp, (unsigned)sizeof( szOp ), szA1, (unsigned)sizeof( szA1 ) );
+		if ( 0 == strcmp( szOp, "ping" ) ) {
+			hmsh_agent_reply( s, true, "pong" );
+		} else if ( 0 == strcmp( szOp, "quit" ) ) {
+			hmsh_agent_reply( s, true, "bye" );
+			closesocket( s );
+			closesocket( sListen );
+			::PostMessage( g_hWnd, WM_CLOSE, 0, 0 );
+			return 0;
+		} else if ( 0 == strcmp( szOp, "dump" ) ) {
+			// narrow -> TCHAR into the global, then let the UI thread do the
+			// walk ( WM_APP+3 ) - tree reads stay on the window thread
+			size_t nConv = 0;
+			mbstowcs_s( &nConv, g_szAgentDumpPath, MAX_PATH, szA1, _TRUNCATE );
+			if ( g_szAgentDumpPath[ 0 ] ) {
+				::PostMessage( g_hWnd, WM_APP + 3, 0, 0 );
+				hmsh_agent_reply( s, true, "dumping" );
+			} else {
+				hmsh_agent_reply( s, false, "dump needs a path" );
+			}
+		} else if ( 0 == strcmp( szOp, "live" ) ) {
+			::PostMessage( g_hWnd, WM_APP + 1, 0, 0 );   // async: poll the file
+			hmsh_agent_reply( s, true, "hmskin_tree.live.json" );
+		} else if ( 0 == strcmp( szOp, "shot" ) ) {
+			::PostMessage( g_hWnd, WM_APP + 2, 0, 0 );
+			hmsh_agent_reply( s, true, "_mcp_shot.png" );
+		} else if ( 0 == strcmp( szOp, "click" ) ) {
+			// szA1 = "x,y" in CLIENT coords; posted from our own thread the
+			// messages queue like real input
+			int x = 0, y = 0;
+			char szX[ 64 ] = { 0 };
+			if ( sscanf_s( szA1, "%63[^,],%d", szX, (unsigned)sizeof( szX ), &y ) == 2 ) {
+				x = atoi( szX );
+				LPARAM lp = x | ( y << 16 );
+				::PostMessage( g_hWnd, WM_LBUTTONDOWN, MK_LBUTTON, lp );
+				Sleep( 60 );
+				::PostMessage( g_hWnd, WM_LBUTTONUP, 0, lp );
+				hmsh_agent_reply( s, true, "clicked %d,%d", x, y );
+			} else {
+				hmsh_agent_reply( s, false, "bad click args" );
+			}
+		} else {
+			hmsh_agent_reply( s, false, "unknown op" );
+		}
+		closesocket( s );
+	}
+}
+
+static void hmsh_agent_start() {
+	CreateThread( NULL, 0, hmsh_agent_thread, NULL, 0, NULL );
 }
 
 // Forward declarations of functions included in this code module:
@@ -209,6 +321,53 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 					    if ( pDisp )
 						    pDisp->setDrawTool( static_cast< OverrideCtx* >( pParam )->pTool );
 				    }, &ctx );
+			}
+		}
+	}
+
+	// "--dump-tree <path>" - AI-agent tree-dump mode ( smoke --tree / hmskin_mcp ):
+	// dump the keelobj tree after the first frame and exit. the same mode can
+	// also be requested WITHOUT command-line args through a convention file
+	// ( exe-dir "_dump_req", first line = output path ) - the shell launches
+	// demo via explorer.exe which cannot pass arguments.
+	{
+		const TCHAR* posDump = _tcsstr( lpCmdLine, _T("--dump-tree") );
+		if ( posDump ) {
+			posDump += _tcslen( _T("--dump-tree") );
+			while ( *posDump == _T(' ') || *posDump == _T('\"') )
+				posDump++;
+			int i = 0;
+			while ( posDump[ i ] && posDump[ i ] != _T(' ') && posDump[ i ] != _T('\"') && i < MAX_PATH - 1 ) {
+				g_szDumpTreePath[ i ] = posDump[ i ];
+				i++;
+			}
+			g_szDumpTreePath[ i ] = _T('\0');
+		}
+		if ( !g_szDumpTreePath[ 0 ] ) {
+			// convention-file variant: exe-dir "_dump_req" ( first line =
+			// output path ), consumed and deleted. lets the explorer.exe
+			// launch path request a dump ( explorer cannot pass args ).
+			TCHAR szReq[ MAX_PATH + 32 ];
+			if ( ::GetModuleFileName( NULL, szReq, MAX_PATH ) ) {
+				TCHAR* posSlash = _tcsrchr( szReq, _T('\\') );
+				if ( posSlash ) {
+					*( posSlash + 1 ) = _T('\0');
+					_tcscat_s( szReq, MAX_PATH + 32, _T("_dump_req") );
+					FILE* fpReq = _tfopen( szReq, _T("r") );
+					if ( fpReq ) {
+						TCHAR szLine[ MAX_PATH ];
+						if ( _fgetts( szLine, MAX_PATH, fpReq ) ) {
+							TCHAR* posNl = _tcschr( szLine, _T('\n') );
+							if ( posNl ) *posNl = _T('\0');
+							TCHAR* posNl2 = _tcschr( szLine, _T('\r') );
+							if ( posNl2 ) *posNl2 = _T('\0');
+							if ( szLine[ 0 ] )
+								_tcsncpy_s( g_szDumpTreePath, MAX_PATH, szLine, _TRUNCATE );
+						}
+						fclose( fpReq );
+						::DeleteFile( szReq );
+					}
+				}
 			}
 		}
 	}
@@ -411,6 +570,29 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ShowWindow( g_hWnd, nCmdShow );
    UpdateWindow( g_hWnd );
 
+   hmsh_agent_start();
+
+   // AI-agent hooks, armed HERE and not inside WM_PAINT: the skin's
+   // dispatcher routes registered messages ( WM_PAINT belongs to the
+   // drawtrigger WMP ), so the demo's own wndproc never sees a WM_PAINT -
+   // a dump trigger placed there would silently never fire.
+   if ( g_szDumpTreePath[ 0 ] ) {
+	   SetTimer( g_hWnd, 1, 600, NULL );   // one-shot dump mode, fires via WM_TIMER
+   } else {
+	   // every launch publishes ONE initial live-tree dump ( with the hwnd )
+	   // so the shell can discover the handle without any interaction.
+	   // direct call ( not PostMessage ): the queue hop proved unreliable
+	   // here, and the layout is already settled at this point anyway.
+	   TCHAR szLive0[ MAX_PATH + 48 ];
+	   if ( ::GetModuleFileName( NULL, szLive0, MAX_PATH ) ) {
+		   TCHAR* posSlash0 = _tcsrchr( szLive0, _T('\\') );
+		   if ( posSlash0 ) {
+			   *( posSlash0 + 1 ) = _T('\0');
+			   _tcscat_s( szLive0, MAX_PATH + 48, _T("hmskin_tree.live.json") );
+			   hmsh_dump_tree( g_pHMRoot, g_hWnd, szLive0 );
+		   }
+	   }
+   }
 
    return TRUE;
 }
@@ -480,6 +662,84 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// TODO: Add any drawing code here...
 		EndPaint(hWnd, &ps);
 		break;
+	case WM_TIMER:
+		// dump-tree mode: one shot ( with a single retry when the tree came
+		// out empty - e.g. the timer beat the skin loading ), then exit.
+		if ( wParam == 1 && g_szDumpTreePath[ 0 ] ) {
+			KillTimer( hWnd, 1 );
+			static int nDumpAttempts = 0;
+			unsigned int nNodes = hmsh_dump_tree( g_pHMRoot, hWnd, g_szDumpTreePath );
+			nDumpAttempts++;
+			if ( nNodes > 0 || nDumpAttempts >= 2 ) {
+				PostQuitMessage( 0 );
+			} else {
+				SetTimer( hWnd, 1, 600, NULL );
+			}
+		}
+		break;
+	case ( WM_APP + 1 ): {
+		// AI-agent live-tree channel ( tools/hmskin_mcp.py ): dump the CURRENT
+		// tree state ( visibility after chapter switches etc. ) next to the exe
+		// without exiting. the shell polls the file mtime.
+		TCHAR szLive[ MAX_PATH + 48 ];
+		if ( ::GetModuleFileName( NULL, szLive, MAX_PATH ) ) {
+			TCHAR* posSlash = _tcsrchr( szLive, _T('\\') );
+			if ( posSlash ) {
+				*( posSlash + 1 ) = _T('\0');
+				_tcscat_s( szLive, MAX_PATH + 48, _T("hmskin_tree.live.json") );
+				hmsh_dump_tree( g_pHMRoot, hWnd, szLive );
+			}
+		}
+		break;
+	}
+	case ( WM_APP + 2 ): {
+		// AI-agent self-screenshot: PrintWindow OURSELVES into _mcp_shot.png
+		// next to the exe ( GDI capture from another logon session is
+		// unreliable - doing it in-session is exact ). triggered cross-session
+		// via PostMessage, result consumed by file polling.
+		TCHAR szShot[ MAX_PATH + 48 ];
+		if ( ::GetModuleFileName( NULL, szShot, MAX_PATH ) ) {
+			TCHAR* posSlash = _tcsrchr( szShot, _T('\\') );
+			if ( posSlash ) {
+				*( posSlash + 1 ) = _T('\0');
+				_tcscat_s( szShot, MAX_PATH + 48, _T("_mcp_shot.png") );
+				RECT rcWnd;
+				::GetWindowRect( hWnd, &rcWnd );
+				int nW = rcWnd.right - rcWnd.left;
+				int nH = rcWnd.bottom - rcWnd.top;
+				if ( nW > 0 && nH > 0 ) {
+					HDC hDCMem = ::CreateCompatibleDC( NULL );
+					HBITMAP hBmp = ::CreateCompatibleBitmap( ::GetDC( hWnd ), nW, nH );
+					HGDIOBJ hOld = ::SelectObject( hDCMem, hBmp );
+					::PrintWindow( hWnd, hDCMem, 2 /* PW_RENDERFULLCONTENT, NTDDI-gated in the SDK headers */ );
+					::SelectObject( hDCMem, hOld );
+					// save 32bpp BGRA as png via GDI+ ( already linked by the skin dll )
+					Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+					ULONG_PTR ulGdiplusToken = 0;
+					if ( Gdiplus::GdiplusStartup( &ulGdiplusToken, &gdiplusStartupInput, NULL ) == Gdiplus::Ok ) {
+						{
+							Gdiplus::Bitmap bmp( hBmp, NULL );
+							CLSID clsidPng = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+							bmp.Save( szShot, &clsidPng, NULL );
+						}
+						Gdiplus::GdiplusShutdown( ulGdiplusToken );
+					}
+					::DeleteObject( hBmp );
+					::DeleteDC( hDCMem );
+				}
+			}
+		}
+		break;
+	}
+	case ( WM_APP + 3 ): {
+		// agent-requested one-shot dump to g_szAgentDumpPath ( stays alive,
+		// unlike the --dump-tree boot mode which exits after dumping ).
+		if ( g_szAgentDumpPath[ 0 ] ) {
+			hmsh_dump_tree( g_pHMRoot, hWnd, g_szAgentDumpPath );
+			g_szAgentDumpPath[ 0 ] = _T('\0');
+		}
+		break;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

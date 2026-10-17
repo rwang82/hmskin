@@ -8,7 +8,8 @@ python tools\\smoke_test.py                # all three phases
 python tools\\smoke_test.py --gold         # first-time golden capture ( verify the shot by hand )
 python tools\\smoke_test.py --no-screenshot  # skip golden ( manifest + event chain only )
 python tools\\smoke_test.py --perf D2D     # A/B perf: backend override + EVT wheel scenario + graceful close -> prints hmskin_perf.log
-    python tools\\smoke_test.py --perf Gdiplus
+python tools\\smoke_test.py --perf Gdiplus
+python tools\\smoke_test.py --tree           # keelobj tree dump + assertions ( AI-agent infra )
 
 Phases:
 1. manifest validation - JSON syntax + structure of both manifests ( K/WMP reference consistency )
@@ -263,6 +264,63 @@ exit 0
     return True, f"[perf:{tool}]\n  " + open(perflog).read().strip().replace("\n", "\n  ")
 
 # ============================================================
+# phase 5: keelobj tree dump ( AI-agent infra M1 )
+# ============================================================
+def run_tree_dump():
+    """launch demo --dump-tree, then assert the JSON tree against the manifest."""
+    exe = os.path.join(OUTDIR, "demo.exe")
+    if not os.path.exists(exe):
+        return False, "[tree] demo.exe not found ( build first )"
+    treepath = os.path.join(REPO, "tools", "_tree_dump.json")
+    if os.path.exists(treepath):
+        os.remove(treepath)
+    proc = subprocess.Popen([exe, "--dump-tree", treepath], cwd=OUTDIR)
+    try:
+        proc.wait(timeout=20)
+    except Exception:
+        proc.kill()
+        return False, "[tree] demo did not exit in 20s"
+    if not os.path.exists(treepath):
+        return False, "[tree] dump file not written"
+    try:
+        tree = json.load(open(treepath))["hmskin_tree"]
+    except Exception as e:
+        os.remove(treepath)
+        return False, f"[tree] JSON parse fail: {e}"
+    errors = []
+    man = json.loads(re.sub(r"^\s*//.*$", "",
+                            open(MANIFESTS[0], encoding="utf-8").read(), flags=re.M))
+    n_manifest = len(man["KeelObj"])
+    if len(tree) != n_manifest:
+        errors.append(f"node count {len(tree)} != manifest {n_manifest}")
+    byid = {n["id"]: n for n in tree}
+    k1 = byid.get(1)   # root: covers the client area
+    if not k1 or not k1.get("rect"):
+        errors.append("K1 ( root ) has no mapped rect")
+    else:
+        r = k1["rect"]
+        if r["r"] - r["l"] < 800 or r["b"] - r["t"] < 500:
+            errors.append(f"K1 rect suspiciously small: {r}")
+    # specimen nodes carry non-zero rects ( popup-slot nodes excluded: the
+    # cross-window mapping wrinkle is documented in hmskin_helper.h )
+    for kid in (3, 18, 38):
+        n = byid.get(kid)
+        if not n:
+            errors.append(f"K{kid} missing from tree")
+        elif n.get("rect"):
+            r = n["rect"]
+            if r["r"] <= r["l"] or r["b"] <= r["t"]:
+                errors.append(f"K{kid} zero-area rect: {r}")
+    sec1 = {3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48, 49, 50, 51}
+    hidden = sorted(k for k in sec1 if k in byid and not byid[k]["visible"])
+    if hidden:
+        errors.append(f"sec.1 nodes not visible: {hidden}")
+    os.remove(treepath)
+    if errors:
+        return False, "[tree] " + "; ".join(errors[:5])
+    return True, f"[tree] ok ({len(tree)} nodes; root/specimens/chapter-visibility verified)"
+
+# ============================================================
 # main
 # ============================================================
 def main():
@@ -271,6 +329,8 @@ def main():
     ap.add_argument("--no-screenshot", action="store_true", help="skip golden compare ( manifest + trace only )")
     ap.add_argument("--perf", nargs="?", const="D2D", default=None,
                     help="A/B perf run ( D2D | Gdiplus ): backend override + EVT wheel scenario + graceful close")
+    ap.add_argument("--tree", action="store_true",
+                    help="keelobj tree dump + assertions ( AI-agent infra M1 )")
     args = ap.parse_args()
 
     results = []
@@ -282,6 +342,12 @@ def main():
         results.append((ok, msg))
         if not ok: fail += 1
 
+    # tree mode: standalone, mutually exclusive with the demo phases below
+    if args.tree and sys.platform == "win32":
+        ok, msg = run_tree_dump()
+        results.append((ok, msg))
+        if not ok: fail += 1
+
     # perf mode ( mutually exclusive with the golden phases )
     if args.perf and sys.platform == "win32":
         ok, msg = run_perf(args.perf)
@@ -289,8 +355,8 @@ def main():
         if not ok: fail += 1
 
     # phase 2+3 ( Windows only - demo.exe can't run elsewhere ).
-    # skipped entirely in perf mode ( the perf run IS the demo launch ).
-    if args.perf and sys.platform == "win32":
+    # skipped entirely in perf/tree mode ( those runs ARE the demo launch ).
+    if ( args.perf or args.tree ) and sys.platform == "win32":
         pass
     elif sys.platform != "win32":
         results.append((True, "[smoke] non-Windows: manifest phase only"))
