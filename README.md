@@ -1,5 +1,7 @@
 # hmskin
 
+中文 | **[English](README.en-US.md)**
+
 **把已有 Win32 应用的界面，整体替换为 DirectUI 自绘引擎**——不重写 UI 代码，
 也不依赖原生控件渲染。
 
