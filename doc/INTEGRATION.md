@@ -177,7 +177,13 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
   送回属主窗口——宿主零配合、现有 WM_COMMAND 处理器无感工作。manifest 需声明
   `"PopupSkin": {"PropId": N}`（引擎弹窗连接的皮肤槽位）。主动式弹窗走
   `hm_lib_popupmenu_show(root, hMenu, x, y, hWndOwner)`（同一引擎路径）。
-- **未做**：完整焦点模型+焦点环（backlog）。
+- **渲染后端三选一**：WMP 级声明 `"DrawTool": "Gdiplus"（默认）| "Gdi" | "D2D"`。
+  D2D 为混合形态（M1）：文字走 DirectWrite，位图/纯色/`calcRect` 转发 GDI+
+  （文本测量保持 GDI+ 度量，跨后端切换布局零位移）。宿主亦可在启动参数整体覆盖
+  （`--drawtool D2D`，遍历全部 WMP 运行时换后端）。性能观测常开：进程退出自动
+  产出 exe 旁 `hmskin_perf.log`（文字绘制的 count/avg/p50/p95/直方图）。
+- **未做**：完整焦点模型+焦点环（backlog）；D2D 位图原生路径（M2，往返成本
+  已由 A/B 实测标定）。
 - 滚动视图的正确姿势：容器 keelobj `setClipChildren(TRUE)` + 内容 keelobj 高于容器 +
   滚动条值域 = 内容高 − 容器高；三路输入（拖/端钮/滚轮）开箱即用。
 

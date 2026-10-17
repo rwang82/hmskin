@@ -242,3 +242,6 @@ drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制�
 | 2026-10-17 | DPI Phase 1（加载咽喉点缩放） | 96 基准 manifest 直达物理像素；GDI+ 点制字体自动换算（勿手动乘）；专用 Cfg 几何三处补缩放 |
 | 2026-10-17 | 脏区裁剪（doDrawAll 脏矩形重载 + ps.rcPaint） | BeginPaint 送上门的 update region 被忽视 9 年——接上后绘制成本从控件数量降为损坏面积 |
 | 2026-10-17 | 冒烟测试基建（tools/smoke_test.py 三阶段） | manifest 校验 / 事件链断言 / 金图容差比对；后续危险改动的安全网 |
+| 2026-10-17 | D2D-M1 混合后端落地（hm_ps_drawtool_d2d） | 文字 DirectWrite 自绘，位图/纯色/calcRect 转发 gdiplus（测量保 GDI+ 度量=布局零位移）；Debug manifest 53 WMP 全切，金图重建为 D2D 基线（0.3%→全切 4.1%→重建）；字形质量与 GDI+ 持平（100% 档小字无肉眼差异） |
+| 2026-10-17 | 渲染性能 A/B 设施常开 | hm_perf_stats 零开销聚合 + demo --drawtool 运行时覆盖 + smoke --perf 场景脚本；实测 D2D 1394µs vs GDI+ 166µs（8.4×，DCRT 每次往返 BindDC/EndDraw 主导嫌疑）——M2 位图路径与 TextLayout/批次优化的裁决依据 |
+| 2026-10-17 | 装载时序根因修复（9 年潜伏债） | _fillWMP 对调顺序：district 先填充、DrawTool 后装载——旧序下资源预建 load 循环永远空转，unload 路径 9 年未被执行，运行时 setDrawTool 首次触发即 refcount underflow；同时修 D2D 静态析构崩溃（DllMain 语境禁 Release D2D） |

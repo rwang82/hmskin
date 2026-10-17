@@ -83,11 +83,19 @@ checkbox 的八态状态机 + 位图族 + 继承钩子 = 复选框 / 开关(Togg
 ```
 hm_ps_drawtool_i (抽象基类)
 ├── hm_ps_drawtool_gdi      ← GDI 后端
-└── hm_ps_drawtool_gdiplus  ← GDI+ 后端（当前默认）
+├── hm_ps_drawtool_gdiplus  ← GDI+ 后端（Release 默认）
+└── hm_ps_drawtool_d2d      ← Direct2D + DirectWrite 后端（Debug 全启用）
 ```
 
-manifest 里每个 WMP 声明 `"DrawTool": "Gdiplus"`，换后端只改一个字符串。
-将来加 Direct2D / Skia 后端 = 新增一个 `hm_ps_drawtool_i` 实现。
+manifest 里每个 WMP 声明 `"DrawTool": "D2D" / "Gdiplus" / "Gdi"`，换后端只改一个字符串；
+宿主程序还可用 `demo.exe --drawtool D2D` 式参数在运行时整体覆盖（性能对比、环境适配）。
+
+D2D 后端当前为混合形态（M1）：**文字绘制走 DirectWrite**（质量与 GDI+ 持平、
+字形抗锯齿更现代），位图/纯色/文本测量转发 GDI+（布局度量零位移）。
+位图路径的 D2D 原生化（M2）按 A/B 性能数据推进——实测 D2D 文字路径
+每次绘制含 DC render target 往返（1394µs vs GDI+ 166µs），往返成本
+是 M2 的头号设计约束，性能观测设施已常开（每次运行自动产出
+`hmskin_perf.log`）。
 
 ### 皮肤加载器可插拔（Loader）
 
@@ -201,7 +209,12 @@ build.cmd                    ← 全 6 配置
 ```
 python tools\smoke_test.py --no-screenshot    ← manifest 校验 + 事件链
 python tools\smoke_test.py                    ← + 金图容差比对
+python tools\smoke_test.py --perf D2D         ← 渲染后端性能 A/B（滚轮场景）
+python tools\smoke_test.py --perf Gdiplus
 ```
+
+金图基线（`tools/golden/`）守护当前 D2D 渲染外观；`--perf` 模式自动
+切后端跑滚轮场景，优雅退出后打印 `hmskin_perf.log`（count/avg/p50/p95/直方图）。
 
 ## 仓库结构
 
@@ -211,7 +224,8 @@ python tools\smoke_test.py                    ← + 金图容差比对
 | `demo/` | 集成示例（「基准台」Gallery：四章节控件标本 + 事件日志 + token 表） |
 | `scrolldecorator/` | 独立自绘滚动条 DLL（可脱离 hmskin 单独使用） |
 | `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 |
-| `doc/` | `INTEGRATION.md` 集成指南 + `BUILDING.md` 构建指南 |
+| `doc/` | `INTEGRATION.md` 集成指南 + `BUILDING.md` 构建指南 + `img/` 截图 |
+| `tools/golden/` | 金图回归基线（冒烟守护的渲染外观） |
 | `DESIGN.md` | 设计系统（色板/字阶/布局/组件规范） |
 
 ## 平台与依赖
@@ -232,4 +246,4 @@ python tools\smoke_test.py                    ← + 金图容差比对
 | 时间 | 事件 |
 |---|---|
 | 2016 | 初版：VS2008 起步，VS2013 v120_xp，仅 32 位，jsoncpp 0.5 预编译库 |
-| 2026-10 | 现代化：VS2026 v145、三平台、jsoncpp 1.9.6 源码、UTF-8 manifest、指针宽度安全化、透明 TrackPopupMenu 接管、DPI Phase 1、脏区裁剪、绘制缓冲框架、冒烟测试基建、集成文档 |
+| 2026-10 | 现代化：VS2026 v145、三平台、jsoncpp 1.9.6 源码、UTF-8 manifest、指针宽度安全化、透明 TrackPopupMenu 接管、DPI Phase 1、脏区裁剪、绘制缓冲框架、冒烟测试基建、集成文档、**Direct2D/DirectWrite 文字后端（M1）+ 渲染性能 A/B 设施**、金图回归基线、装载时序根因修复 |
