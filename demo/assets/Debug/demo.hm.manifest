@@ -1814,7 +1814,7 @@
     {
       "idWMP": 37,
       "WMPClsName": "hm_wmp_bkgnd",
-      "DrawTool": "Gdiplus",
+      "DrawTool": "D2D",
       "DistrictObjs": [
         {
           "id": 0,
