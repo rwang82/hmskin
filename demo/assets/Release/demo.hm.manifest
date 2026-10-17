@@ -3734,7 +3734,7 @@
           "m_nOffsetL": 666,
           "m_nOffsetT": 48,
           "m_nOffsetR": 16,
-          "m_nOffsetB": 40
+          "m_nOffsetB": 56
         }
       },
       "WMP": [
@@ -4333,7 +4333,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 464
+          "m_space2": 444
         }
       },
       "WMP": [
@@ -4361,7 +4361,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 490
+          "m_space2": 470
         }
       },
       "WMP": [
@@ -4389,7 +4389,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 516
+          "m_space2": 496
         }
       },
       "WMP": [
@@ -4417,7 +4417,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 542
+          "m_space2": 522
         }
       },
       "WMP": [
@@ -4445,7 +4445,7 @@
           "m_width": 344,
           "m_height": 24,
           "m_space1": 8,
-          "m_space2": 568
+          "m_space2": 548
         }
       },
       "WMP": [
