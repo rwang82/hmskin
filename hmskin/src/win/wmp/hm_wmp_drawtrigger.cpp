@@ -98,9 +98,14 @@ void hm_wmp_drawtrigger::_OnPaint( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 		return;
 
 	hPaintDC = ::BeginPaint( pWP->hwnd, &ps );
-	//
-	pKeelObj->doDrawAll( m_hmCanvas.GetMemDC(), pWP->hwnd );
-	::BitBlt( hPaintDC, rcCanvas.left, rcCanvas.top, (rcCanvas.right - rcCanvas.left), (rcCanvas.bottom - rcCanvas.top), m_hmCanvas.GetMemDC(), 0, 0, SRCCOPY );
+	// dirty-rect optimization: the OS already computed the update region
+	// ( ps.rcPaint ) - cull the drawtree walk to intersecting keelobjs and
+	// blit ONLY the damaged area ( previously every paint redrew the whole
+	// tree and blitted the whole canvas regardless of what changed ).
+	pKeelObj->doDrawAll( m_hmCanvas.GetMemDC(), pWP->hwnd, &ps.rcPaint );
+	::BitBlt( hPaintDC, ps.rcPaint.left, ps.rcPaint.top,
+		( ps.rcPaint.right - ps.rcPaint.left ), ( ps.rcPaint.bottom - ps.rcPaint.top ),
+		m_hmCanvas.GetMemDC(), ps.rcPaint.left, ps.rcPaint.top, SRCCOPY );
 
 	::EndPaint( pWP->hwnd, &ps );
 }

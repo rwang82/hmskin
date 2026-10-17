@@ -67,6 +67,11 @@ public:
 	// draw
 public:
 	void doDrawAll( HDC hDC, HWND hWndCanvas );
+	// dirty-rect variant: prcDirty in CLIENT coords ( WM_PAINT update region ).
+	// keelobjs whose rect does not intersect prcDirty are culled from the
+	// walk - the per-control work scales with the damaged area, not the
+	// control count. NULL prcDirty = full redraw ( original behavior ).
+	void doDrawAll( HDC hDC, HWND hWndCanvas, const RECT* prcDirty );
 	void setVisible( BOOL bVisible );
 	BOOL isVisible() const;
 	// scroll-container semantics: my subtree may never draw outside my

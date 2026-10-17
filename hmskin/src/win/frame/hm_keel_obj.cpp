@@ -504,8 +504,27 @@ void hm_keel_obj::_delAllLayoutObj()
 //
 void hm_keel_obj::doDrawAll( HDC hDC, HWND hWndCanvas )
 {
+	doDrawAll( hDC, hWndCanvas, NULL );
+}
+
+void hm_keel_obj::doDrawAll( HDC hDC, HWND hWndCanvas, const RECT* prcDirty )
+{
 	if ( !isVisible() )
-		return; 
+		return;
+
+	// dirty-rect culling: a keelobj outside the damaged area contributes
+	// nothing to this frame - skip its entire subtree ( WMP draws + child
+	// walk ). note: cull BEFORE the clip-children SaveDC too, an off-screen
+	// scroll container can skip its clip entirely.
+	if ( prcDirty ) {
+		hm_layout_obj* pLayoutObjCull = getLayoutObj();
+		RECT rcSelf;
+		if ( pLayoutObjCull
+			&& pLayoutObjCull->mapPosition( hWndCanvas, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcSelf )
+			&& !::IntersectRect( &rcSelf, &rcSelf, prcDirty ) )
+			return;   // no intersection = subtree invisible this frame
+	}
+
 
 	// scroll-container semantics: with clip-children on, this subtree may
 	// never draw outside my rect ( a tall content row sliding under the
