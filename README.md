@@ -14,6 +14,7 @@ hmskin combines two traditionally separate branches of Windows UI history:
 | Control rendering | bitmap skin templates, adapted per standard control type | fully self-drawn (handle-less logical controls) | ✓ **fully self-drawn**: keelobj draw tree + control state machines |
 | Skin format | binary skin files, appearance read-only | XML layout + code-driven | ✓ **JSON manifest**: appearance/layout/behavior fully declarative |
 | Control behavior | reuses system control logic | self-drawn control classes | ✓ WMP behavior classes + 8 event callbacks |
+| Agent introspection | ✗ skin file read-only, no runtime view | partial ( debug inspectors in some frameworks ) | ✓ **built-in agent service**: live control tree / screenshots / synthetic input as MCP tools |
 
 > In one sentence: **the integration cost of a skin library, the rendering
 > and behavioral freedom of DirectUI** — a combination neither traditional
