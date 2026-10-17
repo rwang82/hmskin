@@ -7,6 +7,8 @@ hmskin 冒烟测试——金图比对 + 事件链断言 + manifest 校验
     python tools\\smoke_test.py                # 全部三阶段
     python tools\\smoke_test.py --gold         # 首次生成金图（人工确认截图无误后）
     python tools\\smoke_test.py --no-screenshot  # 跳过金图（只跑 manifest + 事件链）
+    python tools\\smoke_test.py --perf D2D     # A/B 性能：后端覆盖 + EVT 滚轮场景 + 优雅退出后打印 hmskin_perf.log
+    python tools\\smoke_test.py --perf Gdiplus
 
 阶段:
   1. manifest 校验——三份 manifest JSON 语法 + 结构完整性（ K/WMP 引用一致性 ）
@@ -205,12 +207,70 @@ def compare_golden(shot_path, tolerance=0.03):
     return True, f"golden ok ({frac:.1%} diff, tolerance {tolerance:.0%})"
 
 # ============================================================
+# phase 4: perf A/B ( backend override + wheel scenario )
+# ============================================================
+def run_perf(tool):
+    """A/B perf run: launch demo with --drawtool override, wheel-scroll the
+    EVT log panel, close gracefully ( WM_CLOSE so hm_lib_shutdown dumps the
+    text-draw stats into hmskin_perf.log )."""
+    exe = os.path.join(OUTDIR, "demo.exe")
+    if not os.path.exists(exe):
+        return False, "[perf] demo.exe not found ( build first )"
+    perflog = os.path.join(OUTDIR, "hmskin_perf.log")
+    if os.path.exists(perflog):
+        os.remove(perflog)
+    proc = subprocess.Popen([exe, "--drawtool", tool], cwd=OUTDIR)
+    time.sleep(2.5)
+    ps_script = r'''
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class WCap {
+    [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint dx, uint dy, int d, UIntPtr e);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+    [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out R r);
+    [StructLayout(LayoutKind.Sequential)] public struct R { public int L, T, Rt, B; }
+}
+"@
+$p = Get-Process demo -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $p) { exit 2 }
+[WCap]::SetForegroundWindow($p.MainWindowHandle) | Out-Null
+$r = New-Object WCap+R
+[WCap]::GetWindowRect($p.MainWindowHandle, [ref]$r) | Out-Null
+# hover the right-panel EVT log area ( ~82% width, ~35% height )
+$x = $r.L + ($r.Rt - $r.L) * 82 / 100
+$y = $r.T + ($r.B - $r.T) * 35 / 100
+[WCap]::SetCursorPos([int]$x, [int]$y) | Out-Null
+Start-Sleep -Milliseconds 400
+for ($i = 0; $i -lt 60; $i++) {
+    [WCap]::mouse_event(0x0800, 0, 0, -120, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 25
+}
+Start-Sleep -Milliseconds 600
+$p.CloseMainWindow() | Out-Null
+exit 0
+'''
+    r = subprocess.run(["powershell", "-NoProfile", "-Command", ps_script],
+                       capture_output=True, text=True, timeout=120)
+    try:
+        proc.wait(timeout=10)
+    except Exception:
+        proc.kill()
+    if not os.path.exists(perflog):
+        return False, f"[perf:{tool}] log not written ( ps rc={r.returncode}: {r.stderr[:150] if r.stderr else 'unknown'} )"
+    return True, f"[perf:{tool}]\n  " + open(perflog).read().strip().replace("\n", "\n  ")
+
+# ============================================================
 # main
 # ============================================================
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gold", action="store_true", help="save screenshot as new golden")
     ap.add_argument("--no-screenshot", action="store_true", help="skip golden compare ( manifest + trace only )")
+    ap.add_argument("--perf", nargs="?", const="D2D", default=None,
+                    help="A/B perf run ( D2D | Gdiplus ): backend override + EVT wheel scenario + graceful close")
     args = ap.parse_args()
 
     results = []
@@ -222,8 +282,17 @@ def main():
         results.append((ok, msg))
         if not ok: fail += 1
 
-    # phase 2+3 ( Windows only — demo.exe can't run elsewhere )
-    if sys.platform != "win32":
+    # perf mode ( mutually exclusive with the golden phases )
+    if args.perf and sys.platform == "win32":
+        ok, msg = run_perf(args.perf)
+        results.append((ok, msg))
+        if not ok: fail += 1
+
+    # phase 2+3 ( Windows only — demo.exe can't run elsewhere ).
+    # skipped entirely in perf mode ( the perf run IS the demo launch ).
+    if args.perf and sys.platform == "win32":
+        pass
+    elif sys.platform != "win32":
         results.append((True, "[smoke] non-Windows: manifest phase only"))
     elif args.gold:
         # --gold: capture screenshot and save as new golden ( manual verify + commit )

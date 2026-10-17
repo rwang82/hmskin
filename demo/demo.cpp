@@ -9,8 +9,15 @@
 #include "win\hm_wndmsg_defs.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
 #include "win\wmp\hm_wmp_checkbox.h"
+#include "win\wmp\hm_wndmsgprocessor_i.h"
+#include "win\wmp\hm_wmp_display.h"
+#include "win\frame\hm_uiroot.h"
+#include "win\paint_system\hm_ps_drawtool_gdi.h"
+#include "win\paint_system\hm_ps_drawtool_gdiplus.h"
+#include "win\paint_system\hm_ps_drawtool_d2d.h"
 #include "hm_layout_scale.h"
 #include <vector>
+#include <exception>
 
 //////////////////////////////////////////////////////////
 #define MAINWND_WNDPROPID (258)
@@ -133,7 +140,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      int       nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	// DPI ( M1-1 ): declare awareness so DWM stops bitmap-stretching the
 	// window on scaled displays; the skin lays out in physical pixels via
@@ -178,6 +184,35 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	//start up hm lib
 	hm_lib_startup( &paramHMStartup, strUIManifest.c_str(), &g_pHMRoot );
 
+	// "--drawtool D2D|Gdiplus|Gdi" - runtime backend override for A/B perf
+	// runs ( tools/smoke_test.py --perf ). swaps the draw tool of every
+	// display WMP after the manifest loaded; resource refcounts of both
+	// backends are forwarding-compatible so no reload is needed.
+	{
+		const TCHAR* posArg = _tcsstr( lpCmdLine, _T("--drawtool") );
+		if ( posArg && g_pHMRoot ) {
+			posArg += _tcslen( _T("--drawtool") );
+			while ( *posArg == _T(' ') )
+				posArg++;
+			hm_ps_drawtool_i* pTool = NULL;
+			if ( 0 == _tcsnicmp( posArg, _T("D2D"), 3 ) )
+				pTool = hm_ps_drawtool_d2d::getInstance();
+			else if ( 0 == _tcsnicmp( posArg, _T("Gdiplus"), 7 ) )
+				pTool = hm_ps_drawtool_gdiplus::getInstance();
+			else if ( 0 == _tcsnicmp( posArg, _T("Gdi"), 3 ) )
+				pTool = hm_ps_drawtool_gdi::getInstance();
+			if ( pTool && g_pHMRoot->m_pWMPFactory ) {
+				struct OverrideCtx { hm_ps_drawtool_i* pTool; } ctx = { pTool };
+				g_pHMRoot->m_pWMPFactory->enumObjs(
+				    []( hm_wndmsgprocessor_i* pWMP, void* pParam ) {
+					    hm_wmp_display* pDisp = dynamic_cast< hm_wmp_display* >( pWMP );
+					    if ( pDisp )
+						    pDisp->setDrawTool( static_cast< OverrideCtx* >( pParam )->pTool );
+				    }, &ctx );
+			}
+		}
+	}
+
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_DEMO, szWindowClass, MAX_LOADSTRING);
@@ -191,6 +226,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DEMO));
 
+	// engine throws ( e.g. refcount underflow ) escaping a WndProc would hit
+	// std::terminate with a bare "abort()" dialog. catch them at the pump and
+	// show the reason instead - much easier to diagnose.
+	try {
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -199,6 +238,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+	}
+	}
+	catch ( const std::exception& e ) {
+		::MessageBoxA( NULL, e.what(), "demo: uncaught engine exception", MB_ICONERROR );
+	}
+	catch ( ... ) {
+		::MessageBox( NULL, _T("unknown exception"), _T("demo: uncaught engine exception"), MB_ICONERROR );
 	}
 
 	//
