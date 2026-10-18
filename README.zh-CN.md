@@ -107,7 +107,7 @@ click_keelobj(3) -> WM_LBUTTONDOWN/UP 经消息 trace 实证
 | 滚动条 | `hm_wmp_scrollbar` | 值域 API；拖动/端钮/滚轮三路输入；容器内自动步进 |
 | 根菜单栏 | `hm_wmp_rootmenu` | 标签直接读 HMENU（`GetMenuItemInfo`） |
 | 弹出菜单 | `hm_wmp_popupmenu` | 引擎自建弹窗、自适尺寸、自绘条目；透明接管或主动调用 |
-| 静态面/文本 | `hm_wmp_bkgnd` | 文字走 `setWMPDisplayText()` 实时刷新 |
+| 静态面/文本 | `hm_wmp_bkgnd` | 文字走 `hm_wmp_set_text()`/`_at()` 实时刷新，像素缓存自动失效 |
 | 非客户区 | `button_nca` / `bkgnd_nca` / `drawtrigger_nca` | 皮肤标题栏、边框、最小化/最大化/关闭三钮 |
 | 进度条 | 纯 manifest 拼装 | 轨道 + 填充 dock 厚度即百分比，零引擎改动 |
 
@@ -164,7 +164,10 @@ hm_wmp_loader_base (抽象基类)
 新控件继承 `hm_wmp_display`，只实现 `_render(hDC, rcCanvas)`（局部坐标系，
 对"画到屏幕还是离屏"无感），交互处理器里一行 `drawSelf(pKeelObj, hwnd)`。
 缓冲策略三档声明式：`BUF_NONE`（直画）/ `BUF_ALLOC`（点击级现建）/
-`BUF_CACHE_SIZE`（拖动级按尺寸缓存）。
+`BUF_CACHE_SIZE`（真像素缓存：首绘一次、其后 blt；脏标记失效，有状态
+控件状态感知）。失效全自动——控件状态变化与宿主文字更新
+（`hm_wmp_set_text`）都经观察者链自动作废缓存，控件作者与宿主都不需要
+碰 `InvalidateRect`。
 
 ### DPI 感知
 
@@ -247,10 +250,13 @@ python tools\smoke_test.py                    ← + 金图容差比对
 python tools\smoke_test.py --perf D2D         ← 渲染后端性能 A/B（滚轮场景）
 python tools\smoke_test.py --perf Gdiplus
 python tools\smoke_test.py --tree           # 控件树转储 + 断言
+python tools\e2e_test.py              # 交互 E2E（需 demo 已启动）
 ```
 
 金图基线（`tools/golden/`）守护当前 D2D 渲染外观；`--perf` 模式自动
 切后端跑滚轮场景，优雅退出后打印 `hmskin_perf.log`（count/avg/p50/p95/直方图）。
+E2E 套件经 demo 内嵌 agent 服务驱动运行中的 demo——章节金图 +
+按钮/开关/单选/菜单交互，按事件日志与像素 diff 断言。
 
 ## 仓库结构
 
@@ -282,7 +288,7 @@ python tools\smoke_test.py --tree           # 控件树转储 + 断言
 | 时间 | 事件 |
 |---|---|
 | 2016 | 初版：VS2008 起步，VS2013 v120_xp，仅 32 位，jsoncpp 0.5 预编译库 |
-| 2026-10 | 现代化：VS2026 v145、三平台、jsoncpp 1.9.6 源码、UTF-8 manifest、指针宽度安全化、透明 TrackPopupMenu 接管、DPI Phase 1、脏区裁剪、绘制缓冲框架、冒烟测试基建、集成文档、**Direct2D/DirectWrite 文字后端（M1）+ 渲染性能 A/B 设施**、金图回归基线、装载时序根因修复 |
+| 2026-10 | 现代化：VS2026 v145、三平台、jsoncpp 1.9.6 源码、UTF-8 manifest、指针宽度安全化、透明 TrackPopupMenu 接管、DPI Phase 1、脏区裁剪、绘制缓冲框架、冒烟测试基建、集成文档、**Direct2D/DirectWrite 文字后端（M1）+ 渲染性能 A/B 设施**、金图回归基线、装载时序根因修复、内嵌 agent 内省 + MCP 桥、真像素缓存（观察者自动失效）+ 宿主文字 API、E2E 交互回归套件 |
 
 ## 许可
 

@@ -118,7 +118,7 @@ them ( see `tools/hmskin_mcp.py --selftest` ).
 | Scrollbar | `hm_wmp_scrollbar` | value-range API; drag/arrow/wheel input paths; auto-step inside containers |
 | Root menu bar | `hm_wmp_rootmenu` | labels read directly from HMENU (`GetMenuItemInfo`) |
 | Popup menu | `hm_wmp_popupmenu` | engine-created window, auto-sized, self-drawn items; takeover or direct call |
-| Static / text | `hm_wmp_bkgnd` | text refreshes live via `setWMPDisplayText()` |
+| Static / text | `hm_wmp_bkgnd` | text refreshes live via `hm_wmp_set_text()` / `hm_wmp_set_text_at()` — pixel cache invalidates itself |
 | Non-client area | `button_nca` / `bkgnd_nca` / `drawtrigger_nca` | skins the title bar, borders, min/max/close buttons |
 | Progress bar | pure manifest assembly | track + docked fill thickness = percentage, zero engine changes |
 
@@ -180,8 +180,12 @@ New controls inherit `hm_wmp_display` and implement only
 `_render(hDC, rcCanvas)` (local coordinates, unaware of screen vs offscreen);
 interaction handlers call `drawSelf(pKeelObj, hwnd)`. Buffering is a
 three-level declarative choice: `BUF_NONE` (direct), `BUF_ALLOC`
-(allocate per click-rate draw), `BUF_CACHE_SIZE` (cache by size for
-drag-rate draws).
+(allocate per click-rate draw), `BUF_CACHE_SIZE` (true pixel cache:
+render once, blit afterwards — dirty-flag invalidation, state-aware
+for stateful controls). Invalidation is fully automatic: control state
+changes and host text updates (`hm_wmp_set_text`) both propagate
+through observer chains, so neither control authors nor hosts touch
+`InvalidateRect`.
 
 ### DPI Awareness
 
@@ -269,11 +273,14 @@ python tools\smoke_test.py                    ← + golden-image tolerance compa
 python tools\smoke_test.py --perf D2D         ← renderer A/B perf (wheel scenario)
 python tools\smoke_test.py --perf Gdiplus
 python tools\smoke_test.py --tree           # keelobj tree dump + assertions
+python tools\e2e_test.py              # interaction E2E ( demo must be running )
 ```
 
 The golden baseline (`tools/golden/`) guards the current D2D appearance;
 `--perf` runs the wheel scenario per backend and prints `hmskin_perf.log`
-(count/avg/p50/p95/histogram) after a graceful exit.
+(count/avg/p50/p95/histogram) after a graceful exit. The E2E suite drives
+the running demo through its agent service — chapter goldens plus
+button/toggle/radio/menu interactions asserted by event log and pixel diff.
 
 ## Repository Layout
 
@@ -307,7 +314,7 @@ The golden baseline (`tools/golden/`) guards the current D2D appearance;
 | When | What |
 |---|---|
 | 2016 | first version: VS2008 → VS2013 v120_xp, 32-bit only, jsoncpp 0.5 prebuilt |
-| 2026-10 | modernization: VS2026 v145, three platforms, jsoncpp 1.9.6 source, UTF-8 manifests, pointer-width safety, transparent TrackPopupMenu takeover, DPI Phase 1, dirty-rect clipping, drawing-buffer framework, smoke-test infrastructure, integration docs, **Direct2D/DirectWrite text backend (M1) + renderer A/B perf harness**, golden-image baseline, loader-order root-cause fix |
+| 2026-10 | modernization: VS2026 v145, three platforms, jsoncpp 1.9.6 source, UTF-8 manifests, pointer-width safety, transparent TrackPopupMenu takeover, DPI Phase 1, dirty-rect clipping, drawing-buffer framework, smoke-test infrastructure, integration docs, **Direct2D/DirectWrite text backend (M1) + renderer A/B perf harness**, golden-image baseline, loader-order root-cause fix, built-in agent introspection + MCP bridge, true pixel cache (observer-invalidated) + host text API, E2E interaction suite |
 
 ## License
 

@@ -204,12 +204,16 @@ hm_wmp_display
 ├── 缓冲策略（控件声明，框架执行）
 │     BUF_NONE        画进根画布（WM_PAINT 路径自动归这档）
 │     BUF_ALLOC       点击级：现建现毁
-│     BUF_CACHE_SIZE  拖动级：按尺寸缓存复用
+│     BUF_CACHE_SIZE  真像素缓存：首绘一次后 blt（脏标记失效）
 └── _render(hDC, rcCanvas) 纯虚 ← 控件唯一要写的部分
 ```
 
-**当前状态**（2026-10-17）：checkbox 已迁（drawSelf + BUF_ALLOC）+ radio 继承之；
-tabheader 已迁（armMouseLeaveTracking）；滚动条/button/bkgnd 待迁。
+**当前状态**（2026-10-18）：框架全量落地——checkbox 族/button/tabheader/bkgnd
+全部接入基类缓冲；BUF_CACHE_SIZE 已升级**真像素缓存**（m_bBufDirty 脏标记，
+首绘一次后 blt，WM_PAINT 路径同样命中）；有状态控件走**状态感知快照**模式
+（button/tabheader：绘制时快照状态，切换即 invalidateBuffer）。滚动路径文字
+绘制实测 1355→131（-90%）。失效双通道全自动：控件状态事件 + uires 观察者链
+（文字 TEXTCHANGED → WMP 自动作废缓存），宿主零 InvalidateRect。
 
 **新增：脏区裁剪**（2026-10-17 已落）：doDrawAll 脏矩形重载——无交集子树整棵跳过 +
 drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制成本从控件数量降为
@@ -245,3 +249,9 @@ drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制�
 | 2026-10-17 | D2D-M1 混合后端落地（hm_ps_drawtool_d2d） | 文字 DirectWrite 自绘，位图/纯色/calcRect 转发 gdiplus（测量保 GDI+ 度量=布局零位移）；Debug manifest 53 WMP 全切，金图重建为 D2D 基线（0.3%→全切 4.1%→重建）；字形质量与 GDI+ 持平（100% 档小字无肉眼差异） |
 | 2026-10-17 | 渲染性能 A/B 设施常开 | hm_perf_stats 零开销聚合 + demo --drawtool 运行时覆盖 + smoke --perf 场景脚本；实测 D2D 1394µs vs GDI+ 166µs（8.4×，DCRT 每次往返 BindDC/EndDraw 主导嫌疑）——M2 位图路径与 TextLayout/批次优化的裁决依据 |
 | 2026-10-17 | 装载时序根因修复（9 年潜伏债） | _fillWMP 对调顺序：district 先填充、DrawTool 后装载——旧序下资源预建 load 循环永远空转，unload 路径 9 年未被执行，运行时 setDrawTool 首次触发即 refcount underflow；同时修 D2D 静态析构崩溃（DllMain 语境禁 Release D2D） |
+| 2026-10-18 | BUF_CACHE_SIZE 升级真像素缓存（Milestone A） | m_bBufDirty 脏标记 + invalidateBuffer；WM_PAINT 路径同样命中；manifest 声明 `"BufStrategy":"CACHE_SIZE"`；金图 0.0% 实证 |
+| 2026-10-18 | 状态感知像素缓存 + 滚动路径收口（Milestone B） | button/tabheader 缓存绘制态快照、切换即失效；真滚轮场景文字绘制 1355→131（-90%） |
+| 2026-10-18 | D2D 性能判别实验闭环 | TextLayout/Brush 缓存留库（约省 30%）；判决=DCRT BindDC/EndDraw 往返主导（缓存命中 p50 仍 ≥500µs vs GDI+ <100µs）——M2 出路三选一待裁决 |
+| 2026-10-18 | 失效链仪表 hm_util_invlog | hmskin.trace marker 门控写 hmskin_invalidate.log；滚动期「tabheader 被绘制」定谳为采样环视差，脏区剔除健康 |
+| 2026-10-18 | 观察者失效链 + 公共文字 API | uires text 可观察化（TEXTCHANGED 广播），WMP 内嵌 observer 收到事件即作废像素缓存；hm_wmp_set_text/_at 宿主只给 manifest id |
+| 2026-10-18 | E2E 交互回归套件 | tools/e2e_test.py 九断言（章节金图+交互 EVT+像素 diff），经 demo 内嵌 agent 服务可远程驱动 |

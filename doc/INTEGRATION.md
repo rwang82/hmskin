@@ -35,6 +35,7 @@ hm_keel_obj* pKeelObj = NULL;
 hm_get_keelobj( pRoot, 47, &pKeelObj );    // manifest 里的 idKeelObj
 hm_wmp_scrollbar* pBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObj->getWMP( 70 ) );
 pBar->setValRange( 0, 100 );
+hm_wmp_set_text( pRoot, 47, 62, _T("READY") );  // 文字 WMP：公共 API 直改（缓存自动失效）
 
 // ⑤ 退出时（自管生命周期的弹窗类窗口需先 disconnect，见 §3 铁律 3）
 hm_lib_shutdown( pRoot );
@@ -91,7 +92,7 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 
 | WMPClsName | 用途 | 关键 API / 备注 |
 | --- | --- | --- |
-| `hm_wmp_bkgnd` | 静态面/文本/位图 | 文字走 `setWMPDisplayText`（hmskin_helper） |
+| `hm_wmp_bkgnd` | 静态面/文本/位图 | 文字走公共 API `hm_wmp_set_text`/`_at`（像素缓存自动失效） |
 | `hm_wmp_button` | 按钮 | 三态位图 |
 | `hm_wmp_checkbox` | 复选框/开关 | `setCheck(BOOL)`（保留交互子态跨勾选族）；`setRadioStyle` 已被 radio 类取代 |
 | `hm_wmp_radio` | 单选（继承 checkbox） | 已选中点击不翻转（无中间态闪屏）；点击发独立 RADIO_CLICK；组语义（选一灭兄弟）由应用层驱动 |
@@ -121,12 +122,19 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
 
 | 路径 | 缓冲 |
 | --- | --- |
-| 全窗 WM_PAINT（拉伸/章节切换） | 根画布离屏合成，单次 blit；控件级自动跳过嵌套缓冲 |
-| 交互直绘（点击/悬停） | 控件声明策略：BUF_ALLOC（点击级现建）/ BUF_CACHE_SIZE（拖动级按尺寸缓存复用） |
+| 全窗 WM_PAINT（拉伸/章节切换） | 根画布离屏合成，单次 blit；BUF_CACHE_SIZE 控件直接 blt 缓存位图 |
+| 交互直绘（点击/悬停） | 控件声明策略：BUF_ALLOC（点击级现建）/ BUF_CACHE_SIZE（真像素缓存：首绘一次，其后 blt） |
+
+**失效契约（全自动，双通道）**：① 控件状态切换（`setCheck` 等）——状态感知缓存
+快照比对，一变即重绘；② 宿主改文字（`hm_wmp_set_text`/`_at`）——uires 观察者链
+广播 TEXTCHANGED，对应 WMP 自动作废像素缓存。宿主与控件作者都不需要碰
+InvalidateRect。
 
 写新控件：继承 `hm_wmp_display`，实现 `_render(hDC, rcCanvas)`（局部坐标系，
 对"最终画到屏幕还是离屏"无感），交互处理器里一行 `drawSelf(pKeelObj, hwnd)`，
-构造函数声明 `m_eBufStrategy`。悬停离开跟踪用基类 `armMouseLeaveTracking/onLeaveArrived`。
+构造函数声明 `m_eBufStrategy`。有状态控件参考 button/tabheader 的快照模式
+（缓存绘制时的状态，切换时 `invalidateBuffer`）。悬停离开跟踪用基类
+`armMouseLeaveTracking/onLeaveArrived`。
 
 ---
 
@@ -146,6 +154,8 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
 
 外部改控件状态（如灭单选兄弟）调 `setCheck`——它内部广播状态事件，
 宿主 keelobj 自动作废矩形重画，**应用层不需要碰任何 InvalidateRect**。
+改文字同理：`hm_wmp_set_text`/`_at` 经 uires 观察者链自动失效像素缓存（§4 失效契约）；
+多文字 WMP 用 `_at` 版本按（district id， 声明序号）精确定位。
 
 ---
 
@@ -182,8 +192,8 @@ pLayoutObj->calcPosition();                // 手动重算（运行时改 decode
   （文本测量保持 GDI+ 度量，跨后端切换布局零位移）。宿主亦可在启动参数整体覆盖
   （`--drawtool D2D`，遍历全部 WMP 运行时换后端）。性能观测常开：进程退出自动
   产出 exe 旁 `hmskin_perf.log`（文字绘制的 count/avg/p50/p95/直方图）。
-- **未做**：完整焦点模型+焦点环（backlog）；D2D 位图原生路径（M2，往返成本
-  已由 A/B 实测标定）。
+- **未做**：完整焦点模型+焦点环（backlog）；D2D 位图原生路径（M2——判别实验
+  已定谳：DCRT BindDC/EndDraw 往返主导，TextLayout/Brush 缓存仅再省 ~30%）。
 - 滚动视图的正确姿势：容器 keelobj `setClipChildren(TRUE)` + 内容 keelobj 高于容器 +
   滚动条值域 = 内容高 − 容器高；三路输入（拖/端钮/滚轮）开箱即用。
 
