@@ -6,31 +6,28 @@ hmskin MCP server - AI-agent bridge into the demo VM.
 Architecture: this script runs on the mac side as a stdio MCP server
 ( FastMCP, `pip install mcp` ). VM access is two-tier:
 
-  - non-GUI queries ( process liveness, marker files ) go over plain
-    `ssh -> powershell`;
-  - desktop operations reach the user's interactive session like this:
-      * demo is LAUNCHED through `explorer.exe <path>` so its parent is
-        the shell ( a plain ssh child would create its window in a
-        headless logon session; a scheduled task child gets no window
-        station access - both were tried );
-      * the demo publishes its window handle in every tree dump and
-        serves two self-operations, WM_APP+1 ( refresh live tree ) and
-        WM_APP+2 ( PrintWindow itself into _mcp_shot.png ), which this
-        side triggers with cross-session PostMessage;
-      * a one-shot dump is requested through the exe-dir "_dump_req"
-        convention file ( explorer.exe cannot pass command-line args ).
+  - non-GUI queries ( marker files ) go over plain `ssh -> powershell`;
+  - desktop operations talk to the RESIDENT demo through its in-process
+    agent service ( demo.exe listens on 127.0.0.1:9321, JSON line
+    protocol ), reached via an `ssh -L` tunnel - no firewall/port
+    changes, and every logon-session / window-station wall disappears.
+    The demo itself is STARTED MANUALLY by the user ( double-click on
+    the VM desktop ): remote launches end up in headless logon sessions
+    and scheduled-task children lack window-station access ( both were
+    tried ), so instead of auto-launching, every tool that needs the
+    demo fails fast with a reminder to start it by hand.
 
 Files produced on the VM land inside the shared folder ( also mounted
 on the mac side ), so screenshots / tree dumps are read back by path
 translation - no scp needed.
 
 Engine-side hooks ( demo.exe, see hmskin_helper.cpp / demo.cpp ):
-  --dump-tree <path>   one-shot: dump the keelobj tree after the first
-                       frame settles, then exit ( same via _dump_req )
-  WM_APP+1 message     live dump to <exe_dir>\\hmskin_tree.live.json
-                       ( reflects chapter switches / visibility; also
-                       published once automatically at startup )
-  WM_APP+2 message     self-screenshot to <exe_dir>\\_mcp_shot.png
+  TCP 127.0.0.1:9321   agent ops: ping / quit / live / shot /
+                       click x,y / dump <path>
+  WM_APP+1/2/3         live tree dump / self-screenshot ( PrintWindow
+                       into _mcp_shot.png ) / on-demand deep dump
+  --dump-tree <path>   one-shot cold dump used by smoke_test.py --tree
+                       ( not used by this bridge )
 
 Usage:
   python3 tools/hmskin_mcp.py --selftest --ssh <user@vmhost>
@@ -51,10 +48,15 @@ VM_OUTDIR = VM_REPO + r"\ARM64\Debug"
 VM_LIVE_TREE = VM_OUTDIR + r"\\hmskin_tree.live.json"
 VM_DUMP_TREE = VM_REPO + r"\\tools\\_mcp_tree.json"
 VM_SHOT = VM_OUTDIR + r"\\_mcp_shot.png"
-VM_DUMP_REQ = VM_OUTDIR + r"\\_dump_req"
-VM_DEMO = VM_OUTDIR + r"\\demo.exe"
 VM_TRACE = VM_OUTDIR + r"\\hmskin_trace.log"
 VM_MARKER = VM_OUTDIR + r"\\hmskin.trace"
+
+# the demo is started manually ( double-click on the VM desktop );
+# remote launches proved unreliable, so tools fail fast with this
+# reminder instead of trying to launch it themselves.
+DEMO_NOT_RUNNING = ("demo is not running - start it by double-clicking "
+                    "demo.exe ( ARM64\\Debug ) on the VM desktop, then retry"
+                    " ( 请在 VM 桌面双击启动 demo 后重试 )")
 
 
 def vm2mac(vm_path):
@@ -64,7 +66,8 @@ def vm2mac(vm_path):
 
 class HmskinBridge:
     """all VM interactions, serialized by an RLock ( tool methods nest );
-    GUI ops through the desktop-session task bridge, the rest over ssh."""
+    GUI ops through the demo's TCP agent service ( ssh -L tunnel ),
+    the rest over ssh."""
 
     def __init__(self, ssh):
         self.ssh = ssh
@@ -129,29 +132,12 @@ class HmskinBridge:
         raise RuntimeError(f"agent {op}: unreachable ( demo not running? )")
 
     # ---- demo process management ----
-    def _demo_alive(self):
-        out = self._ps("(Get-Process demo -ErrorAction SilentlyContinue) -ne $null; exit 0")
-        return out.endswith("True")
-
     def ensure_demo(self):
         with self.lock:
             try:
                 self._agent("ping", timeout=4)
-                return
             except RuntimeError:
-                pass
-            # not serving: try to launch through the shell ( a plain ssh
-            # child would land in a headless logon session )
-            self._ps(f"explorer.exe {VM_DEMO}; exit 0", timeout=30)
-            for _ in range(20):
-                time.sleep(0.5)
-                try:
-                    self._agent("ping", timeout=2)
-                    return
-                except RuntimeError:
-                    continue
-            raise RuntimeError("demo agent unreachable after launch attempt "
-                               "( start demo.exe by hand once? )")
+                raise RuntimeError(DEMO_NOT_RUNNING) from None
 
     def stop_demo(self):
         with self.lock:
@@ -184,20 +170,14 @@ class HmskinBridge:
         return json.load(open(mac_path, encoding="utf-8-sig")).get("hwnd")
 
     def dump_tree(self):
-        """one-shot: launch demo --dump-tree on the desktop ( exits itself ),
-        poll for the JSON file, read it."""
+        """on-demand deep dump from the resident demo ( WM_APP+3 ),
+        polled from the shared folder and read it."""
         with self.lock:
+            self.ensure_demo()
             mac_dump = vm2mac(VM_DUMP_TREE)
             if os.path.exists(mac_dump):
                 os.remove(mac_dump)
-            # prefer the resident agent ( WM_APP+3, same async pattern as
-            # live/shot ); the cold _dump_req+explorer path proved flaky (
-            # explorer swallows second launches of an already-running exe )
-            try:
-                self._agent(f"dump {VM_DUMP_TREE}")
-            except RuntimeError:
-                open(vm2mac(VM_DUMP_REQ), "w").write(VM_DUMP_TREE + "\n")
-                self._ps(f"explorer.exe {VM_DEMO}; exit 0", timeout=30)
+            self._agent(f"dump {VM_DUMP_TREE}")
             deadline = time.time() + 30
             while time.time() < deadline:
                 time.sleep(0.5)
@@ -270,7 +250,7 @@ def selftest(bridge):
             results.append((False, f"[{name}] FAIL: {e}"))
 
     step("manifest", lambda: f"{bridge.load_manifest()['count']} keelobjs joined with WMP classes")
-    step("dump_tree", lambda: f"{len(bridge.dump_tree())} nodes ( one-shot demo run )")
+    step("dump_tree", lambda: f"{len(bridge.dump_tree())} nodes ( agent dump )")
 
     def live():
         tree = bridge.live_tree()
@@ -333,22 +313,22 @@ def serve(bridge):
 
     @mcp.tool()
     def dump_tree() -> list:
-        """one-shot keelobj tree ( launches demo --dump-tree, demo exits )."""
+        """keelobj tree on-demand dump from the resident demo ( demo must be running )."""
         return bridge.dump_tree()
 
     @mcp.tool()
     def live_tree() -> list:
-        """CURRENT keelobj tree of the resident demo ( visibility, rects )."""
+        """CURRENT keelobj tree of the resident demo ( visibility, rects; demo must be running )."""
         return bridge.live_tree()
 
     @mcp.tool()
     def screenshot() -> str:
-        """PrintWindow the resident demo; returns the mac-side png path."""
+        """PrintWindow the resident demo ( demo must be running ); returns the mac-side png path."""
         return bridge.screenshot()
 
     @mcp.tool()
     def click_keelobj(keelobj_id: int) -> dict:
-        """click the center of a keelobj ( client-area coords, synthetic down/up )."""
+        """click the center of a keelobj ( client-area coords, synthetic down/up; demo must be running )."""
         return bridge.click_keelobj(keelobj_id)
 
     @mcp.tool()
