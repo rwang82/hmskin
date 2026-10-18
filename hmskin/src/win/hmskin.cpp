@@ -307,6 +307,23 @@ HMLIB_API bool hm_get_keelobj( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, hm
 	return true;
 }
 //////////////////////////////////////////////////////////////////////////
+// id-based keelobj runtime controls ( see hmskin.h )
+HMLIB_API bool hm_keelobj_set_visible( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bVisible ) {
+	hm_keel_obj* pKeelObj = NULL;
+	if ( !hm_get_keelobj( pHMUIRoot, uKeelObjId, &pKeelObj ) || !pKeelObj )
+		return false;
+	pKeelObj->setVisible( bVisible );
+	return true;
+}
+//////////////////////////////////////////////////////////////////////////
+HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bClip ) {
+	hm_keel_obj* pKeelObj = NULL;
+	if ( !hm_get_keelobj( pHMUIRoot, uKeelObjId, &pKeelObj ) || !pKeelObj )
+		return false;
+	pKeelObj->setClipChildren( bClip );
+	return true;
+}
+//////////////////////////////////////////////////////////////////////////
 // host text API ( see hmskin.h ): locate the WMP by manifest ids, then the
 // text uires - first-in-declaration-order, or exact ( district, index )
 static hm_rs_uires_text* _find_wmp_text_first( hm_wmp_display* pWMPDisplay ) {

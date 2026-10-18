@@ -52,6 +52,11 @@ HMLIB_API bool hm_wndpropid_disconnect( hm_uiroot* pHMUIRoot, HWND hWnd, unsigne
 class hm_keel_obj;
 HMLIB_API bool hm_get_keelobj( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, hm_keel_obj** ppKeelObj );
 //////////////////////////////////////////////////////////////////////////
+// id-based keelobj runtime controls ( chapter switching, scroll-view
+// container assembly ): hosts speak manifest ids, no keelobj pointers.
+HMLIB_API bool hm_keelobj_set_visible( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bVisible );
+HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bClip );
+//////////////////////////////////////////////////////////////////////////
 // host text API: change a WMP's text by the ids the host wrote into its
 // manifest - no engine internals. set_text targets the FIRST text uires in
 // declaration order ( single-text WMPs ); set_text_at targets the text

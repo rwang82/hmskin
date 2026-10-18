@@ -82,9 +82,7 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 			unsigned int idKeelObj = arrChapterGroups[ nChapter ][ i ];
 			if ( !idKeelObj )
 				break;
-			hm_keel_obj* pKeelObj = NULL;
-			if ( hm_get_keelobj( g_pHMRoot, idKeelObj, &pKeelObj ) && pKeelObj )
-				pKeelObj->setVisible( bVisible );
+			hm_keelobj_set_visible( g_pHMRoot, idKeelObj, bVisible );
 		}
 	}
 	// the native-adoption button ( sec.1 contrast specimen ) follows chapter visibility.
@@ -599,8 +597,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   hm_keel_obj* pKeelObjWell = NULL;
 	   hm_keel_obj* pKeelObjContent = NULL;
 	   hm_keel_obj* pKeelObjScrollBar = NULL;
-	   if ( hm_get_keelobj( g_pHMRoot, 2, &pKeelObjWell ) && pKeelObjWell )
-		   pKeelObjWell->setClipChildren( TRUE );
+	   hm_get_keelobj( g_pHMRoot, 2, &pKeelObjWell );   // kept for the range calc
+	   hm_keelobj_set_clip_children( g_pHMRoot, 2, TRUE );
 	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
 		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
 		   if ( pWMPScrollBar ) {
@@ -609,7 +607,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			   pWMPScrollBar->setTrackThumbLen( hm_layout_scale_px( 48 ) );
 			   int nRange = 0;
 			   if ( hm_get_keelobj( g_pHMRoot, 38, &pKeelObjContent ) && pKeelObjContent
-				   && pKeelObjContent->getLayoutObj() && pKeelObjWell->getLayoutObj() ) {
+				   && pKeelObjContent->getLayoutObj() && pKeelObjWell && pKeelObjWell->getLayoutObj() ) {
 				   RECT rcWell = pKeelObjWell->getLayoutObj()->m_rect;
 				   RECT rcContent = pKeelObjContent->getLayoutObj()->m_rect;
 				   nRange = ( rcContent.bottom - rcContent.top ) - ( rcWell.bottom - rcWell.top );
