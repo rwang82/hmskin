@@ -39,3 +39,8 @@ ARM64/Debug/_dump_req
 
 # local MCP mount ( copy from .mcp.json.example, fill in your ssh host )
 .mcp.json
+
+# macOS Finder metadata + python bytecode cache
+.DS_Store
+__pycache__/
+*.pyc
