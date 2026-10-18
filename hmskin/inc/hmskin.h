@@ -58,6 +58,15 @@ HMLIB_API bool hm_get_keelobj( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, hm
 HMLIB_API bool hm_keelobj_set_visible( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bVisible );
 HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bClip );
 //////////////////////////////////////////////////////////////////////////
+// agent/debug aid: dump the live keelobj tree as JSON - one node per
+// keelobj { id, parentId, visible, rect } where rect is mapped into the
+// CLIENT area of hWndMain ( null + rectRaw when the mapping is
+// unavailable, e.g. a popup slot whose window does not exist yet ).
+// known wrinkle: cross-window CLIENT->CLIENT mapping uses window-rect
+// deltas, so popup-slot rects may be off by the non-client height.
+// returns the node count written, or 0 on failure.
+HMLIB_API unsigned int hm_keelobj_dump_tree( hm_uiroot* pHMUIRoot, HWND hWndMain, const TCHAR* szJsonPath );
+//////////////////////////////////////////////////////////////////////////
 // host text API: change a WMP's text by the ids the host wrote into its
 // manifest - no engine internals. set_text targets the FIRST text uires in
 // declaration order ( single-text WMPs ); set_text_at targets the text
@@ -65,6 +74,10 @@ HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int 
 // WMPs. both invalidate the WMP's pixel cache automatically.
 HMLIB_API bool hm_wmp_set_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, const TCHAR* szText );
 HMLIB_API bool hm_wmp_set_text_at( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int nDistrictId, unsigned int uShowObjIndex, const TCHAR* szText );
+// read back the FIRST text uires of a WMP ( counterpart of set_text ):
+// lpszBuf NULL returns the needed char count; otherwise copies ( truncated )
+// and returns the copied length. 0 = WMP/text not found.
+HMLIB_API unsigned int hm_wmp_get_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, LPTSTR lpszBuf, int nMaxTextCount );
 //////////////////////////////////////////////////////////////////////////
 
 

@@ -273,7 +273,6 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
   <ItemGroup>
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="hmskin_event_listener_demo.cpp" />
-    <ClCompile Include="hmskin_helper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -286,7 +285,6 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
   <ItemGroup>
     <ClInclude Include="demo.h" />
     <ClInclude Include="hmskin_event_listener_demo.h" />
-    <ClInclude Include="hmskin_helper.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

@@ -21,7 +21,7 @@ Files produced on the VM land inside the shared folder ( also mounted
 on the mac side ), so screenshots / tree dumps are read back by path
 translation - no scp needed.
 
-Engine-side hooks ( demo.exe, see hmskin_helper.cpp / demo.cpp ):
+Engine-side hooks ( demo.exe, see demo.cpp ):
   TCP 127.0.0.1:9321   agent ops: ping / quit / live / shot /
                        click x,y / dump <path>
   WM_APP+1/2/3         live tree dump / self-screenshot ( PrintWindow

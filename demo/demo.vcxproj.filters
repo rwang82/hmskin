@@ -24,9 +24,6 @@
     <ClCompile Include="hmskin_event_listener_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hmskin_helper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo.h">
@@ -42,9 +39,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hmskin_event_listener_demo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hmskin_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

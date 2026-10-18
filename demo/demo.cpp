@@ -5,7 +5,6 @@
 #include "demo.h"
 #include "hmskin_cpp.h"
 #include "hmskin_event_listener_demo.h"
-#include "hmskin_helper.h"
 #include "win\hm_wndmsg_defs.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
 #include "win\wmp\hm_wmp_checkbox.h"
@@ -47,7 +46,6 @@ void AppendEventLog( const TCHAR* szLine );
 void SwitchChapter( unsigned int uChapterIndex );
 hmskin_event_listener_demo g_HMSkinEventListener;
 hm_uiroot* g_pHMRoot = NULL;
-void* g_pWMPEvtLog = NULL;
 //////////////////////////////////////////////////////////
 #define MAX_LOADSTRING 100
 
@@ -113,7 +111,7 @@ void OpenSkinPopupMenu( unsigned int uRootItemIndex ) {
 void AppendEventLog( const TCHAR* szLine ) {
 	static std::vector< std::basic_string<TCHAR> > arrLines;
 	static unsigned int uSeq = 0;
-	if ( !g_pWMPEvtLog || !szLine )
+	if ( !g_pHMRoot || !szLine )
 		return;
 	TCHAR szPrefixed[ 80 ];
 	_stprintf_s( szPrefixed, 80, _T("%03d  %s"), ++uSeq, szLine );
@@ -130,7 +128,7 @@ void AppendEventLog( const TCHAR* szLine ) {
 	hm_wmp_set_text( g_pHMRoot, KEELOBJID_EVENTLOG, WMPID_EVENTLOG, szBuf );
 	// invalidate ONLY the event log panel: scrollbar dragging logs one event
 	// per mousemove, and a full-window invalidate here made every control
-	// repaint on each of those ( g_pWMPEvtLog already proves K18 exists ).
+	// repaint on each of those ( set_text resolves K18 by id ).
 	hm_keel_obj* pKeelObjEvtLog = NULL;
 	if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog && pKeelObjEvtLog->getLayoutObj() ) {
 		hm_util_invlog( _T("evtlog"), &pKeelObjEvtLog->getLayoutObj()->m_rect );
@@ -578,13 +576,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    // to us ) - this demo carries zero popup code of its own.
    hm_lib_enable_trackpopupmenu_hook( g_pHMRoot, TRUE );
 
-   // event log ( EVT-08 ) : fetch the text WMP of keelobj 18 for runtime updates.
-   {
-	   hm_keel_obj* pKeelObjEvtLog = NULL;
-	   if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog )
-		   g_pWMPEvtLog = pKeelObjEvtLog->getWMP( WMPID_EVENTLOG );
-   }
-
    // tab chapters : sec.1 basics is the default visible section.
    SwitchChapter( 0 );
 
@@ -670,7 +661,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		   if ( posSlash0 ) {
 			   *( posSlash0 + 1 ) = _T('\0');
 			   _tcscat_s( szLive0, MAX_PATH + 48, _T("hmskin_tree.live.json") );
-			   hmsh_dump_tree( g_pHMRoot, g_hWnd, szLive0 );
+			   hm_keelobj_dump_tree( g_pHMRoot, g_hWnd, szLive0 );
 		   }
 	   }
    }
@@ -749,7 +740,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if ( wParam == 1 && g_szDumpTreePath[ 0 ] ) {
 			KillTimer( hWnd, 1 );
 			static int nDumpAttempts = 0;
-			unsigned int nNodes = hmsh_dump_tree( g_pHMRoot, hWnd, g_szDumpTreePath );
+			unsigned int nNodes = hm_keelobj_dump_tree( g_pHMRoot, hWnd, g_szDumpTreePath );
 			nDumpAttempts++;
 			if ( nNodes > 0 || nDumpAttempts >= 2 ) {
 				PostQuitMessage( 0 );
@@ -768,7 +759,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if ( posSlash ) {
 				*( posSlash + 1 ) = _T('\0');
 				_tcscat_s( szLive, MAX_PATH + 48, _T("hmskin_tree.live.json") );
-				hmsh_dump_tree( g_pHMRoot, hWnd, szLive );
+				hm_keelobj_dump_tree( g_pHMRoot, hWnd, szLive );
 			}
 		}
 		break;
@@ -816,15 +807,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// agent-requested one-shot dump to g_szAgentDumpPath ( stays alive,
 		// unlike the --dump-tree boot mode which exits after dumping ).
 		if ( g_szAgentDumpPath[ 0 ] ) {
-			hmsh_dump_tree( g_pHMRoot, hWnd, g_szAgentDumpPath );
+			hm_keelobj_dump_tree( g_pHMRoot, hWnd, g_szAgentDumpPath );
 			g_szAgentDumpPath[ 0 ] = _T('\0');
 		}
 		break;
 	}
 	case ( WM_APP + 4 ): {
 		// agent evtlog read: copy the EVT log text on the window thread
-		if ( g_pWMPEvtLog ) {
-			getWMPDisplayText( g_pWMPEvtLog, g_szAgentEvtText, 1024 );
+		if ( g_pHMRoot ) {
+			hm_wmp_get_text( g_pHMRoot, KEELOBJID_EVENTLOG, WMPID_EVENTLOG, g_szAgentEvtText, 1024 );
 			::InterlockedExchange( &g_nAgentEvtReady, 1 );
 		}
 		break;

@@ -331,7 +331,7 @@ def run_tree_dump():
         if r["r"] - r["l"] < 800 or r["b"] - r["t"] < 500:
             errors.append(f"K1 rect suspiciously small: {r}")
     # specimen nodes carry non-zero rects ( popup-slot nodes excluded: the
-    # cross-window mapping wrinkle is documented in hmskin_helper.h )
+    # cross-window mapping wrinkle is documented in hmskin.h )
     for kid in (3, 18, 38):
         n = byid.get(kid)
         if not n:
