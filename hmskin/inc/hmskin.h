@@ -3,6 +3,7 @@
 #include "tchar.h"
 #include "win\hm_event_defs.h"
 #include "win\hm_export_defs.h"
+#include "hm_layout_scale.h"   // host-facing DPI conversion ( 96-baseline )
 
 //
 EXTERN_C_START

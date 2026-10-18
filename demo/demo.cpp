@@ -16,7 +16,6 @@
 #include "win\paint_system\hm_ps_drawtool_gdi.h"
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
 #include "win\paint_system\hm_ps_drawtool_d2d.h"
-#include "hm_layout_scale.h"
 #include <vector>
 #include <exception>
 #include <stdio.h>

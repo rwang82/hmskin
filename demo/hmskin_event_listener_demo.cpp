@@ -5,7 +5,6 @@
 #include "win\frame\hm_keel_obj.h"
 #include "win\frame\hm_layout_obj.h"
 #include "win\wmp\hm_wmp_checkbox.h"
-#include "hm_layout_scale.h"
 #include "win\frame\hm_layout_decoders.h"
 #include "win\frame\hm_uiroot.h"
 #include "win\frame\hm_debug_utils.h"
