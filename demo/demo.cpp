@@ -62,6 +62,8 @@ HWND g_hBtnTest1 = NULL;
 // settles and exit ( empty = interactive mode, no dump ).
 TCHAR g_szDumpTreePath[ MAX_PATH ] = _T("");
 TCHAR g_szAgentDumpPath[ MAX_PATH ] = _T("");   // WM_APP+3 target, set by the agent thread
+TCHAR g_szAgentEvtText[ 1024 ];                 // WM_APP+4 fills, agent thread reads
+volatile LONG g_nAgentEvtReady = 0;
 
 // ---- tab chapters ( sec.1..sec.4 ) : keelobj groups switched by visibility ----
 static const unsigned int arrChapterGroups[4][17] = {
@@ -218,6 +220,27 @@ static DWORD WINAPI hmsh_agent_thread( LPVOID ) {
 		} else if ( 0 == strcmp( szOp, "shot" ) ) {
 			::PostMessage( g_hWnd, WM_APP + 2, 0, 0 );
 			hmsh_agent_reply( s, true, "_mcp_shot.png" );
+		} else if ( 0 == strcmp( szOp, "shotscreen" ) ) {
+			// desktop capture ( WM_APP+5 ): PrintWindow can serve a stale
+			// redirection-surface frame after interaction direct draws -
+			// the composed desktop cannot lie. e2e pixel diffs use this.
+			::PostMessage( g_hWnd, WM_APP + 5, 0, 0 );
+			hmsh_agent_reply( s, true, "_mcp_shot2.png" );
+		} else if ( 0 == strcmp( szOp, "raise" ) ) {
+			// topmost-toggle trick: reliably lifts the window above whatever
+			// covers it ( e.g. the console running the tests ) without
+			// needing foreground-activation rights
+			::SetWindowPos( g_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+			                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+			::SetWindowPos( g_hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+			                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+			hmsh_agent_reply( s, true, "raised" );
+		} else if ( 0 == strcmp( szOp, "lower" ) ) {
+			// e2e epilogue: give the borrowed Z-order slot back ( sink below
+			// the windows that covered the demo before the test raised it )
+			::SetWindowPos( g_hWnd, HWND_BOTTOM, 0, 0, 0, 0,
+			                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+			hmsh_agent_reply( s, true, "lowered" );
 		} else if ( 0 == strcmp( szOp, "click" ) ) {
 			// szA1 = "x,y" in CLIENT coords; posted from our own thread the
 			// messages queue like real input
@@ -251,6 +274,50 @@ static DWORD WINAPI hmsh_agent_thread( LPVOID ) {
 			} else {
 				hmsh_agent_reply( s, false, "bad wheel args" );
 			}
+		} else if ( 0 == strcmp( szOp, "ncclick" ) ) {
+			// NC areas route through the real-input hook chain ( WH_MOUSE ),
+			// not the subclass path - posted NC messages never reach the
+			// rootmenu. so: real input. szA1 = "x,y" in CLIENT coords.
+			int x = 0, y = 0;
+			char szX[ 64 ] = { 0 };
+			if ( sscanf_s( szA1, "%63[^,],%d", szX, (unsigned)sizeof( szX ), &y ) == 2 ) {
+				x = atoi( szX );
+				POINT pt = { x, y };
+				::ClientToScreen( g_hWnd, &pt );
+				::SetCursorPos( pt.x, pt.y );
+				Sleep( 80 );
+				INPUT inp[ 2 ] = { 0 };
+				inp[ 0 ].type = INPUT_MOUSE;
+				inp[ 0 ].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+				inp[ 1 ].type = INPUT_MOUSE;
+				inp[ 1 ].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+				::SendInput( 2, inp, sizeof( INPUT ) );
+				hmsh_agent_reply( s, true, "ncclicked %d,%d", x, y );
+			} else {
+				hmsh_agent_reply( s, false, "bad ncclick args" );
+			}
+		} else if ( 0 == strcmp( szOp, "evtlog" ) ) {
+			// UI-thread snapshot of the EVT log text ( WM_APP+4 ), utf-8 wire.
+			// the protocol is ONE json line: raw newlines inside the text
+			// would break json parsing - emit backslash-n two-char escapes
+			::InterlockedExchange( &g_nAgentEvtReady, 0 );
+			g_szAgentEvtText[ 0 ] = _T('\0');
+			::PostMessage( g_hWnd, WM_APP + 4, 0, 0 );
+			for ( int nWait = 0; nWait < 50 && !g_nAgentEvtReady; ++nWait )
+				Sleep( 20 );
+			char szUtf8[ 3072 ] = { 0 };
+			WideCharToMultiByte( CP_UTF8, 0, g_szAgentEvtText, -1, szUtf8, sizeof( szUtf8 ), NULL, NULL );
+			char szEsc[ 6144 ] = { 0 };
+			size_t nOut = 0;
+			for ( size_t i = 0; szUtf8[ i ] && nOut < sizeof( szEsc ) - 2; ++i ) {
+				if ( szUtf8[ i ] == '\n' ) {
+					szEsc[ nOut++ ] = '\\';
+					szEsc[ nOut++ ] = 'n';
+				} else if ( szUtf8[ i ] != '\r' ) {
+					szEsc[ nOut++ ] = szUtf8[ i ];
+				}
+			}
+			hmsh_agent_reply( s, true, "%s", szEsc );
 		} else {
 			hmsh_agent_reply( s, false, "unknown op" );
 		}
@@ -759,6 +826,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if ( g_szAgentDumpPath[ 0 ] ) {
 			hmsh_dump_tree( g_pHMRoot, hWnd, g_szAgentDumpPath );
 			g_szAgentDumpPath[ 0 ] = _T('\0');
+		}
+		break;
+	}
+	case ( WM_APP + 4 ): {
+		// agent evtlog read: copy the EVT log text on the window thread
+		if ( g_pWMPEvtLog ) {
+			getWMPDisplayText( g_pWMPEvtLog, g_szAgentEvtText, 1024 );
+			::InterlockedExchange( &g_nAgentEvtReady, 1 );
+		}
+		break;
+	}
+	case ( WM_APP + 5 ): {
+		// agent desktop capture: BitBlt the window rect off the real screen
+		// into _mcp_shot2.png ( see the "shotscreen" op for the rationale )
+		RECT rcWnd;
+		if ( ::GetWindowRect( hWnd, &rcWnd ) ) {
+			int nW = rcWnd.right - rcWnd.left;
+			int nH = rcWnd.bottom - rcWnd.top;
+			HDC hScreen = ::GetDC( NULL );
+			HDC hDCMem = ::CreateCompatibleDC( hScreen );
+			HBITMAP hBmp = ::CreateCompatibleBitmap( hScreen, nW, nH );
+			HGDIOBJ hOld = ::SelectObject( hDCMem, hBmp );
+			::BitBlt( hDCMem, 0, 0, nW, nH, hScreen, rcWnd.left, rcWnd.top, SRCCOPY );
+			::SelectObject( hDCMem, hOld );
+			TCHAR szShot[ MAX_PATH + 48 ];
+			if ( ::GetModuleFileName( NULL, szShot, MAX_PATH ) ) {
+				TCHAR* posSlash = _tcsrchr( szShot, _T('\\') );
+				if ( posSlash ) {
+					*( posSlash + 1 ) = _T('\0');
+					_tcscat_s( szShot, MAX_PATH + 48, _T("_mcp_shot2.png") );
+					Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+					ULONG_PTR ulGdiplusToken = 0;
+					if ( Gdiplus::GdiplusStartup( &ulGdiplusToken, &gdiplusStartupInput, NULL ) == Gdiplus::Ok ) {
+						{
+							Gdiplus::Bitmap bmp( hBmp, NULL );
+							CLSID clsidPng = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
+							bmp.Save( szShot, &clsidPng, NULL );
+						}
+						Gdiplus::GdiplusShutdown( ulGdiplusToken );
+					}
+				}
+			}
+			::DeleteObject( hBmp );
+			::DeleteDC( hDCMem );
+			::ReleaseDC( NULL, hScreen );
 		}
 		break;
 	}
