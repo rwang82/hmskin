@@ -2,7 +2,7 @@
   "mcpServers": {
     "hmskin": {
       "type": "stdio",
-      "command": "python3",
+      "command": "/Users/rom/.venvs/hmskin-mcp/bin/python",
       "args": [
         "tools/hmskin_mcp.py",
         "--ssh",
