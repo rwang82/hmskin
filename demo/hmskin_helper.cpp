@@ -50,55 +50,8 @@ unsigned int getWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpszStringBuf, int 
 	return 0;
 }
 //
-bool setWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpString, int nDistrictId ) {
-	if ( !pWMPDisplayRaw || !lpString )
-		return false;
-	hm_wmp_display* pWMPDisplay = ( hm_wmp_display* )pWMPDisplayRaw;
-	hm_districtobj* pDistrictObj = NULL;
-	hm_showobj* pShowObj = NULL;
-	unsigned int uShowObjCount;
-	hm_rs_uires_text* pUIResText = NULL;
-	const hm_uires_text_data* pTextData = NULL;
-	hm_wmp_display::district_id_container_type containerDstIds;
-	hm_wmp_display::district_id_container_type::iterator itId, iendId;
-
-
-	if ( nDistrictId == DISTRICT_ID_ALL ) {
-		pWMPDisplay->getAllDistrictId( containerDstIds );
-		if ( containerDstIds.size() == 0 )
-			return true;
-		iendId = containerDstIds.end();
-		for ( itId = containerDstIds.begin(); itId != iendId; ++itId ) {
-			setWMPDisplayText( pWMPDisplayRaw, lpString, *itId );
-		}
-		pWMPDisplay->invalidateBuffer();   // text changed: pixel cache is stale
-		return true;
-	} else {
-		if ( pWMPDisplay->getDistrictObj( nDistrictId, &pDistrictObj ) ) {
-			uShowObjCount = pDistrictObj->getShowObjCount();
-			for ( unsigned int uShowObjIndex = 0; uShowObjIndex < uShowObjCount; ++uShowObjIndex ) {
-				pShowObj = pDistrictObj->getShowObj( uShowObjIndex );
-				if ( !pShowObj )
-					continue;
-				pUIResText = dynamic_cast< hm_rs_uires_text* >( pShowObj->m_pUIRes );
-				if ( !pUIResText )
-					continue;
-				pUIResText->setText( lpString );
-				pWMPDisplay->invalidateBuffer();   // text changed: pixel cache is stale
-				return true;
-			}
-			// can not find out hm_rs_uires_text.
-			hm_uires_text_data textData;
-			textData.m_tstrData = lpString;
-			pUIResText = new hm_rs_uires_text( textData );
-			pShowObj = new hm_showobj( pUIResText );
-			pDistrictObj->pushBackShowObj( pShowObj );
-			pWMPDisplay->invalidateBuffer();
-		}
-	}
-
-	return true;
-}
+// ( text SETTING moved to the public hm_wmp_set_text / _at in hmskin.h -
+// the engine's uires observer chain invalidates pixel caches itself )
 // ---- AI-agent / debugging aid: keelobj tree dump ( hand-rolled JSON: the
 // demo does not link jsoncpp, and the payload is numbers/bools only, so no
 // escaping is needed ). the factory enumObjs walk follows the --drawtool

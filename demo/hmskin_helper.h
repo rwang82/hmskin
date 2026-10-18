@@ -4,8 +4,9 @@
 //
 unsigned int getWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpszStringBuf, int nMaxTextCount, int nDistrictId = 0 );
 //
-#define DISTRICT_ID_ALL (0xFFFFFFFF)
-bool setWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpString, int nDistrictId = DISTRICT_ID_ALL );
+// text SETTING goes through the public hm_wmp_set_text / hm_wmp_set_text_at
+// ( hmskin.h ): the engine's observer chain invalidates pixel caches
+// automatically - no district/showobj walking on the host side
 
 // AI-agent / debugging aid: dump the live keelobj tree as JSON.
 // Every keelobj in the factory is emitted as { id, parentId, visible, rect }

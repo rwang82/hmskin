@@ -111,4 +111,7 @@ void hm_rs_uires_text::setColorId( unsigned int uColorId ) {
 
 void hm_rs_uires_text::setText( const tstring_type& tstrText ) {
 	m_data.m_tstrData = tstrText;
+	// observer broadcast: pixel caches ( and future consumers, e.g.
+	// re-layout on length change ) react without the caller knowing
+	Notify( HM_UIRES_EVENT_TEXTCHANGED );
 }

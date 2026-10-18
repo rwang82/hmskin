@@ -18,6 +18,7 @@
 #include "win\frame\hm_coordinate_system_hwnd.h"
 #include "win\frame\hm_layout_decoders.h"
 #include "win\frame\hm_uiroot.h"
+#include "win\wmp\hm_wmp_display.h"
 #include "win\frame\hm_perf_stats.h"
 #include "win\hm_layoutobj_defs.h"
 #include "win\paint_system\hm_ps_paint_layer_pic.h"
@@ -303,5 +304,66 @@ HMLIB_API bool hm_get_keelobj( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, hm
 
 	pKeelObj = pHMUIRoot->m_pKeelObjFactory->getObj( uKeelObjId );
 	*ppKeelObj = pKeelObj;
+	return true;
+}
+//////////////////////////////////////////////////////////////////////////
+// host text API ( see hmskin.h ): locate the WMP by manifest ids, then the
+// text uires - first-in-declaration-order, or exact ( district, index )
+static hm_rs_uires_text* _find_wmp_text_first( hm_wmp_display* pWMPDisplay ) {
+	hm_wmp_display::district_id_container_type containerIds;
+	hm_wmp_display::district_id_container_type::iterator itId, iendId;
+
+	pWMPDisplay->getAllDistrictId( containerIds );
+	iendId = containerIds.end();
+	for ( itId = containerIds.begin(); itId != iendId; ++itId ) {
+		hm_districtobj* pDistrict = NULL;
+		if ( !pWMPDisplay->getDistrictObj( *itId, &pDistrict ) || !pDistrict )
+			continue;
+		for ( unsigned int i = 0; i < pDistrict->getShowObjCount(); ++i ) {
+			hm_rs_uires_text* pText =
+			    dynamic_cast< hm_rs_uires_text* >( pDistrict->getShowObj( i )->m_pUIRes );
+			if ( pText )
+				return pText;
+		}
+	}
+	return NULL;
+}
+
+HMLIB_API bool hm_wmp_set_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, const TCHAR* szText ) {
+	if ( !pHMUIRoot || !szText )
+		return false;
+	hm_keel_obj* pKeelObj = NULL;
+	if ( !hm_get_keelobj( pHMUIRoot, uKeelObjId, &pKeelObj ) || !pKeelObj )
+		return false;
+	hm_wmp_display* pWMPDisplay = dynamic_cast< hm_wmp_display* >( pKeelObj->getWMP( uWMPId ) );
+	if ( !pWMPDisplay )
+		return false;
+	hm_rs_uires_text* pText = _find_wmp_text_first( pWMPDisplay );
+	if ( !pText )
+		return false;
+	pText->setText( szText );   // broadcast invalidates the pixel cache
+	return true;
+}
+
+HMLIB_API bool hm_wmp_set_text_at( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId,
+                                   int nDistrictId, unsigned int uShowObjIndex, const TCHAR* szText ) {
+	if ( !pHMUIRoot || !szText )
+		return false;
+	hm_keel_obj* pKeelObj = NULL;
+	if ( !hm_get_keelobj( pHMUIRoot, uKeelObjId, &pKeelObj ) || !pKeelObj )
+		return false;
+	hm_wmp_display* pWMPDisplay = dynamic_cast< hm_wmp_display* >( pKeelObj->getWMP( uWMPId ) );
+	if ( !pWMPDisplay )
+		return false;
+	hm_districtobj* pDistrict = NULL;
+	if ( !pWMPDisplay->getDistrictObj( nDistrictId, &pDistrict ) || !pDistrict )
+		return false;
+	if ( uShowObjIndex >= pDistrict->getShowObjCount() )
+		return false;
+	hm_rs_uires_text* pText =
+	    dynamic_cast< hm_rs_uires_text* >( pDistrict->getShowObj( uShowObjIndex )->m_pUIRes );
+	if ( !pText )
+		return false;
+	pText->setText( szText );
 	return true;
 }

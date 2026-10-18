@@ -130,7 +130,7 @@ void AppendEventLog( const TCHAR* szLine ) {
 	}
 	TCHAR szBuf[ 1024 ];
 	_tcsncpy_s( szBuf, 1024, strAll.c_str(), _TRUNCATE );
-	setWMPDisplayText( g_pWMPEvtLog, szBuf );
+	hm_wmp_set_text( g_pHMRoot, KEELOBJID_EVENTLOG, WMPID_EVENTLOG, szBuf );
 	// invalidate ONLY the event log panel: scrollbar dragging logs one event
 	// per mousemove, and a full-window invalidate here made every control
 	// repaint on each of those ( g_pWMPEvtLog already proves K18 exists ).
@@ -648,12 +648,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   }
 	   TCHAR szRail[ 128 ];
 	   _stprintf_s( szRail, 128, _T("● LIVE   9-PATCH · 3-SEG · ALPHA · D2D · DPI %u"), uRailDpi );
-	   hm_keel_obj* pKeelObjRail = NULL;
-	   if ( hm_get_keelobj( g_pHMRoot, 16, &pKeelObjRail ) && pKeelObjRail ) {
-		   void* pWMPRail = pKeelObjRail->getWMP( 37 );
-		   if ( pWMPRail )
-			   setWMPDisplayText( pWMPRail, szRail );
-	   }
+	   hm_wmp_set_text( g_pHMRoot, 16, 37, szRail );
    }
 
    ShowWindow( g_hWnd, nCmdShow );

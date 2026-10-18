@@ -52,6 +52,14 @@ HMLIB_API bool hm_wndpropid_disconnect( hm_uiroot* pHMUIRoot, HWND hWnd, unsigne
 class hm_keel_obj;
 HMLIB_API bool hm_get_keelobj( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, hm_keel_obj** ppKeelObj );
 //////////////////////////////////////////////////////////////////////////
+// host text API: change a WMP's text by the ids the host wrote into its
+// manifest - no engine internals. set_text targets the FIRST text uires in
+// declaration order ( single-text WMPs ); set_text_at targets the text
+// showobj at ( manifest district id, declaration index ) for multi-text
+// WMPs. both invalidate the WMP's pixel cache automatically.
+HMLIB_API bool hm_wmp_set_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, const TCHAR* szText );
+HMLIB_API bool hm_wmp_set_text_at( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int nDistrictId, unsigned int uShowObjIndex, const TCHAR* szText );
+//////////////////////////////////////////////////////////////////////////
 
 
 EXTERN_C_END

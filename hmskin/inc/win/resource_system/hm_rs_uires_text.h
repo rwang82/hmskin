@@ -2,9 +2,14 @@
 #define __HM_RS_UIRES_TEXT_H__
 #include "win\resource_system\hm_rs_uires_i.h"
 #include "win\resource_system\hm_rs_rawres_base.h"
+#include "common\hm_cmn_pattern_observer.h"
 #include "win\hm_export_defs.h"
 #include "tchar.h"
 #include <string>
+
+// broadcast when the text data changes ( e.g. via setText ): subscribers -
+// typically the owning WMP's pixel cache - react by invalidating
+#define HM_UIRES_EVENT_TEXTCHANGED ( (UINT)0x0000A101 )
 
 struct HMLIB_API hm_uires_text_data {
 public:
@@ -38,7 +43,7 @@ public:
 	int m_nAlignment;
 };
 
-class HMLIB_API hm_rs_uires_text: public hm_rs_uires_i{
+class HMLIB_API hm_rs_uires_text: public hm_rs_uires_i, public cmn::hm_cmn_subject{
 public:
 	typedef std::basic_string< TCHAR > tstring_type;
 public:

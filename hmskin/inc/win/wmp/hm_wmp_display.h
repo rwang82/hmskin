@@ -2,11 +2,14 @@
 #define __hm_wmp_display_H__
 #include "win\paint_system\hm_ps_drawtool_i.h"
 #include "win\resource_system\hm_rs_uires_i.h"
+#include "win\resource_system\hm_rs_uires_text.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\frame\hm_pos_decoders.h"
 #include "win\hm_export_defs.h"
 #include <map>
 #include <stdexcept>
+
+class hm_wmp_display;
 
 ///////////////////////////////////////////////////////////////
 struct HMLIB_API hm_showobj {
@@ -30,7 +33,7 @@ public:
 public:
 	hm_districtobj( hm_pos_decoder_i* pPosDecoder = NULL );
 	~hm_districtobj();
-	
+
 public:
 	//
 	bool pushBackShowObj( hm_showobj* pShowObj );
@@ -52,10 +55,13 @@ public:
 	hm_pos_decoder_i* getPosDecoder() { return m_pPosDecoder; }
 	//
 	void setPosDecoder( hm_pos_decoder_i* pPosDecoder ) { m_pPosDecoder = pPosDecoder; }
+	// owning WMP ( set at install time ): lets late-pushed showobjs join
+	// the owner's uires-event subscriptions
+	hm_wmp_display* m_pOwnerWMP;
 
 private:
 	void _clearAllShowObj();
-	
+
 private:
 #pragma warning(push)
 #pragma warning(disable:4251)
@@ -70,6 +76,19 @@ public:
 	typedef int district_id_type;
 	typedef std::map< district_id_type, hm_districtobj* > map_id2district_type;
 	typedef std::deque< district_id_type > district_id_container_type;
+
+	// uires-event adapter: text changes broadcast by the showobj's uires
+	// land here, so the pixel cache invalidates without any derived class
+	// having to touch its update() override
+	class _uires_observer : public cmn::hm_cmn_observer_i {
+	public:
+		hm_wmp_display* m_pOwner;
+		_uires_observer() : m_pOwner( NULL ) {}
+		virtual void update( void* /*pSubject*/, UINT idEvent, LPARAM, LPARAM, BOOL* ) {
+			if ( idEvent == HM_UIRES_EVENT_TEXTCHANGED && m_pOwner )
+				m_pOwner->invalidateBuffer();
+		}
+	};
 
 	// buffering policy: the framework applies it, controls only declare it
 	// ( code sets the enum, or the loader reads the manifest's "BufStrategy" ).
@@ -138,9 +157,13 @@ public:
 	void setDrawTool( hm_ps_drawtool_i* pDrawTool );
 	void setBufStrategy( ENUMBUFSTRATEGY eStrategy ) { m_eBufStrategy = eStrategy; }
 	// mark the BUF_CACHE_SIZE bitmap stale: the next draw re-renders.
-	// call from every content-mutating path ( text change, state change,
-	// host-driven refresh ) - a stale-but-clean cache is a wrong-pixels bug.
+	// content mutations inside the engine ( uires setText ) do this
+	// automatically via the observer chain; stateful controls mark their
+	// own state switches
 	void invalidateBuffer() { m_bBufDirty = TRUE; }
+	// engine-internal: subscribe the adapter to a showobj's text uires
+	// ( called at district install and showobj push time )
+	void registerShowObjEvents( hm_showobj* pShowObj );
 	bool hasDrawTool() const { return m_pDrawTool!=NULL; }
 	bool getDistrictObj( district_id_type idDistrict, hm_districtobj** ppDistrictObj );
 
@@ -157,6 +180,7 @@ protected:
 	HBITMAP m_hBufBmp;    // BUF_CACHE_SIZE backing bitmap
 	RECT m_rcBufCanvas;   // BUF_CACHE_SIZE size key
 	BOOL m_bBufDirty;     // BUF_CACHE_SIZE: TRUE = bitmap stale, re-render on next draw
+	_uires_observer m_uiresObserver;   // text-change subscriptions target
 #pragma warning(push)
 #pragma warning(disable:4251)
 	map_id2district_type m_mapId2District;
