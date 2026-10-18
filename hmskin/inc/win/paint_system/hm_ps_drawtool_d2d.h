@@ -15,6 +15,11 @@
 //
 // D2D/DWrite state lives behind m_pImpl ( defined in the .cpp ) so this
 // header carries no COM names at all - include order stays a non-topic.
+//
+// perf note: text layouts and solid brushes are cached per key - the
+// DrawTextW convenience call rebuilt + reshaped an IDWriteTextLayout on
+// every draw. the cache isolates the remaining per-draw cost ( the DCRT
+// BindDC/EndDraw round trip ) for the M2 batch design decision.
 class HMLIB_API hm_ps_drawtool_d2d : public hm_ps_drawtool_i {
 public:
 	virtual ~hm_ps_drawtool_d2d();

@@ -19,12 +19,11 @@ struct hm_perf_textstats {
 	}
 };
 static hm_perf_textstats s_stats[ HM_PERF_TOOL_COUNT ];
+// D2D sub-populations: cache hit ( pure DCRT round trip ) vs miss
+// ( layout construction + round trip ) - the A/B discriminator
+static hm_perf_textstats s_d2dHit, s_d2dMiss;
 
-void hm_perf_text_draw( int nTool, double dbMicros, unsigned int uChars ) {
-	if ( nTool < 0 || nTool >= HM_PERF_TOOL_COUNT )
-		return;
-	hm_perf_textstats& s = s_stats[ nTool ];
-	long long us = (long long)( dbMicros + 0.5 );
+static void _accum_one( hm_perf_textstats& s, long long us, unsigned int uChars ) {
 	s.nCount++;
 	s.nSumUs += us;
 	s.nSumChars += uChars;
@@ -34,6 +33,15 @@ void hm_perf_text_draw( int nTool, double dbMicros, unsigned int uChars ) {
 	while ( b < 7 && us >= s_bucketEdge[ b ] )
 		b++;
 	s.nBucket[ b ]++;
+}
+
+void hm_perf_text_draw_ex( int nTool, double dbMicros, unsigned int uChars, int nCacheHit ) {
+	if ( nTool < 0 || nTool >= HM_PERF_TOOL_COUNT )
+		return;
+	long long us = (long long)( dbMicros + 0.5 );
+	_accum_one( s_stats[ nTool ], us, uChars );
+	if ( nTool == HM_PERF_TOOL_D2D && nCacheHit >= 0 )
+		_accum_one( nCacheHit ? s_d2dHit : s_d2dMiss, us, uChars );
 }
 
 static long long _bucketPercentile( const hm_perf_textstats& s, int nPct ) {
@@ -47,6 +55,17 @@ static long long _bucketPercentile( const hm_perf_textstats& s, int nPct ) {
 			return ( b < 7 ) ? s_bucketEdge[ b ] : s_bucketEdge[ 6 ];
 	}
 	return s.nMaxUs;
+}
+
+static void _print_stats( FILE* fp, const TCHAR* szName, const hm_perf_textstats& s ) {
+	double avg = (double)s.nSumUs / (double)s.nCount;
+	_ftprintf( fp, _T("[%s] count=%I64d avg=%.1fus p50<=%I64dus p95<=%I64dus max=%I64dus avg_len=%.0f\n"),
+	           szName, s.nCount, avg,
+	           _bucketPercentile( s, 50 ), _bucketPercentile( s, 95 ),
+	           s.nMaxUs, (double)s.nSumChars / (double)s.nCount );
+	_ftprintf( fp, _T("       buckets us <50/<100/<200/<500/<1000/<2000/<5000/rest: ") );
+	for ( int b = 0; b < 8; b++ )
+		_ftprintf( fp, _T("%I64d%s"), s.nBucket[ b ], ( b < 7 ) ? _T("/") : _T("\n") );
 }
 
 BOOL hm_perf_dump() {
@@ -72,17 +91,18 @@ BOOL hm_perf_dump() {
 		return FALSE;
 	_ftprintf( fp, _T("---- hmskin text-draw perf ----\n") );
 	for ( int t = 0; t < HM_PERF_TOOL_COUNT; t++ ) {
-		const hm_perf_textstats& s = s_stats[ t ];
-		if ( s.nCount == 0 )
-			continue;
-		double avg = (double)s.nSumUs / (double)s.nCount;
-		_ftprintf( fp, _T("[%s] count=%I64d avg=%.1fus p50<=%I64dus p95<=%I64dus max=%I64dus avg_len=%.0f\n"),
-		           s_toolName[ t ], s.nCount, avg,
-		           _bucketPercentile( s, 50 ), _bucketPercentile( s, 95 ),
-		           s.nMaxUs, (double)s.nSumChars / (double)s.nCount );
-		_ftprintf( fp, _T("       buckets us <50/<100/<200/<500/<1000/<2000/<5000/rest: ") );
-		for ( int b = 0; b < 8; b++ )
-			_ftprintf( fp, _T("%I64d%s"), s.nBucket[ b ], ( b < 7 ) ? _T("/") : _T("\n") );
+		if ( s_stats[ t ].nCount > 0 )
+			_print_stats( fp, s_toolName[ t ], s_stats[ t ] );
+	}
+	if ( s_d2dHit.nCount > 0 )
+		_print_stats( fp, _T("D2D hit"), s_d2dHit );     // round trip only
+	if ( s_d2dMiss.nCount > 0 )
+		_print_stats( fp, _T("D2D miss"), s_d2dMiss );   // + layout construction
+	if ( s_d2dHit.nCount + s_d2dMiss.nCount > 0 ) {
+		_ftprintf( fp, _T("[D2D layout cache] hits=%I64d misses=%I64d (%.0f%% hit)\n"),
+		           s_d2dHit.nCount, s_d2dMiss.nCount,
+		           100.0 * (double)s_d2dHit.nCount
+		               / (double)( s_d2dHit.nCount + s_d2dMiss.nCount ) );
 	}
 	fclose( fp );
 	return TRUE;

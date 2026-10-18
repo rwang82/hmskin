@@ -22,6 +22,31 @@ struct D2DImpl {
 	// are set per-draw so LEFT and VCENTER consumers can't pollute each other
 	std::map< hm_rs_rawres_font*, IDWriteTextFormat* > m_mapFont2TextFormat;
 
+	// shaped layouts, keyed by the full draw request ( font, rect, style,
+	// text ): DrawTextW rebuilt + reshaped one of these on EVERY call -
+	// caching them takes layout/shaping off the hot path so what remains
+	// per draw isolates the DCRT BindDC/EndDraw round trip ( the number
+	// the M2 batch design needs ). alignment/wrapping are snapshotted into
+	// the layout at CreateTextLayout time, so per-key state can't leak.
+	struct LayoutKey {
+		hm_rs_rawres_font* pFont;
+		float w, h;
+		int nAlign;          // hm_uires_text_data::EALGINMENT_*
+		BOOL bWrap;
+		std::wstring strText;
+		bool operator<( const LayoutKey& r ) const {
+			if ( pFont != r.pFont ) return pFont < r.pFont;
+			if ( w != r.w ) return w < r.w;
+			if ( h != r.h ) return h < r.h;
+			if ( nAlign != r.nAlign ) return nAlign < r.nAlign;
+			if ( bWrap != r.bWrap ) return bWrap < r.bWrap;
+			return strText < r.strText;
+		}
+	};
+	std::map< LayoutKey, IDWriteTextLayout* > m_mapTextLayout;
+	// solid brushes keyed by color, owned by the DCRT ( dropped with it )
+	std::map< COLORREF, ID2D1SolidColorBrush* > m_mapBrush;
+
 	D2DImpl() : m_pD2DFactory( NULL ), m_pDWriteFactory( NULL ), m_pDCRT( NULL ) {}
 	// INTENTIONALLY no Release() here: this struct lives in a process-wide
 	// singleton whose destructor runs during static destruction / DLL unload
@@ -101,6 +126,79 @@ struct D2DImpl {
 		m_mapFont2TextFormat[ pRawResFont ] = pFormat;
 		return pFormat;
 	}
+
+	// find-or-create the shaped layout for one exact draw request.
+	// *pnCacheHit reports the outcome for perf tagging ( 1 hit / 0 miss )
+	IDWriteTextLayout* getTextLayout( HDC hDC, hm_uires_text_data* pText,
+	                                  hm_rs_rawres_font* pRawResFont,
+	                                  const D2D1_RECT_F& rcLayout, bool bMultiLine,
+	                                  DWRITE_TEXT_ALIGNMENT eTextAlign,
+	                                  DWRITE_PARAGRAPH_ALIGNMENT eParaAlign,
+	                                  int* pnCacheHit ) {
+		LayoutKey key;
+		key.pFont = pRawResFont;
+		key.w = rcLayout.right;
+		key.h = rcLayout.bottom;
+		key.nAlign = (int)pText->m_eAlginment;
+		key.bWrap = bMultiLine ? TRUE : FALSE;
+		key.strText = pText->m_tstrData;
+		std::map< LayoutKey, IDWriteTextLayout* >::iterator it = m_mapTextLayout.find( key );
+		if ( it != m_mapTextLayout.end() ) {
+			*pnCacheHit = 1;
+			return it->second;
+		}
+		*pnCacheHit = 0;   // served by on-the-fly construction below
+		// crude cap: beyond 256 live keys the working set has clearly moved
+		// ( scrolling text, event log ) - drop everything, they rebuild cheap
+		if ( m_mapTextLayout.size() >= 256 ) {
+			for ( std::map< LayoutKey, IDWriteTextLayout* >::iterator i = m_mapTextLayout.begin();
+			      i != m_mapTextLayout.end(); ++i ) {
+				if ( i->second ) i->second->Release();
+			}
+			m_mapTextLayout.clear();
+		}
+		IDWriteTextFormat* pFormat = getTextFormat( hDC, pRawResFont );
+		if ( !pFormat )
+			return NULL;
+		pFormat->SetTextAlignment( eTextAlign );
+		pFormat->SetParagraphAlignment( eParaAlign );
+		pFormat->SetWordWrapping( bMultiLine ? DWRITE_WORD_WRAPPING_WRAP
+		                                     : DWRITE_WORD_WRAPPING_NO_WRAP );
+		IDWriteTextLayout* pLayout = NULL;
+		HRESULT hr = m_pDWriteFactory->CreateTextLayout(
+		    key.strText.c_str(), (UINT32)key.strText.size(), pFormat,
+		    key.w, key.h, &pLayout );
+		if ( FAILED( hr ) || !pLayout )
+			return NULL;
+		m_mapTextLayout[ key ] = pLayout;
+		return pLayout;
+	}
+
+	// find-or-create a solid brush ( usable while the creating DCRT lives )
+	ID2D1SolidColorBrush* getBrush( COLORREF clr ) {
+		std::map< COLORREF, ID2D1SolidColorBrush* >::iterator it = m_mapBrush.find( clr );
+		if ( it != m_mapBrush.end() )
+			return it->second;
+		if ( !m_pDCRT )
+			return NULL;
+		D2D1_COLOR_F clrF = D2D1::ColorF( GetRValue( clr ) / 255.0f,
+		                                  GetGValue( clr ) / 255.0f,
+		                                  GetBValue( clr ) / 255.0f );
+		ID2D1SolidColorBrush* pBrush = NULL;
+		if ( FAILED( m_pDCRT->CreateSolidColorBrush( clrF, &pBrush ) ) )
+			return NULL;
+		m_mapBrush[ clr ] = pBrush;
+		return pBrush;
+	}
+
+	// brushes belong to the DCRT: when the target dies, so do they
+	void dropBrushCache() {
+		for ( std::map< COLORREF, ID2D1SolidColorBrush* >::iterator i = m_mapBrush.begin();
+		      i != m_mapBrush.end(); ++i ) {
+			if ( i->second ) i->second->Release();
+		}
+		m_mapBrush.clear();
+	}
 };
 
 hm_ps_drawtool_d2d::hm_ps_drawtool_d2d()
@@ -160,6 +258,14 @@ bool hm_ps_drawtool_d2d::unloadRes( hm_rs_rawres_font* pRawResFont ) {
 			itFormat->second->Release();
 		pImpl->m_mapFont2TextFormat.erase( itFormat );
 	}
+	// layouts keyed on this font pointer: drop them all so a reused address
+	// can never serve a stale typeface ( unload is rare, rebuild is cheap )
+	for ( std::map< D2DImpl::LayoutKey, IDWriteTextLayout* >::iterator i =
+	          pImpl->m_mapTextLayout.begin(); i != pImpl->m_mapTextLayout.end(); ++i ) {
+		if ( i->second )
+			i->second->Release();
+	}
+	pImpl->m_mapTextLayout.clear();
 	return _gdiplus()->unloadRes( pRawResFont );
 }
 
@@ -171,16 +277,16 @@ bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
 		return false;
 	hm_perf_text_guard perf( HM_PERF_TOOL_D2D, (unsigned int)pText->m_tstrData.size() );
 	D2DImpl* pImpl = ( D2DImpl* )m_pImpl;
-	IDWriteTextFormat* pFormat = pImpl->getTextFormat( hDC, pRawResFont );
-	if ( !pFormat )
-		return false;
 	if ( !pImpl->ensureDCRT( hDC, rcCanvas ) )
 		return false;
 
 	// alignment mapping mirrors hm_ps_drawtool_gdiplus::draw exactly,
 	// including its default: vertical TOP unless VCENTER asks for center
 	// ( GDI+ LineAlignment defaults to Near - centering every single-line
-	// label here would shift the whole skin's text baseline )
+	// label here would shift the whole skin's text baseline ).
+	// single line: NO_WRAP, never a line-limit flag ( the LineLimit lesson:
+	// fractional-DPI lines must render bottom-clipped, not vanish ).
+	// ELLIPSIS is ignored, mirroring the GDI+ backend ( never consumed ).
 	DWRITE_TEXT_ALIGNMENT eTextAlign = DWRITE_TEXT_ALIGNMENT_LEADING;
 	DWRITE_PARAGRAPH_ALIGNMENT eParaAlign = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
 	if ( pText->m_eAlginment == hm_uires_text_data::EALGINMENT_RIGHT ) {
@@ -189,45 +295,40 @@ bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
 		eTextAlign = DWRITE_TEXT_ALIGNMENT_CENTER;
 		eParaAlign = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 	}
-	pFormat->SetTextAlignment( eTextAlign );
-	pFormat->SetParagraphAlignment( eParaAlign );
-	// single line: NO_WRAP, never a line-limit flag ( the LineLimit lesson:
-	// fractional-DPI lines must render bottom-clipped, not vanish ).
-	// ELLIPSIS is ignored, mirroring the GDI+ backend ( never consumed ).
-	pFormat->SetWordWrapping( bMultiLine ? DWRITE_WORD_WRAPPING_WRAP : DWRITE_WORD_WRAPPING_NO_WRAP );
 
-	const COLORREF& clr = pRawResColor->getCOLORREF();
-	D2D1_COLOR_F clrF = D2D1::ColorF( GetRValue( clr ) / 255.0f,
-	                                  GetGValue( clr ) / 255.0f,
-	                                  GetBValue( clr ) / 255.0f );
-
-	// layout rect is relative to the BindDC rect origin
+	// layout rect is relative to the BindDC rect origin; the layout itself
+	// comes from the cache ( key includes rect/style/text, state snapshotted )
 	D2D1_RECT_F rcLayout = D2D1::RectF( 0.0f, 0.0f,
 	    (float)( rcCanvas.right - rcCanvas.left ),
 	    (float)( rcCanvas.bottom - rcCanvas.top ) );
-	const TCHAR* szText = pText->m_tstrData.c_str();
-	UINT32 uTextLen = (UINT32)_tcslen( szText );
-
-	HRESULT hr = S_OK;
-	ID2D1SolidColorBrush* pBrush = NULL;
-	if ( FAILED( pImpl->m_pDCRT->CreateSolidColorBrush( clrF, &pBrush ) ) )
+	int nCacheHit = -1;
+	IDWriteTextLayout* pLayout = pImpl->getTextLayout( hDC, pText, pRawResFont,
+	                                                   rcLayout, bMultiLine,
+	                                                   eTextAlign, eParaAlign,
+	                                                   &nCacheHit );
+	perf.setCacheHit( nCacheHit );   // tag the sample: hit vs miss population
+	if ( !pLayout )
 		return false;
+	ID2D1SolidColorBrush* pBrush = pImpl->getBrush( pRawResColor->getCOLORREF() );
+	if ( !pBrush )
+		return false;
+
 	pImpl->m_pDCRT->BeginDraw();
-	pImpl->m_pDCRT->DrawTextW( szText, uTextLen, pFormat, rcLayout, pBrush );
-	hr = pImpl->m_pDCRT->EndDraw();
-	pBrush->Release();
+	pImpl->m_pDCRT->DrawTextLayout( D2D1::Point2F( 0.0f, 0.0f ), pLayout, pBrush );
+	HRESULT hr = pImpl->m_pDCRT->EndDraw();
 	if ( hr == D2DERR_RECREATE_TARGET ) {
-		// fresh target, mandatory rebind; text formats survive ( they belong
-		// to the DWrite factory, not the render target ). one retry.
+		// fresh target, mandatory rebind; layouts/formats survive ( they
+		// belong to the DWrite factory, not the render target ), brushes
+		// do not - drop the cache and rebuild on demand. one retry.
 		pImpl->m_pDCRT->Release();
 		pImpl->m_pDCRT = NULL;
+		pImpl->dropBrushCache();
 		if ( pImpl->ensureDCRT( hDC, rcCanvas ) ) {
-			ID2D1SolidColorBrush* pBrush2 = NULL;
-			if ( SUCCEEDED( pImpl->m_pDCRT->CreateSolidColorBrush( clrF, &pBrush2 ) ) ) {
+			ID2D1SolidColorBrush* pBrush2 = pImpl->getBrush( pRawResColor->getCOLORREF() );
+			if ( pBrush2 ) {
 				pImpl->m_pDCRT->BeginDraw();
-				pImpl->m_pDCRT->DrawTextW( szText, uTextLen, pFormat, rcLayout, pBrush2 );
+				pImpl->m_pDCRT->DrawTextLayout( D2D1::Point2F( 0.0f, 0.0f ), pLayout, pBrush2 );
 				hr = pImpl->m_pDCRT->EndDraw();
-				pBrush2->Release();
 			} else {
 				hr = E_FAIL;
 			}
