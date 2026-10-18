@@ -135,6 +135,12 @@ def grab_screenshot():
     # clean old trace so the run is fresh
     if os.path.exists(TRACE):
         os.remove(TRACE)
+    # the engine gates the message trace on a marker file next to the exe
+    # ( '1' = level 1: everything but the mousemove flood ). smoke owns
+    # this precondition itself - depending on a marker left behind by some
+    # earlier debug session made the phase pass or fail on leftover state.
+    marker = os.path.join(OUTDIR, "hmskin.trace")
+    open(marker, "w").write("1")
     # launch
     proc = subprocess.Popen([exe], cwd=OUTDIR)
     time.sleep(4)  # paint + settle
@@ -171,6 +177,7 @@ exit 0
                        capture_output=True, text=True, timeout=30)
     if r.returncode != 0 or not os.path.exists(shot):
         proc.terminate()
+        os.remove(marker)
         return None, f"screenshot failed ( ps rc={r.returncode}: {r.stderr[:200] if r.stderr else 'unknown'} )"
     shot_png = shot
     # run trace check while demo was up
@@ -178,6 +185,7 @@ exit 0
     proc.terminate()
     try: proc.wait(timeout=5)
     except: proc.kill()
+    os.remove(marker)   # leave the output dir as we found it
     return (shot_png, trace_msg) if trace_ok else (None, trace_msg)
 
 def compare_golden(shot_path, tolerance=0.03):
