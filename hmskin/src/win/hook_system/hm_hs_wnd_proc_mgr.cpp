@@ -43,6 +43,7 @@ BOOL WndProcMgr::Detach( HWND hWndDest )
 	
 	pfnWndProcOld = m_mapHwnd2WndProc[ hWndDest ];
 	::SetWindowLongPtr( hWndDest, GWLP_WNDPROC, (LONG_PTR)pfnWndProcOld );
+	m_mapHwnd2WndProc.erase( hWndDest );   // allow re-attach after HWND reuse
 
 	return TRUE;
 }
