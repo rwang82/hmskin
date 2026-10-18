@@ -32,6 +32,10 @@ private:
 	// interface of hm_wmp_display
 protected:
 	virtual void _createDistrictObjs();
+	// draws the state district selected by m_nBufDrawState; _drawWithStrategy
+	// wraps this, so a buffering strategy ( manifest "BufStrategy" ) caches
+	// the composed state frame like any display WMP
+	virtual void _render( HDC hDC, const RECT& rcCanvas );
 
 	// interface of hm_cmn_observer_i
 public:
@@ -54,6 +58,9 @@ private:
 
 private:
 	unsigned int m_uBtnStateFlags;
+	// state the pixel cache was rendered for ( -1 = none ): a state switch
+	// invalidates the BUF_CACHE_SIZE bitmap - one cache slot, four states
+	int m_nBufDrawState;
 };
 
 

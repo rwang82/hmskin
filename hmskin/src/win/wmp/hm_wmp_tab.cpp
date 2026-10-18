@@ -15,6 +15,9 @@ hm_wmp_tabheader::hm_wmp_tabheader( hmskin_event_listener_base* pEventListener )
 , m_uIndexSel( 0 )
 , m_uIndexHov( INDEX_NONE )
 , m_uIndexPre( INDEX_NONE )
+, m_uBufIndexSel( INDEX_NONE )
+, m_uBufIndexHov( INDEX_NONE )
+, m_uBufIndexPre( INDEX_NONE )
 , m_hMemDC( NULL )
 , m_hMemBitmap( NULL )
 , m_hMemBitmapOld( NULL ) {
@@ -63,7 +66,7 @@ void hm_wmp_tabheader::_createDistrictObjs() {
 void hm_wmp_tabheader::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
 	case HMKEELOBJEVENT_DRAWSELF:
-		{		
+		{
 			HEDSPARAM* pHEDSParam = NULL;
 			RECT rcCanvas;
 
@@ -71,12 +74,27 @@ void hm_wmp_tabheader::update( void* pSubject, UINT idEvent, LPARAM pEventParam,
 			if ( !pHEDSParam->m_pLayoutObjCanvas->mapPosition( pHEDSParam->m_hWndCanvas, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcCanvas ) )
 				return;
 
-			_doDrawSkinRaw( pHEDSParam->m_hDCCanvas, rcCanvas, m_uIndexSel, m_uIndexPre, m_uIndexHov );
+			// state switch = cache miss by definition ( safety net: the
+			// interaction handlers invalidate too, this catches programmatic
+			// changes ). with BUF_NONE it is pure bookkeeping.
+			if ( ( m_uIndexSel != m_uBufIndexSel ) || ( m_uIndexHov != m_uBufIndexHov )
+			     || ( m_uIndexPre != m_uBufIndexPre ) ) {
+				invalidateBuffer();
+				m_uBufIndexSel = m_uIndexSel;
+				m_uBufIndexHov = m_uIndexHov;
+				m_uBufIndexPre = m_uIndexPre;
+			}
+			_drawWithStrategy( pHEDSParam->m_hDCCanvas, rcCanvas );
 		}
 		break;
 	default:
 		break;
 	}
+}
+
+void hm_wmp_tabheader::_render( HDC hDC, const RECT& rcCanvas ) {
+	// the composed strip for the snapshotted state
+	_doDrawSkinRaw( hDC, rcCanvas, m_uBufIndexSel, m_uBufIndexPre, m_uBufIndexHov );
 }
 //
 void hm_wmp_tabheader::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
@@ -117,6 +135,7 @@ void hm_wmp_tabheader::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 			_doDrawBtnRaw( hDC, rcKeelObj, m_uIndexSel, hm_wmp_tabheader::EDISTRICTID_TABBTN_SEL );
 		}
 		::ReleaseDC( pWP->hwnd, hDC );
+		invalidateBuffer();   // partial draw changed the visible state
 		//
 		//Notify( HMWMPTABEVENT_SELECTCHANGED, m_uIndexSel, uIndexSelOld );
 		HKEREPARAM hkereParam;
@@ -199,10 +218,12 @@ void hm_wmp_tabheader::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	}
 	if ( uIndexPreOld != m_uIndexPre ) {
 		if ( ( m_uIndexPre != INDEX_NONE ) && ( m_uIndexPre != m_uIndexSel ) )
-			_doDrawBtnRaw( hDC, rcKeelObj, m_uIndexPre, hm_wmp_tabheader::EDISTRICTID_TABBTN_PRE );	
+			_doDrawBtnRaw( hDC, rcKeelObj, m_uIndexPre, hm_wmp_tabheader::EDISTRICTID_TABBTN_PRE );
 		if ( ( uIndexPreOld != INDEX_NONE ) && ( uIndexPreOld != m_uIndexSel ) )
 			_doDrawBtnRaw( hDC, rcKeelObj, uIndexPreOld, hm_wmp_tabheader::EDISTRICTID_TABBTN_NOR );
 	}
+	if ( ( uIndexHovOld != m_uIndexHov ) || ( uIndexPreOld != m_uIndexPre ) )
+		invalidateBuffer();   // partial draw changed the visible state
 	::ReleaseDC( pWP->hwnd, hDC );
 
 
@@ -258,6 +279,7 @@ void hm_wmp_tabheader::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 	if ( ( uIndexPreOld != INDEX_NONE ) && ( uIndexPreOld != m_uIndexSel ) )
 		_doDrawBtnRaw( hDC, rcKeelObj, uIndexPreOld, hm_wmp_tabheader::EDISTRICTID_TABBTN_NOR );
 	::ReleaseDC( pWP->hwnd, hDC );
+	invalidateBuffer();   // partial draw changed the visible state
 }
 //
 void hm_wmp_tabheader::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
@@ -291,6 +313,7 @@ void hm_wmp_tabheader::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	_doDrawBtnRaw( hDC, rcKeelObj, uIndexSelOld, hm_wmp_tabheader::EDISTRICTID_TABBTN_NOR );
 	_doDrawBtnRaw( hDC, rcKeelObj, m_uIndexSel, hm_wmp_tabheader::EDISTRICTID_TABBTN_SEL );
 	::ReleaseDC( pWP->hwnd, hDC );
+	invalidateBuffer();   // partial draw changed the visible state
 	//
 	HKEREPARAM hkereParam;
 	hkereParam.m_pEventSender = this;

@@ -45,6 +45,10 @@ private:
 	// interface of hm_wmp_display
 protected:
 	virtual void _createDistrictObjs();
+	// draws the strip for the snapshot state; _drawWithStrategy wraps this,
+	// so a buffering strategy ( manifest "BufStrategy" ) caches the composed
+	// frame like any display WMP ( state switches invalidate, see update() )
+	virtual void _render( HDC hDC, const RECT& rcCanvas );
 
 	// interface of hm_cmn_observer_i
 public:
@@ -91,6 +95,12 @@ protected:
 	unsigned int m_uIndexSel;
 	unsigned int m_uIndexHov;
 	unsigned int m_uIndexPre;
+	// state the pixel cache was rendered for: a sel/hov/pre switch
+	// invalidates the BUF_CACHE_SIZE bitmap ( interaction handlers mark
+	// it too - they paint partial states straight to the screen )
+	unsigned int m_uBufIndexSel;
+	unsigned int m_uBufIndexHov;
+	unsigned int m_uBufIndexPre;
 	//RECT m_rcCanvasMemCache;
 	HDC m_hMemDC;
 	HBITMAP m_hMemBitmap;

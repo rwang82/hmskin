@@ -8,9 +8,10 @@
 #include "hmskin_event_defs.h"
 #include <assert.h>
 //
-hm_wmp_button::hm_wmp_button( hmskin_event_listener_base* pEventListener ) 
+hm_wmp_button::hm_wmp_button( hmskin_event_listener_base* pEventListener )
 : hm_wmp_display( pEventListener )
-, m_uBtnStateFlags( 0 ){
+, m_uBtnStateFlags( 0 )
+, m_nBufDrawState( -1 ){
 	_createDistrictObjs();
 }
 //
@@ -275,7 +276,21 @@ void hm_wmp_button::_OnGetText( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_
 #include "win\paint_system\hm_ps_drawtool_gdi.h"
 void hm_wmp_button::_doDrawSkin( HDC hDC, const RECT& rcCanvas, ENUMBTNSTATE eBtnState )
 {
-	switch ( eBtnState ) {
+	// state switch = cache miss by definition: the pixel cache holds ONE
+	// composed state frame, so rearm it and remember which state it will
+	// hold. with BUF_NONE ( default ) this is just bookkeeping - the
+	// render below draws direct as before.
+	if ( (int)eBtnState != m_nBufDrawState ) {
+		invalidateBuffer();
+		m_nBufDrawState = (int)eBtnState;
+	}
+	_drawWithStrategy( hDC, rcCanvas );
+}
+
+void hm_wmp_button::_render( HDC hDC, const RECT& rcCanvas )
+{
+	// draws the state district chosen by the last _doDrawSkin call
+	switch ( (ENUMBTNSTATE)m_nBufDrawState ) {
 	case BTN_STATE_NORMAL:
 		{
 			hm_districtobj* pDistrictObj = NULL;
@@ -283,7 +298,7 @@ void hm_wmp_button::_doDrawSkin( HDC hDC, const RECT& rcCanvas, ENUMBTNSTATE eBt
 			if ( !_getDistrictObj( EDISTRICTID_BK_NOR, &pDistrictObj ) )
 				return;
 			pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
-		} 
+		}
 		break;
 	case BTN_STATE_HOVER:
 		{
@@ -315,14 +330,6 @@ void hm_wmp_button::_doDrawSkin( HDC hDC, const RECT& rcCanvas, ENUMBTNSTATE eBt
 	default:
 		break;
 	}
-	
-	//static TCHAR s_aryState[][20] ={ _T("Normal"), _T("Hover"), _T("Press"), _T("Disable") };
-	//std::basic_string< TCHAR > strText;
-
-	//hm_util_draw_rect( hDC, rcCanvas );
-
-	//strText = s_aryState[ eBtnState ];
-	//::DrawText( hDC, strText.c_str(), strText.length(), (RECT*)&rcCanvas, DT_CENTER );
 }
 //
 hm_wmp_button::ENUMBTNSTATE hm_wmp_button::_getCurState() {
