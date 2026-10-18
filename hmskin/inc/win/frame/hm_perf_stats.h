@@ -16,8 +16,11 @@
 // hot path. dbMicros = elapsed microseconds of one text draw.
 // nCacheHit tags the D2D layout-cache outcome ( -1 = n/a, 0 = miss,
 // 1 = hit ) so the report can split the D2D histogram into "round trip
-// only" vs "construction + round trip" populations.
-HMLIB_API void hm_perf_text_draw_ex( int nTool, double dbMicros, unsigned int uChars, int nCacheHit );
+// only" vs "construction + round trip" populations. szText ( optional )
+// feeds a small first-samples ring printed with the report - the "which
+// string drew 70 times" question histograms cannot answer.
+HMLIB_API void hm_perf_text_draw_ex( int nTool, double dbMicros, unsigned int uChars,
+                                     int nCacheHit, const TCHAR* szText );
 
 // write the report file. returns FALSE when nothing was collected or the
 // file could not be created. does NOT reset the counters ( idempotent ).
@@ -27,8 +30,8 @@ HMLIB_API BOOL hm_perf_dump();
 // of the function it lives in. shared by the draw-tool backends.
 class hm_perf_text_guard {
 public:
-	hm_perf_text_guard( int nTool, unsigned int uChars )
-		: m_nTool( nTool ), m_uChars( uChars ), m_nCacheHit( -1 ) {
+	hm_perf_text_guard( int nTool, unsigned int uChars, const TCHAR* szText = NULL )
+		: m_nTool( nTool ), m_uChars( uChars ), m_szText( szText ), m_nCacheHit( -1 ) {
 		::QueryPerformanceCounter( &m_t0 );
 	}
 	// tag the sample after the fact ( the cache outcome is only known once
@@ -39,12 +42,13 @@ public:
 		::QueryPerformanceCounter( &t1 );
 		::QueryPerformanceFrequency( &f );
 		double us = (double)( t1.QuadPart - m_t0.QuadPart ) * 1e6 / (double)f.QuadPart;
-		hm_perf_text_draw_ex( m_nTool, us, m_uChars, m_nCacheHit );
+		hm_perf_text_draw_ex( m_nTool, us, m_uChars, m_nCacheHit, m_szText );
 	}
 private:
 	LARGE_INTEGER m_t0;
 	int m_nTool;
 	unsigned int m_uChars;
+	const TCHAR* m_szText;
 	int m_nCacheHit;
 };
 

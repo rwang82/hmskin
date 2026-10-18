@@ -269,7 +269,10 @@ exit 0
         proc.kill()
     if not os.path.exists(perflog):
         return False, f"[perf:{tool}] log not written ( ps rc={r.returncode}: {r.stderr[:150] if r.stderr else 'unknown'} )"
-    return True, f"[perf:{tool}]\n  " + open(perflog).read().strip().replace("\n", "\n  ")
+    # the log carries CJK sample text written by the CRT in the system
+    # codepage - never let a decode mismatch kill the run after the data
+    # is already on disk
+    return True, f"[perf:{tool}]\n  " + open(perflog, errors="replace").read().strip().replace("\n", "\n  ")
 
 # ============================================================
 # phase 5: keelobj tree dump ( AI-agent infra M1 )

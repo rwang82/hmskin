@@ -23,6 +23,18 @@ static hm_perf_textstats s_stats[ HM_PERF_TOOL_COUNT ];
 // ( layout construction + round trip ) - the A/B discriminator
 static hm_perf_textstats s_d2dHit, s_d2dMiss;
 
+// first-samples ring for draw-site diagnosis ( text prefix per sample )
+#define HM_PERF_RING_MAX 128
+struct hm_perf_ring {
+	int nTool;
+	long long us;
+	unsigned int uChars;
+	int nCacheHit;
+	TCHAR szText[ 16 ];
+};
+static hm_perf_ring s_ring[ HM_PERF_RING_MAX ];
+static int s_nRingCount = 0;
+
 static void _accum_one( hm_perf_textstats& s, long long us, unsigned int uChars ) {
 	s.nCount++;
 	s.nSumUs += us;
@@ -35,13 +47,28 @@ static void _accum_one( hm_perf_textstats& s, long long us, unsigned int uChars 
 	s.nBucket[ b ]++;
 }
 
-void hm_perf_text_draw_ex( int nTool, double dbMicros, unsigned int uChars, int nCacheHit ) {
+void hm_perf_text_draw_ex( int nTool, double dbMicros, unsigned int uChars,
+                           int nCacheHit, const TCHAR* szText ) {
 	if ( nTool < 0 || nTool >= HM_PERF_TOOL_COUNT )
 		return;
 	long long us = (long long)( dbMicros + 0.5 );
 	_accum_one( s_stats[ nTool ], us, uChars );
 	if ( nTool == HM_PERF_TOOL_D2D && nCacheHit >= 0 )
 		_accum_one( nCacheHit ? s_d2dHit : s_d2dMiss, us, uChars );
+	// first-samples ring: "which string drew N times" diagnosis
+	if ( s_nRingCount < HM_PERF_RING_MAX ) {
+		hm_perf_ring& r = s_ring[ s_nRingCount++ ];
+		r.nTool = nTool;
+		r.us = us;
+		r.uChars = uChars;
+		r.nCacheHit = nCacheHit;
+		int i = 0;
+		if ( szText ) {
+			for ( ; i < 15 && szText[ i ]; i++ )
+				r.szText[ i ] = szText[ i ];
+		}
+		r.szText[ i ] = 0;
+	}
 }
 
 static long long _bucketPercentile( const hm_perf_textstats& s, int nPct ) {
@@ -103,6 +130,13 @@ BOOL hm_perf_dump() {
 		           s_d2dHit.nCount, s_d2dMiss.nCount,
 		           100.0 * (double)s_d2dHit.nCount
 		               / (double)( s_d2dHit.nCount + s_d2dMiss.nCount ) );
+	}
+	// first samples: who drew what ( the draw-site census )
+	_ftprintf( fp, _T("[first %d samples] tool len hit us text\n"), s_nRingCount );
+	for ( int i = 0; i < s_nRingCount; i++ ) {
+		const hm_perf_ring& r = s_ring[ i ];
+		_ftprintf( fp, _T("  #%03d %-4s %3u %2d %6I64dus \"%s\"\n"),
+		           i, s_toolName[ r.nTool ], r.uChars, r.nCacheHit, r.us, r.szText );
 	}
 	fclose( fp );
 	return TRUE;

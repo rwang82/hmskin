@@ -275,7 +275,8 @@ bool hm_ps_drawtool_d2d::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
                                hm_rs_rawres_font* pRawResFont, hm_rs_rawres_color* pRawResColor, bool bMultiLine ) {
 	if ( !pText || !pRawResFont || !pRawResColor )
 		return false;
-	hm_perf_text_guard perf( HM_PERF_TOOL_D2D, (unsigned int)pText->m_tstrData.size() );
+	hm_perf_text_guard perf( HM_PERF_TOOL_D2D, (unsigned int)pText->m_tstrData.size(),
+	                         pText->m_tstrData.c_str() );
 	D2DImpl* pImpl = ( D2DImpl* )m_pImpl;
 	if ( !pImpl->ensureDCRT( hDC, rcCanvas ) )
 		return false;
