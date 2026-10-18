@@ -71,14 +71,21 @@ public:
 	typedef std::map< district_id_type, hm_districtobj* > map_id2district_type;
 	typedef std::deque< district_id_type > district_id_container_type;
 
-	// buffering policy for interaction draws ( straight to the screen DC ):
-	// the framework applies it, controls only declare it. see DESIGN.md
-	// "engine evolution" - the paint path ( memory DC of the root canvas ) always
-	// draws direct regardless of strategy.
+	// buffering policy: the framework applies it, controls only declare it
+	// ( code sets the enum, or the loader reads the manifest's "BufStrategy" ).
+	// see DESIGN.md "engine evolution".
+	//   BUF_NONE / BUF_ALLOC apply to interaction draws only ( screen DC ):
+	//   the root WM_PAINT path composites offscreen already, so a nested
+	//   per-draw buffer there would only add a copy.
+	//   BUF_CACHE_SIZE is a true pixel cache and opts INTO the paint path
+	//   too: the bitmap holds the last render ( keyed by canvas size ),
+	//   clean draws are a single BitBlt, and invalidateBuffer() rearms it.
+	//   render content must be self-contained ( opaque background inside
+	//   the district ) - naked transparent labels need alpha, not SRCCOPY.
 	typedef enum _ENUMBUFSTRATEGY {
 		BUF_NONE = 0,       // draw straight onto the target DC
 		BUF_ALLOC,          // compose into a fresh bitmap per draw, single blit ( click-rate controls )
-		BUF_CACHE_SIZE      // compose into a bitmap cached by canvas size ( drag-rate controls )
+		BUF_CACHE_SIZE      // pixel cache by canvas size; blit while clean ( static / repaint-heavy WMPs )
 	} ENUMBUFSTRATEGY;
 
 public:
@@ -129,6 +136,11 @@ protected:
 
 public:
 	void setDrawTool( hm_ps_drawtool_i* pDrawTool );
+	void setBufStrategy( ENUMBUFSTRATEGY eStrategy ) { m_eBufStrategy = eStrategy; }
+	// mark the BUF_CACHE_SIZE bitmap stale: the next draw re-renders.
+	// call from every content-mutating path ( text change, state change,
+	// host-driven refresh ) - a stale-but-clean cache is a wrong-pixels bug.
+	void invalidateBuffer() { m_bBufDirty = TRUE; }
 	bool hasDrawTool() const { return m_pDrawTool!=NULL; }
 	bool getDistrictObj( district_id_type idDistrict, hm_districtobj** ppDistrictObj );
 
@@ -144,6 +156,7 @@ protected:
 	ENUMBUFSTRATEGY m_eBufStrategy;
 	HBITMAP m_hBufBmp;    // BUF_CACHE_SIZE backing bitmap
 	RECT m_rcBufCanvas;   // BUF_CACHE_SIZE size key
+	BOOL m_bBufDirty;     // BUF_CACHE_SIZE: TRUE = bitmap stale, re-render on next draw
 #pragma warning(push)
 #pragma warning(disable:4251)
 	map_id2district_type m_mapId2District;

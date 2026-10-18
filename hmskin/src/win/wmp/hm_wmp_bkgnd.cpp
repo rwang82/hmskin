@@ -45,7 +45,16 @@ void hm_wmp_bkgnd::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPA
 }
 //
 void hm_wmp_bkgnd::_doDrawSkin( HDC hDC, const RECT& rcCanvas )
-{	
+{
+	// both paint ( memory DC of the root composite ) and interaction draws
+	// funnel through the strategy dispatcher: BUF_NONE renders direct (
+	// byte-identical to the old district->show call ), a declared buffer
+	// strategy composes offscreen / serves the pixel cache instead
+	_drawWithStrategy( hDC, rcCanvas );
+}
+
+void hm_wmp_bkgnd::_render( HDC hDC, const RECT& rcCanvas )
+{
 	hm_districtobj* pDistrictObj = NULL;
 
 	if ( !_getDistrictObj( EDISTRICTID_BK, &pDistrictObj ) )

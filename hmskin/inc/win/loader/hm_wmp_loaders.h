@@ -19,6 +19,7 @@ public:
 
 private:
 	bool _fillDrawTool( const Json::Value& valWMP, hm_wmp_display* pWMPDest );
+	bool _fillBufStrategy( const Json::Value& valWMP, hm_wmp_display* pWMPDest );
 	bool _fillDistrictObjs( const Json::Value& valWMP, hm_wmp_display* pWMPDest );
 	bool _fillShowObjs( const Json::Value& aryShowObjs, hm_districtobj* pDistrict );
 	bool _fillRect( const Json::Value& valRect, RECT& rect );

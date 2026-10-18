@@ -71,6 +71,7 @@ bool setWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpString, int nDistrictId )
 		for ( itId = containerDstIds.begin(); itId != iendId; ++itId ) {
 			setWMPDisplayText( pWMPDisplayRaw, lpString, *itId );
 		}
+		pWMPDisplay->invalidateBuffer();   // text changed: pixel cache is stale
 		return true;
 	} else {
 		if ( pWMPDisplay->getDistrictObj( nDistrictId, &pDistrictObj ) ) {
@@ -83,6 +84,7 @@ bool setWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpString, int nDistrictId )
 				if ( !pUIResText )
 					continue;
 				pUIResText->setText( lpString );
+				pWMPDisplay->invalidateBuffer();   // text changed: pixel cache is stale
 				return true;
 			}
 			// can not find out hm_rs_uires_text.
@@ -91,6 +93,7 @@ bool setWMPDisplayText( void* pWMPDisplayRaw, LPTSTR lpString, int nDistrictId )
 			pUIResText = new hm_rs_uires_text( textData );
 			pShowObj = new hm_showobj( pUIResText );
 			pDistrictObj->pushBackShowObj( pShowObj );
+			pWMPDisplay->invalidateBuffer();
 		}
 	}
 

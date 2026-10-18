@@ -486,6 +486,7 @@
       "idWMP": 1,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1255,6 +1256,7 @@
       "idWMP": 19,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1615,6 +1617,7 @@
       "idWMP": 22,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1649,6 +1652,7 @@
       "idWMP": 30,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1723,6 +1727,7 @@
       "idWMP": 33,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -1797,6 +1802,7 @@
       "idWMP": 36,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2183,6 +2189,7 @@
       "idWMP": 50,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2225,6 +2232,7 @@
       "idWMP": 51,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2267,6 +2275,7 @@
       "idWMP": 52,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2309,6 +2318,7 @@
       "idWMP": 53,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2351,6 +2361,7 @@
       "idWMP": 54,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2393,6 +2404,7 @@
       "idWMP": 55,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2435,6 +2447,7 @@
       "idWMP": 56,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2477,6 +2490,7 @@
       "idWMP": 57,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2547,6 +2561,7 @@
       "idWMP": 61,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2832,6 +2847,7 @@
       "idWMP": 75,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,

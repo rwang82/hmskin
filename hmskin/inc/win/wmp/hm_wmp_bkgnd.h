@@ -24,6 +24,10 @@ private:
 	// interface of hm_wmp_display
 protected:
 	virtual void _createDistrictObjs();
+	// district draw as the _render body: with a buffering strategy set
+	// ( manifest "BufStrategy" ), _drawWithStrategy wraps this in the
+	// framework buffer/pixel-cache semantics
+	virtual void _render( HDC hDC, const RECT& rcCanvas );
 
 	// interface of hm_cmn_observer_i
 public:

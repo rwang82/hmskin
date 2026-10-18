@@ -39,6 +39,7 @@ static int _ScalePx( double dblScale, int nValue96 ) {
 }
 
 const char STR_DRAWTOOL[] = "DrawTool";
+const char STR_BUFSTRATEGY[] = "BufStrategy";
 const char STR_DISTRICTOBJS[] = "DistrictObjs";
 const char STR_ROOTMENUCFG[] = "RootMenuCfg";
 const char STR_TABBTNS[] = "TabBtns";
@@ -86,6 +87,11 @@ bool hm_wmp_display_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproces
 		assert( false );
 		return false;
 	}
+	// optional buffering strategy ( pixel cache ) for this WMP
+	if ( !_fillBufStrategy( valWMP, pWMPDisplay ) ) {
+		assert( false );
+		return false;
+	}
 
 	return true;
 }
@@ -114,6 +120,33 @@ bool hm_wmp_display_loader::_fillDrawTool( const Json::Value& valWMP, hm_wmp_dis
 	}
 
 	pWMPDest->setDrawTool( pDrawTool );
+	return true;
+}
+
+bool hm_wmp_display_loader::_fillBufStrategy( const Json::Value& valWMP, hm_wmp_display* pWMPDest ) {
+	// optional per-WMP buffering strategy; absent field keeps the class
+	// default ( BUF_NONE for everything except code-set controls like the
+	// checkbox ). "CACHE_SIZE" opts the WMP into the pixel cache - the
+	// WMP's render must be self-contained ( opaque background inside its
+	// district ) because the blit is SRCCOPY.
+	Json::Value valBuf = valWMP[ STR_BUFSTRATEGY ];
+	if ( valBuf.isNull() )
+		return true;   // not declared: keep default
+	if ( !valBuf.isString() ) {
+		assert( false );
+		return false;
+	}
+	std::string strBuf = valBuf.asString();
+	if ( 0 == strcmp( strBuf.c_str(), "NONE" ) ) {
+		pWMPDest->setBufStrategy( hm_wmp_display::BUF_NONE );
+	} else if ( 0 == strcmp( strBuf.c_str(), "ALLOC" ) ) {
+		pWMPDest->setBufStrategy( hm_wmp_display::BUF_ALLOC );
+	} else if ( 0 == strcmp( strBuf.c_str(), "CACHE_SIZE" ) ) {
+		pWMPDest->setBufStrategy( hm_wmp_display::BUF_CACHE_SIZE );
+	} else {
+		assert( false );
+		return false;
+	}
 	return true;
 }
 
