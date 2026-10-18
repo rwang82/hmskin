@@ -12,9 +12,6 @@
 #include "win\wmp\hm_wmp_display.h"
 #include "win\frame\hm_uiroot.h"
 #include "win\frame\hm_debug_utils.h"
-#include "win\paint_system\hm_ps_drawtool_gdi.h"
-#include "win\paint_system\hm_ps_drawtool_gdiplus.h"
-#include "win\paint_system\hm_ps_drawtool_d2d.h"
 #include <vector>
 #include <exception>
 #include <stdio.h>
@@ -129,10 +126,10 @@ void AppendEventLog( const TCHAR* szLine ) {
 	// invalidate ONLY the event log panel: scrollbar dragging logs one event
 	// per mousemove, and a full-window invalidate here made every control
 	// repaint on each of those ( set_text resolves K18 by id ).
-	hm_keel_obj* pKeelObjEvtLog = NULL;
-	if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog && pKeelObjEvtLog->getLayoutObj() ) {
-		hm_util_invlog( _T("evtlog"), &pKeelObjEvtLog->getLayoutObj()->m_rect );
-		::InvalidateRect( g_hWnd, &pKeelObjEvtLog->getLayoutObj()->m_rect, FALSE );
+	RECT rcEvtLog;
+	if ( hm_keelobj_get_layout_rect( g_pHMRoot, KEELOBJID_EVENTLOG, &rcEvtLog ) ) {
+		hm_util_invlog( _T("evtlog"), &rcEvtLog );
+		::InvalidateRect( g_hWnd, &rcEvtLog, FALSE );
 	}
 }
 
@@ -390,22 +387,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			posArg += _tcslen( _T("--drawtool") );
 			while ( *posArg == _T(' ') )
 				posArg++;
-			hm_ps_drawtool_i* pTool = NULL;
+			int eTool = -1;
 			if ( 0 == _tcsnicmp( posArg, _T("D2D"), 3 ) )
-				pTool = hm_ps_drawtool_d2d::getInstance();
+				eTool = HM_DRAWTOL_D2D;
 			else if ( 0 == _tcsnicmp( posArg, _T("Gdiplus"), 7 ) )
-				pTool = hm_ps_drawtool_gdiplus::getInstance();
+				eTool = HM_DRAWTOL_GDIPLUS;
 			else if ( 0 == _tcsnicmp( posArg, _T("Gdi"), 3 ) )
-				pTool = hm_ps_drawtool_gdi::getInstance();
-			if ( pTool && g_pHMRoot->m_pWMPFactory ) {
-				struct OverrideCtx { hm_ps_drawtool_i* pTool; } ctx = { pTool };
-				g_pHMRoot->m_pWMPFactory->enumObjs(
-				    []( hm_wndmsgprocessor_i* pWMP, void* pParam ) {
-					    hm_wmp_display* pDisp = dynamic_cast< hm_wmp_display* >( pWMP );
-					    if ( pDisp )
-						    pDisp->setDrawTool( static_cast< OverrideCtx* >( pParam )->pTool );
-				    }, &ctx );
-			}
+				eTool = HM_DRAWTOL_GDI;
+			if ( eTool >= 0 )
+				hm_set_drawtool_all( g_pHMRoot, eTool );
 		}
 	}
 
@@ -584,11 +574,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    // the overflow ( content height - well height ). thumb / arrow thicknesses
    // must equal the sbthumb_* / sbbtn_* bitmap dimensions ( gen_skin.py ).
    {
-	   hm_keel_obj* pKeelObjWell = NULL;
-	   hm_keel_obj* pKeelObjContent = NULL;
-	   hm_keel_obj* pKeelObjScrollBar = NULL;
-	   hm_get_keelobj( g_pHMRoot, 2, &pKeelObjWell );   // kept for the range calc
 	   hm_keelobj_set_clip_children( g_pHMRoot, 2, TRUE );
+	   hm_keel_obj* pKeelObjScrollBar = NULL;
 	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
 		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
 		   if ( pWMPScrollBar ) {
@@ -596,10 +583,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			   pWMPScrollBar->setEndThumbLen( hm_layout_scale_px( 20 ) );
 			   pWMPScrollBar->setTrackThumbLen( hm_layout_scale_px( 48 ) );
 			   int nRange = 0;
-			   if ( hm_get_keelobj( g_pHMRoot, 38, &pKeelObjContent ) && pKeelObjContent
-				   && pKeelObjContent->getLayoutObj() && pKeelObjWell && pKeelObjWell->getLayoutObj() ) {
-				   RECT rcWell = pKeelObjWell->getLayoutObj()->m_rect;
-				   RECT rcContent = pKeelObjContent->getLayoutObj()->m_rect;
+			   RECT rcWell, rcContent;
+			   if ( hm_keelobj_get_layout_rect( g_pHMRoot, 2, &rcWell )
+				   && hm_keelobj_get_layout_rect( g_pHMRoot, 38, &rcContent ) ) {
 				   nRange = ( rcContent.bottom - rcContent.top ) - ( rcWell.bottom - rcWell.top );
 				   if ( nRange < 0 )
 					   nRange = 0;

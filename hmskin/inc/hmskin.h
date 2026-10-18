@@ -57,6 +57,10 @@ HMLIB_API bool hm_get_keelobj( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, hm
 // container assembly ): hosts speak manifest ids, no keelobj pointers.
 HMLIB_API bool hm_keelobj_set_visible( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bVisible );
 HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, BOOL bClip );
+// read a keelobj's current layout rect ( expressed in its coordinate
+// system - directly usable with InvalidateRect for client-area systems ).
+// returns false when the keelobj or its layout is absent.
+HMLIB_API bool hm_keelobj_get_layout_rect( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, RECT* prc );
 //////////////////////////////////////////////////////////////////////////
 // agent/debug aid: dump the live keelobj tree as JSON - one node per
 // keelobj { id, parentId, visible, rect } where rect is mapped into the
@@ -66,6 +70,12 @@ HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int 
 // deltas, so popup-slot rects may be off by the non-client height.
 // returns the node count written, or 0 on failure.
 HMLIB_API unsigned int hm_keelobj_dump_tree( hm_uiroot* pHMUIRoot, HWND hWndMain, const TCHAR* szJsonPath );
+//////////////////////////////////////////////////////////////////////////
+// runtime renderer override for EVERY display WMP ( A/B perf runs,
+// environment adaptation ) - the engine-side equivalent of the manifest
+// "DrawTool" names, applied after load.
+enum { HM_DRAWTOL_GDI = 0, HM_DRAWTOL_GDIPLUS = 1, HM_DRAWTOL_D2D = 2 };
+HMLIB_API bool hm_set_drawtool_all( hm_uiroot* pHMUIRoot, int eTool );
 //////////////////////////////////////////////////////////////////////////
 // host text API: change a WMP's text by the ids the host wrote into its
 // manifest - no engine internals. set_text targets the FIRST text uires in

@@ -41,6 +41,7 @@
 #include "win\resource_system\hm_rs_wndmark.h"
 #include "win\paint_system\hm_ps_drawtool_gdi.h"
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
+#include "win\paint_system\hm_ps_drawtool_d2d.h"
 #include "win\keelctrl_repository\hm_keelctrl_scrollview.h"
 #include "win\loader\hm_manifest_loader.h"
 #include "win\loader\hm_loader_wndstyle.h"
@@ -326,6 +327,17 @@ HMLIB_API bool hm_keelobj_set_clip_children( hm_uiroot* pHMUIRoot, unsigned int 
 	return true;
 }
 //////////////////////////////////////////////////////////////////////////
+HMLIB_API bool hm_keelobj_get_layout_rect( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, RECT* prc ) {
+	hm_keel_obj* pKeelObj = NULL;
+	if ( !prc || !hm_get_keelobj( pHMUIRoot, uKeelObjId, &pKeelObj ) || !pKeelObj )
+		return false;
+	hm_layout_obj* pLayout = pKeelObj->getLayoutObj();
+	if ( !pLayout )
+		return false;
+	*prc = pLayout->m_rect;
+	return true;
+}
+//////////////////////////////////////////////////////////////////////////
 // agent/debug aid: keelobj tree JSON dump ( see hmskin.h ). hand-rolled
 // JSON - the payload is numbers/bools only, no escaping is needed.
 struct hm_dump_ctx {
@@ -383,6 +395,40 @@ HMLIB_API unsigned int hm_keelobj_dump_tree( hm_uiroot* pHMUIRoot, HWND hWndMain
 	_fputts( ctx.strJson.c_str(), fp );
 	fclose( fp );
 	return ctx.nCount;
+}
+//////////////////////////////////////////////////////////////////////////
+struct hm_settool_ctx {
+	hm_ps_drawtool_i* pTool;
+};
+
+static void __cdecl hm_settool_one( hm_wndmsgprocessor_i* pWMP, void* pParam ) {
+	hm_wmp_display* pDisp = dynamic_cast< hm_wmp_display* >( pWMP );
+	if ( pDisp )
+		pDisp->setDrawTool( static_cast< hm_settool_ctx* >( pParam )->pTool );
+}
+
+// swap the draw tool of every display WMP ( see hmskin.h )
+HMLIB_API bool hm_set_drawtool_all( hm_uiroot* pHMUIRoot, int eTool ) {
+	if ( !pHMUIRoot || !pHMUIRoot->m_pWMPFactory )
+		return false;
+	hm_ps_drawtool_i* pTool = NULL;
+	switch ( eTool ) {
+	case HM_DRAWTOL_D2D:
+		pTool = hm_ps_drawtool_d2d::getInstance();
+		break;
+	case HM_DRAWTOL_GDIPLUS:
+		pTool = hm_ps_drawtool_gdiplus::getInstance();
+		break;
+	case HM_DRAWTOL_GDI:
+		pTool = hm_ps_drawtool_gdi::getInstance();
+		break;
+	default:
+		return false;
+	}
+	hm_settool_ctx ctx;
+	ctx.pTool = pTool;
+	pHMUIRoot->m_pWMPFactory->enumObjs( hm_settool_one, &ctx );
+	return true;
 }
 //////////////////////////////////////////////////////////////////////////
 // host text API ( see hmskin.h ): locate the WMP by manifest ids, then the
