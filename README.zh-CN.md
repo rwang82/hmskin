@@ -292,7 +292,8 @@ E2E 套件经 demo 内嵌 agent 服务驱动运行中的 demo——章节金图 
 
 ## 许可
 
-双重许可：个人学习与非商业用途**免费使用**；集成进盈利性商业产品需邮件取得
-作者书面授权（r4o5m6e8o@163.com）。详见 [LICENSE](LICENSE)。
+MIT——自由使用、修改、分发（含商业产品），仅需保留版权声明。
+以 [LICENSE](LICENSE)（英文权威版本）为准，
+[LICENSE.zh-CN.md](LICENSE.zh-CN.md) 为中文参考译文。
 
 内置的 jsoncpp 组件按其自带许可（Public Domain / MIT）分发，不受上述限制。

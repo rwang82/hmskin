@@ -318,9 +318,9 @@ button/toggle/radio/menu interactions asserted by event log and pixel diff.
 
 ## License
 
-Dual licensing: **free** for personal learning and non-commercial use;
-integrating into commercial products for profit requires prior written
-consent by email (r4o5m6e8o@163.com). See [LICENSE](LICENSE) (Chinese).
+MIT — use freely, including in commercial products; just keep the copyright
+notice. See [LICENSE](LICENSE) (canonical English text;
+[LICENSE.zh-CN.md](LICENSE.zh-CN.md) is a reference translation).
 
 The vendored jsoncpp component is distributed under its own license
 (Public Domain / MIT) and is not subject to the above.

@@ -1,45 +1,21 @@
-hmskin 双重许可声明（Dual Licensing）
-版权所有 (c) 2026 rom（保留所有权利）
+MIT License
 
-本作品采用双重许可模式分发：非商业用途免费使用；商业用途需事先取得
-书面授权。
+Copyright (c) 2016-2026 rom
 
-一、非商业许可（免费）
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-  在满足以下条件的前提下，任何人可以免费获得本软件及其源代码的
-  使用、复制、修改、合并及非商业分发许可：
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-  1. 本软件仅用于个人学习、学术研究、教学及非盈利性用途；
-  2. 任何再分发必须保留本许可声明及上述版权声明；
-  3. 不得将本软件或其衍生作品用于直接或间接营利的商业产品、
-     商业服务或商业环境。
-
-二、商业许可（需授权）
-
-  将本软件（全部或部分、原始或修改后）集成进盈利性商业产品，
-  或用于提供收费服务、商业环境部署，须事先通过电子邮件取得
-  作者的明确书面同意：
-
-    联系邮箱：r4o5m6e8o@163.com
-
-  商业授权的范围、条款（含授权费与否）由作者逐案书面确认。
-  未取得书面同意前，任何商业性使用均属未授权使用。
-
-三、第三方组件
-
-  本仓库内置的第三方组件按其自带许可分发，不受本声明约束：
-  - hmskin/dependence/json/（jsoncpp，Public Domain / MIT 双许可，
-    见该目录下 LICENSE 文件）
-
-四、免责声明
-
-  本软件按"现状"（AS IS）提供，不附带任何明示或默示的担保，
-  包括但不限于适销性、特定用途适用性及不侵权的担保。在任何
-  情况下，作者均不对因使用或无法使用本软件而产生的任何索赔、
-  损害或其他责任承担责任。
-
-五、其他
-
-  - 本声明的解释权及修订权归作者所有；修订仅对修订后取得本
-    软件的接收方生效。
-  - 未随商业授权特别说明时，取得商业授权方同时享有第一条全部权利。
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
