@@ -4,6 +4,7 @@
 #include "common\MemFuncPack.h"
 #include "win\frame\hm_layout_obj.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
+#include "win\frame\hm_debug_utils.h"
 #include <assert.h>
 //
 hm_wmp_drawtrigger::hm_wmp_drawtrigger( hmskin_event_listener_base* pEventListener )
@@ -102,6 +103,7 @@ void hm_wmp_drawtrigger::_OnPaint( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	// ( ps.rcPaint ) - cull the drawtree walk to intersecting keelobjs and
 	// blit ONLY the damaged area ( previously every paint redrew the whole
 	// tree and blitted the whole canvas regardless of what changed ).
+	hm_util_invlog( _T("paint"), &ps.rcPaint );   // what the culling actually sees
 	pKeelObj->doDrawAll( m_hmCanvas.GetMemDC(), pWP->hwnd, &ps.rcPaint );
 	::BitBlt( hPaintDC, ps.rcPaint.left, ps.rcPaint.top,
 		( ps.rcPaint.right - ps.rcPaint.left ), ( ps.rcPaint.bottom - ps.rcPaint.top ),

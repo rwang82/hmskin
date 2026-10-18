@@ -219,9 +219,11 @@ def compare_golden(shot_path, tolerance=0.03):
 # phase 4: perf A/B ( backend override + wheel scenario )
 # ============================================================
 def run_perf(tool):
-    """A/B perf run: launch demo with --drawtool override, wheel-scroll the
-    EVT log panel, close gracefully ( WM_CLOSE so hm_lib_shutdown dumps the
-    text-draw stats into hmskin_perf.log )."""
+    """A/B perf run: launch demo with --drawtool override, CLICK the sec.4
+    tab ( real input ) then wheel-scroll the real scrollbar ( K47 ), close
+    gracefully ( WM_CLOSE so hm_lib_shutdown dumps the text-draw stats into
+    hmskin_perf.log ). the sample ring in the log shows what actually drew:
+    the old EVT-panel wheel hit no scrollbar and measured two full repaints."""
     exe = os.path.join(OUTDIR, "demo.exe")
     if not os.path.exists(exe):
         return False, "[perf] demo.exe not found ( build first )"
@@ -240,18 +242,34 @@ public class WCap {
     [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint dx, uint dy, int d, UIntPtr e);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
     [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out R r);
+    [DllImport("user32.dll")] public static extern bool ClientToScreen(IntPtr h, ref P p);
     [StructLayout(LayoutKind.Sequential)] public struct R { public int L, T, Rt, B; }
+    [StructLayout(LayoutKind.Sequential)] public struct P { public int X, Y; }
 }
 "@
 $p = Get-Process demo -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $p) { exit 2 }
-[WCap]::SetForegroundWindow($p.MainWindowHandle) | Out-Null
-$r = New-Object WCap+R
-[WCap]::GetWindowRect($p.MainWindowHandle, [ref]$r) | Out-Null
-# hover the right-panel EVT log area ( ~82% width, ~35% height )
-$x = $r.L + ($r.Rt - $r.L) * 82 / 100
-$y = $r.T + ($r.B - $r.T) * 35 / 100
-[WCap]::SetCursorPos([int]$x, [int]$y) | Out-Null
+$h = $p.MainWindowHandle
+if ($h -eq [IntPtr]::Zero) { exit 3 }
+[WCap]::SetForegroundWindow($h) | Out-Null
+Start-Sleep -Milliseconds 300
+function ClientPt([int]$cx, [int]$cy) {
+    $pt = New-Object WCap+P
+    $pt.X = $cx; $pt.Y = $cy
+    [WCap]::ClientToScreen($h, [ref]$pt) | Out-Null
+    return $pt
+}
+# 1) click the 4th tab of the main tab strip ( keelobj K4 spans the client
+#    top, four sprite tabs; 7/8 across lands mid-tab-4 )
+$tab = ClientPt 939 23
+[WCap]::SetCursorPos($tab.X, $tab.Y) | Out-Null
+Start-Sleep -Milliseconds 250
+[WCap]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero)   # LEFTDOWN
+[WCap]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero)   # LEFTUP
+Start-Sleep -Milliseconds 900                       # chapter switch repaint
+# 2) wheel over the sec.4 scrollbar ( K47 client ~612..630 x 318..600 )
+$sb = ClientPt 621 459
+[WCap]::SetCursorPos($sb.X, $sb.Y) | Out-Null
 Start-Sleep -Milliseconds 400
 for ($i = 0; $i -lt 60; $i++) {
     [WCap]::mouse_event(0x0800, 0, 0, -120, [UIntPtr]::Zero)

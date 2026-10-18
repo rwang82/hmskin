@@ -8,6 +8,7 @@
 #include "hm_layout_scale.h"
 #include "win\frame\hm_layout_decoders.h"
 #include "win\frame\hm_uiroot.h"
+#include "win\frame\hm_debug_utils.h"
 #include "demo.h"
 
 // every hmskin event lands in the EVT-08 event log ( see DESIGN.md ).
@@ -96,6 +97,7 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 					// invalidate ONLY the content rows rect: the scrollbar
 					// redraws itself directly while dragging, a wider
 					// invalidate would repaint every control per mousemove.
+					hm_util_invlog( _T("scb-content"), &pLayoutObj->m_rect );
 					::InvalidateRect( g_hWnd, &pLayoutObj->m_rect, FALSE );
 				}
 			}

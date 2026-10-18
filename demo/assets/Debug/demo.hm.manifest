@@ -616,6 +616,7 @@
       ],
       "DefaultBtn": 0,
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 1,
@@ -1671,10 +1672,17 @@
       "idWMP": 31,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -1699,10 +1707,17 @@
       "idWMP": 32,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -1746,10 +1761,17 @@
       "idWMP": 34,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -1774,10 +1796,17 @@
       "idWMP": 35,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -1821,10 +1850,17 @@
       "idWMP": 37,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -1937,10 +1973,17 @@
       "idWMP": 41,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 7
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -2161,10 +2204,17 @@
       "idWMP": 49,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 8
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -2533,10 +2583,17 @@
       "idWMP": 60,
       "WMPClsName": "hm_wmp_bkgnd",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
           "ShowObjs": [
+            {
+              "UIRes": {
+                "UIResName": "hm_rs_uires_color",
+                "RawColorId": 8
+              }
+            },
             {
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
@@ -2870,6 +2927,7 @@
       "idWMP": 77,
       "WMPClsName": "hm_wmp_button",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2889,6 +2947,7 @@
       "idWMP": 78,
       "WMPClsName": "hm_wmp_button",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2908,6 +2967,7 @@
       "idWMP": 79,
       "WMPClsName": "hm_wmp_button",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2927,6 +2987,7 @@
       "idWMP": 80,
       "WMPClsName": "hm_wmp_button",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,
@@ -2946,6 +3007,7 @@
       "idWMP": 81,
       "WMPClsName": "hm_wmp_button",
       "DrawTool": "D2D",
+      "BufStrategy": "CACHE_SIZE",
       "DistrictObjs": [
         {
           "id": 0,

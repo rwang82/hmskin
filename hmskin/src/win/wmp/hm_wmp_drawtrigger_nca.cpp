@@ -2,6 +2,7 @@
 #include "win\wmp\hm_wmp_drawtrigger_nca.h"
 #include "win\frame\hm_layout_obj.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
+#include "win\frame\hm_debug_utils.h"
 #include <assert.h>
 
 hm_wmp_drawtrigger_nca::hm_wmp_drawtrigger_nca( hmskin_event_listener_base* pEventListener )
@@ -135,6 +136,7 @@ void hm_wmp_drawtrigger_nca::_doTrigger( hm_keel_obj* pKeelObj, HDC hDC, HWND hW
 	sizeWnd.cy = rcWnd.bottom - rcWnd.top;
 
 	//
+	hm_util_invlog( _T("nca-full"), NULL );   // NC path walks without a dirty rect
 	pKeelObj->doDrawAll( m_hmCanvas.GetMemDC(), hWnd );
 
 	//

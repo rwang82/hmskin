@@ -115,8 +115,10 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			hm_layout_obj* pLayoutObjSelf = getLayoutObj();
 			const coordinate_system_hwnd* pCoordSysHwnd = pLayoutObjSelf
 				? ( const coordinate_system_hwnd* )pLayoutObjSelf->getCoordinateSystem() : NULL;
-			if ( pCoordSysHwnd && pCoordSysHwnd->getHWnd() )
+			if ( pCoordSysHwnd && pCoordSysHwnd->getHWnd() ) {
+				hm_util_invlog( _T("state-inv"), &pLayoutObjSelf->m_rect );
 				::InvalidateRect( pCoordSysHwnd->getHWnd(), &pLayoutObjSelf->m_rect, FALSE );
+			}
 		}
 		break;
 	default:

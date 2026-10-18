@@ -12,6 +12,7 @@
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\wmp\hm_wmp_display.h"
 #include "win\frame\hm_uiroot.h"
+#include "win\frame\hm_debug_utils.h"
 #include "win\paint_system\hm_ps_drawtool_gdi.h"
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
 #include "win\paint_system\hm_ps_drawtool_d2d.h"
@@ -87,6 +88,7 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 	// the native-adoption button ( sec.1 contrast specimen ) follows chapter visibility.
 	if ( g_hBtnTest1 )
 		::ShowWindow( g_hBtnTest1, ( uChapterIndex == 0 ) ? SW_SHOW : SW_HIDE );
+	hm_util_invlog( _T("chapter"), NULL );
 	::InvalidateRect( g_hWnd, NULL, FALSE );
 }
 
@@ -131,8 +133,10 @@ void AppendEventLog( const TCHAR* szLine ) {
 	// per mousemove, and a full-window invalidate here made every control
 	// repaint on each of those ( g_pWMPEvtLog already proves K18 exists ).
 	hm_keel_obj* pKeelObjEvtLog = NULL;
-	if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog && pKeelObjEvtLog->getLayoutObj() )
+	if ( hm_get_keelobj( g_pHMRoot, KEELOBJID_EVENTLOG, &pKeelObjEvtLog ) && pKeelObjEvtLog && pKeelObjEvtLog->getLayoutObj() ) {
+		hm_util_invlog( _T("evtlog"), &pKeelObjEvtLog->getLayoutObj()->m_rect );
 		::InvalidateRect( g_hWnd, &pKeelObjEvtLog->getLayoutObj()->m_rect, FALSE );
+	}
 }
 
 
@@ -228,6 +232,24 @@ static DWORD WINAPI hmsh_agent_thread( LPVOID ) {
 				hmsh_agent_reply( s, true, "clicked %d,%d", x, y );
 			} else {
 				hmsh_agent_reply( s, false, "bad click args" );
+			}
+		} else if ( 0 == strcmp( szOp, "wheel" ) ) {
+			// szA1 = "x,y,delta" in CLIENT coords ( delta in wheel notches,
+			// e.g. -3 for three steps down ) - same synthetic-post pattern
+			// as click; WM_MOUSEWHEEL carries the point in SCREEN coords,
+			// so translate before posting
+			int x = 0, y = 0, nDelta = 0;
+			char szX[ 64 ] = { 0 };
+			if ( sscanf_s( szA1, "%63[^,],%d,%d", szX, (unsigned)sizeof( szX ), &y, &nDelta ) == 3 ) {
+				x = atoi( szX );
+				POINT pt = { x, y };
+				::ClientToScreen( g_hWnd, &pt );
+				LPARAM lp = pt.x | ( pt.y << 16 );
+				WPARAM wp = MAKEWPARAM( 0, (SHORT)( nDelta * WHEEL_DELTA ) );
+				::PostMessage( g_hWnd, WM_MOUSEWHEEL, wp, lp );
+				hmsh_agent_reply( s, true, "wheel %d,%d delta %d", x, y, nDelta );
+			} else {
+				hmsh_agent_reply( s, false, "bad wheel args" );
 			}
 		} else {
 			hmsh_agent_reply( s, false, "unknown op" );
