@@ -255,3 +255,4 @@ drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制�
 | 2026-10-18 | 失效链仪表 hm_util_invlog | hmskin.trace marker 门控写 hmskin_invalidate.log；滚动期「tabheader 被绘制」定谳为采样环视差，脏区剔除健康 |
 | 2026-10-18 | 观察者失效链 + 公共文字 API | uires text 可观察化（TEXTCHANGED 广播），WMP 内嵌 observer 收到事件即作废像素缓存；hm_wmp_set_text/_at 宿主只给 manifest id |
 | 2026-10-18 | E2E 交互回归套件 | tools/e2e_test.py 九断言（章节金图+交互 EVT+像素 diff），经 demo 内嵌 agent 服务可远程驱动 |
+| 2026-10-19 | 对外接口整理专项：正门 11→18 函数 | 登记册 21 触点逐项裁决：11 项升正门（id 寻址：显隐/裁剪/布局矩形/树转储/文字读写/全量换后端/DPI 换算）；其余判过渡高级面（根因=控件不完善，逐控件完善时回收评估）；demo 引擎穿透清零，hmskin_helper 退役 |

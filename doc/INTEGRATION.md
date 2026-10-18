@@ -44,6 +44,20 @@ hm_lib_shutdown( pRoot );
 窗口消息不需要你转发——引擎自行 hook/子类化分发（`hm_hs_wnd_msg_dispatch`）。
 链接：`hmskin.lib`（导入库），运行时需要 `hmskin.dll` + manifest + 皮肤位图目录在 exe 旁。
 
+### 运行时正门速查（hmskin.h，全部按 manifest id 寻址）
+
+| 域 | 函数 |
+|---|---|
+| 会话 | `hm_lib_startup` / `hm_lib_shutdown` |
+| 窗口绑定 | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
+| keelobj 控制 | `hm_get_keelobj`（取高级面指针）/ `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree`（JSON 树转储，agent/调试） |
+| 文字 | `hm_wmp_set_text` / `hm_wmp_set_text_at`（多文字定位）/ `hm_wmp_get_text`（两段式读） |
+| 渲染 | `hm_set_drawtool_all`（`HM_DRAWTOL_GDI/GDIPLUS/D2D` 全量换后端）/ `hm_layout_scale`、`hm_layout_scale_px`（96 基准换算） |
+| 菜单 | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
+
+常用操作（章节切换/滚动容器/文字/失效矩形）**全程不需要引擎指针**——id 进、结果出；
+控件级与布局级配置走 §3「高级面」。
+
 ---
 
 ## 2. 核心概念（五分钟版）
@@ -105,14 +119,30 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 | `hm_wmp_movewnd` | **布局驱动原生窗口位置** | 见 §6 坑 5 |
 | `hm_wmp_viewbkcontent` | 2016 滚动视图骨架（休眠） | 已被「setClipChildren + 滚动条」组合方案取代 |
 
-### keelobj 运行时 API（节选）
+### 高级面（指针流）标准姿势
+
+需要**控件级/布局级配置**时，经 `hm_get_keelobj` 取指针深入（demo 是活教材）：
 
 ```cpp
-pKeelObj->setVisible( bVisible );          // 章节/显隐
-pKeelObj->setClipChildren( TRUE );         // 滚动容器：子树绘制裁剪到自身矩形
-pKeelObj->getLayoutObj()->m_rect;          // 当前布局矩形（坐标系内坐标）
-pLayoutObj->calcPosition();                // 手动重算（运行时改 decoder 参数后）
+// ① 控件配置流：keelobj → WMP → 具体控件类
+hm_keel_obj* pKeelObj = NULL;
+hm_get_keelobj( pRoot, 47, &pKeelObj );
+hm_wmp_scrollbar* pBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObj->getWMP( 70 ) );
+pBar->setValRange( 0, 100 );
+
+// ② 运行时布局调整（过渡方案）：decoder 参数就是 manifest 同款旋钮，
+//    三步契约 = 改参数 → calcPosition() 重算 → 失效目标矩形
+hm_layout_obj* pLayout = pKeelObj->getLayoutObj();
+hm_layoutdecoder_corner* pDecoder =
+    dynamic_cast< hm_layoutdecoder_corner* >( pLayout->getLayoutDecoder() );
+pDecoder->m_space2 = nNewSpace;
+pLayout->calcPosition();
+RECT rc;
+hm_keelobj_get_layout_rect( pRoot, id, &rc );
+::InvalidateRect( hWnd, &rc, FALSE );
 ```
+
+事件回调天然是指针流（`lParam1` = keelobj*，`getId()` 识别来源）。
 
 ---
 
@@ -196,5 +226,9 @@ InvalidateRect。
   已定谳：DCRT BindDC/EndDraw 往返主导，TextLayout/Brush 缓存仅再省 ~30%）。
 - 滚动视图的正确姿势：容器 keelobj `setClipChildren(TRUE)` + 内容 keelobj 高于容器 +
   滚动条值域 = 内容高 − 容器高；三路输入（拖/端钮/滚轮）开箱即用。
+- **诊断 API（常开零成本）**：exe 旁放 `hmskin.trace` marker 文件即全家族生效——
+  `hmskin_trace.log`（每条派发消息；首字符 `2` = 含 mousemove 全量）、
+  `hmskin_invalidate.log`（失效矩形普查，宿主可调 `hm_util_invlog` 打自定义点）、
+  `hmskin_perf.log`（进程退出自动落盘的文字绘制性能统计）。无 marker 时全部静默。
 
 更多设计细节见仓库根 `DESIGN.md`；行为基线见 `demo/`。
