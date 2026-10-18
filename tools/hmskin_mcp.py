@@ -92,17 +92,53 @@ class HmskinBridge:
     # needed, and every logon-session / window-station wall disappears.
     _PORT = 9321
 
+    def _raw_probe(self, timeout=2):
+        """full ping round trip through the local forward ( TCP connect alone
+        succeeds even when the remote side is dead )."""
+        import socket
+        with socket.create_connection(("127.0.0.1", self._PORT), timeout=timeout) as sock:
+            sock.sendall(b"ping\n")
+            buf = b""
+            while b"\n" not in buf:
+                chunk = sock.recv(256)
+                if not chunk:
+                    break
+                buf += chunk
+        if b"pong" not in buf:
+            raise RuntimeError("tunnel probe: no pong")
+
     def _tunnel(self):
-        """make sure the ssh -L forward is up; returns the local port."""
+        """make sure ONE working ssh -L forward is up; returns the local port.
+        orphans from earlier bridge instances fight over the local port, so
+        clear them first and probe before trusting a spawned forward."""
         with self.lock:
             if self._tunnel_proc and self._tunnel_proc.poll() is None:
-                return self._PORT
+                try:
+                    self._raw_probe()
+                    return self._PORT
+                except Exception:
+                    self._tunnel_proc.kill()   # alive but broken: recycle
+                    self._tunnel_proc = None
+            subprocess.run(["pkill", "-f",
+                            "ssh.*-L.*%d:127.0.0.1:%d" % (self._PORT, self._PORT)],
+                           capture_output=True)
+            time.sleep(0.3)
             self._tunnel_proc = subprocess.Popen(
-                ["ssh", "-o", "BatchMode=yes", "-N", "-L",
-                 f"{self._PORT}:127.0.0.1:{self._PORT}", self.ssh],
+                ["ssh", "-o", "BatchMode=yes", "-o", "ExitOnForwardFailure=yes",
+                 "-N", "-L", f"{self._PORT}:127.0.0.1:{self._PORT}", self.ssh],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            time.sleep(1.0)
-            return self._PORT
+            deadline = time.time() + 8
+            while time.time() < deadline:
+                time.sleep(0.4)
+                if self._tunnel_proc.poll() is not None:
+                    break   # exited ( bind conflict / ssh failure )
+                try:
+                    self._raw_probe()
+                    return self._PORT
+                except Exception:
+                    continue
+            raise RuntimeError("agent tunnel would not come up "
+                               "( ssh forward failed? demo not running? )")
 
     def _agent(self, op, timeout=20):
         """one request/response line to the demo's agent service."""
