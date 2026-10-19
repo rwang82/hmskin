@@ -109,22 +109,23 @@ void MsgDispatcher::UnRegMsgSink( HWND hWndDest, msg_sink_i* pMsgSink )
 //
 void MsgDispatcher::UnRegMsgSinks( HWND hWndDest )
 {
-	if ( m_mapHwnd2MSC.find( hWndDest ) == m_mapHwnd2MSC.end() )
-		return;
+	map_hwnd2msc_type::iterator itMap;
+	msg_sink_container_type containerSinks;
 	msg_sink_container_type::iterator it, iend;
 	msg_sink_i* pMsgSink;
 
-	//notify stop sink
-	iend = m_mapHwnd2MSC[ hWndDest ].end();
-	for ( it = m_mapHwnd2MSC[ hWndDest ].begin(); it<iend; ++it ) 
+	itMap = m_mapHwnd2MSC.find( hWndDest );
+	if ( itMap == m_mapHwnd2MSC.end() )
+		return;
+	containerSinks = itMap->second;
+	m_mapHwnd2MSC.erase( itMap );
+
+	iend = containerSinks.end();
+	for ( it = containerSinks.begin(); it<iend; ++it )
 	{
 		pMsgSink = *it;
-		m_mapHwnd2MSC[ hWndDest ].erase( it );
 		pMsgSink->OnStopSink( hWndDest );
 	}
-	
-	m_mapHwnd2MSC[ hWndDest ].clear();
-	m_mapHwnd2MSC.erase( hWndDest );
 	StartMsgSink( hWndDest, FALSE );
 }
 //
