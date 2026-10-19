@@ -181,6 +181,10 @@ void hm_lib_shutdown( hm_uiroot* pHMUIRoot )
 	// state ) - dump first thing so even a crashy teardown never eats them.
 	hm_perf_dump();
 
+	// a popup that outlived its modal pump must not outlive the engine.
+	if ( hm_tpm_destroy_live_popup() )
+		::OutputDebugString( _T("hmskin: live popup destroyed at shutdown ( host closed mid-menu ).\n") );
+
 	// restore patched user32 bytes BEFORE anything tears down - a patched
 	// API pointing into a dying DLL would crash the host at next menu call.
 	if ( s_bTPMHookEnabled ) {

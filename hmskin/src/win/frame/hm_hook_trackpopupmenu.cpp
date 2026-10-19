@@ -10,7 +10,10 @@
 // the transparent apihook ( hm_hs_apihook ) lands here too, so host apps
 // keep calling the native API with zero skin code.
 
-static hm_uiroot* g_pTPMRoot = NULL;
+// the session root this menu subsystem serves ( single-uiroot contract ):
+// written by BOTH entry paths - the transparent hook handoff and every
+// popupmenu_show - so direct calls work without the hook being enabled.
+static hm_uiroot* s_pMenuRoot = NULL;
 static ATOM s_atomPopupCls = 0;
 static HWND s_hWndLastPopup = NULL;   // slot lifecycle: one PropId <-> one HWND
 
@@ -62,6 +65,7 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 	if ( !hWndPopup )
 		return false;
 	s_hWndLastPopup = hWndPopup;
+	s_pMenuRoot = pRoot;
 	hm_wndpropid_connect( pRoot, hWndPopup, pRoot->m_uPopupPropId );
 	// bind the HMENU + the WM_COMMAND forward target; the popup WMP resizes
 	// the window to fit and draws the items.
@@ -101,7 +105,22 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 }
 
 void hm_tpm_set_root( hm_uiroot* pRoot ) {
-	g_pTPMRoot = pRoot;
+	s_pMenuRoot = pRoot;
+}
+
+// hm_lib_shutdown tail guard: a popup that outlived its modal pump
+// ( host tore down mid-menu ) is destroyed so the slot binding does not
+// outlive the engine. returns true when a live popup was found.
+bool hm_tpm_destroy_live_popup() {
+	BOOL bFoundLive = FALSE;
+	if ( s_hWndLastPopup && ::IsWindow( s_hWndLastPopup ) ) {
+		if ( s_pMenuRoot )
+			hm_wndpropid_disconnect( s_pMenuRoot, s_hWndLastPopup, s_pMenuRoot->m_uPopupPropId );
+		::DestroyWindow( s_hWndLastPopup );
+		bFoundLive = TRUE;
+	}
+	s_hWndLastPopup = NULL;
+	return bFoundLive != FALSE;
 }
 
 BOOL WINAPI hmTrackPopupMenu( HMENU hMenu,
@@ -118,7 +137,7 @@ BOOL WINAPI hmTrackPopupMenu( HMENU hMenu,
 
 	// intercepted native call: show the ENGINE popup ( transparent skinning,
 	// selection is delivered to the owner as native WM_COMMAND ).
-	if ( g_pTPMRoot && hm_lib_popupmenu_show( g_pTPMRoot, hMenu, x, y, hWnd ) )
+	if ( s_pMenuRoot && hm_lib_popupmenu_show( s_pMenuRoot, hMenu, x, y, hWnd ) )
 		return TRUE;
 	return FALSE;
 }

@@ -23,4 +23,8 @@ BOOL WINAPI hmTrackPopupMenu(          HMENU hMenu,
 class hm_uiroot;
 void hm_tpm_set_root( hm_uiroot* pRoot );
 
+// engine-internal ( hmskin.cpp ): destroy a popup that outlived its
+// modal pump at shutdown. returns true = a live popup was found.
+bool hm_tpm_destroy_live_popup();
+
 #endif //__HM_HOOK_TRACKPOPUPMENU_H__
