@@ -12,6 +12,9 @@ hm_rs_hwnddepository::~hm_rs_hwnddepository() {
 
 BOOL hm_rs_hwnddepository::bindHWND2PropId( HWND hWnd, propid_type propId ) {
 	if ( !hWnd || _isHWNDBind2PropId( hWnd ) || _isPropIdBind2HWND( propId ) ) {
+		// one propId <-> one HWND: a reject usually means a stale entry
+		// leaked ( release build: diagnose via DebugView ).
+		::OutputDebugString( _T("hmskin: bindHWND2PropId rejected ( hwnd or propId already bound ).\n") );
 		assert( FALSE );
 		return FALSE;
 	}
@@ -30,12 +33,14 @@ BOOL hm_rs_hwnddepository::bindHWND2CtrlId( HWND hWnd, ctrlid_type ctrlId ) {
 void hm_rs_hwnddepository::unBindHWND( HWND hWnd ) {
 	propid2hwnd_map_type::iterator itPropId2HWND, iendPropId2HWND;
 	ctrlid2hwnd_map_type::iterator itCtrlId2HWND, iendCtrlId2HWND;
+	BOOL bFound = FALSE;
 
 	//
 	iendPropId2HWND = m_mapPropId2HWND.end();
 	for ( itPropId2HWND = m_mapPropId2HWND.begin(); itPropId2HWND!=iendPropId2HWND; ++itPropId2HWND ) {
 		if ( itPropId2HWND->second == hWnd ) {
 			m_mapPropId2HWND.erase( itPropId2HWND );
+			bFound = TRUE;
 			break;
 		}
 	}
@@ -44,10 +49,12 @@ void hm_rs_hwnddepository::unBindHWND( HWND hWnd ) {
 	for ( itCtrlId2HWND = m_mapCtrlId2HWND.begin(); itCtrlId2HWND!=iendCtrlId2HWND; ++itCtrlId2HWND ) {
 		if ( itCtrlId2HWND->second == hWnd ) {
 			m_mapCtrlId2HWND.erase( itCtrlId2HWND );
+			bFound = TRUE;
 			break;
 		}
 	}
-
+	if ( !bFound )
+		::OutputDebugString( _T("hmskin: unBindHWND found no binding ( double disconnect? ).\n") );
 }
 
 HWND hm_rs_hwnddepository::propId2HWND( propid_type propId ) {

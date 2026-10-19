@@ -19,8 +19,8 @@ bool ConnectHwnd2CoordSys( hm_uiroot* pHMUIRoot, HWND hWnd, const hm_rs_wndmark&
 {
 	if ( !pHMUIRoot )
 		return false;
-	hm_wmark_msid_table_type::obj_id_container_type containerObjId;
-	hm_wmark_msid_table_type::obj_id_container_type::iterator itObjId, iendObjId;
+	hm_wmark_csid_table_type::obj_id_container_type containerObjId;
+	hm_wmark_csid_table_type::obj_id_container_type::iterator itObjId, iendObjId;
 	coordinate_system_hwnd* pCoordSysWin = NULL;
 	
 	//
