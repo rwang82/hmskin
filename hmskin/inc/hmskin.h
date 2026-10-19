@@ -28,6 +28,8 @@ struct hm_startup_param {
 	unsigned int m_uDpi;
 };
 class hm_uiroot;
+// one skin session per process: a second hm_lib_startup is refused
+// ( layout scale, the GDI+ token and the hooks are process-global ).
 HMLIB_API bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_uiroot** ppHMUIRoot );
 //////////////////////////////////////////////////////////////////////////
 HMLIB_API void hm_lib_shutdown( hm_uiroot* pHMUIRoot );

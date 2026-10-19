@@ -79,8 +79,21 @@ int hm_layout_scale_px( int nValue96 ) {
 	return (int)( nValue96 * g_dblLayoutScale + 0.5 );
 }
 
+// single-uiroot contract counter ( see hm_lib_startup )
+static void __cdecl hm_count_uiroot( hm_uiroot* /*pRoot*/, void* pParam ) {
+	++*( unsigned int* )pParam;
+}
+
 bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_uiroot** ppHMUIRoot )
 {
+	// single-uiroot contract ( see hmskin.h ): refuse a second session.
+	unsigned int uLiveUIRoots = 0;
+	HMUIROOTFACTORY_INSTANCE->enumObjs( hm_count_uiroot, &uLiveUIRoots );
+	if ( uLiveUIRoots > 0 ) {
+		::OutputDebugString( _T("hmskin: second uiroot refused ( single-uiroot contract ).\n") );
+		return false;
+	}
+
 	if ( !g_hModule ) {
 		::OutputDebugString( _T("error: g_hModule == NULL.\n") );
 		return false;
