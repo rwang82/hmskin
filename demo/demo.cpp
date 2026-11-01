@@ -162,8 +162,14 @@ void Win2Open() {
 		::SetForegroundWindow( g_hWnd2 );
 		return;
 	}
+	// frameless specimen ( user ruling 2026-11-01 ): born WITHOUT any
+	// non-client area - WS_POPUP draws no frame, WS_SYSMENU keeps Alt+F4.
+	// popups ignore CW_USEDEFAULT, so position relative to the main window.
+	RECT rcMain;
+	::GetWindowRect( g_hWnd, &rcMain );
 	g_hWnd2 = ::CreateWindow( szWindowClass2, _T("hmskin Gallery - second window"),
-		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		WS_POPUP | WS_SYSMENU,
+		rcMain.left + hm_layout_scale_px( 60 ), rcMain.top + hm_layout_scale_px( 180 ),
 		hm_layout_scale_px( 560 ), hm_layout_scale_px( 480 ),
 		g_hWnd, NULL, NULL, NULL );
 	if ( !g_hWnd2 )

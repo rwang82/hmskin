@@ -5,6 +5,8 @@
 
 // main window ( demo.cpp ).
 extern HWND g_hWnd;
+// second skin window ( demo.cpp ) - needed by the event listener's K60 close.
+extern HWND g_hWnd2;
 
 // hmskin ui root ( demo.cpp ).
 class hm_uiroot;

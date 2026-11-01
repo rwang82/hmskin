@@ -25,9 +25,12 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 	{
 	case HMSKIN_EVENT_BTN_CLICK:
 		_stprintf_s( szLine, 64, _T("BTN-%02d CLICK"), pKeelObj ? pKeelObj->getId() : 0 );
-		// the second window's close button ( K60 ) closes that window
-		if ( pKeelObj && pKeelObj->getId() == 60 )
-			Win2Close();
+		// the second window's close button ( K60 ) closes that window.
+		// deferred via a posted WM_CLOSE: destroying/disconnecting from
+		// inside the event dispatch frame ( mid sink iteration ) trips the
+		// dispatcher assert - the posted close runs in its own frame.
+		if ( pKeelObj && pKeelObj->getId() == 60 && g_hWnd2 )
+			::PostMessage( g_hWnd2, WM_CLOSE, 0, 0 );
 		break;
 	case HMSKIN_EVENT_CHECKBOX_CLICK:
 		{ // checkbox-class WMPs: K10 = CHK-02 checkbox, K48 = TGL-10 toggle.
