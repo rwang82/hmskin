@@ -156,13 +156,13 @@ def pixel_diff(path_a, path_b):
     return n, bbox
 
 
-def golden_compare(ch):
+def golden_compare(ch, path=None):
     from PIL import Image
     gold = os.path.join(GOLDEN, "e2e_ch%d.png" % ch)
     if not os.path.exists(gold):
         return False, "[ch%d] golden missing ( run --gold first )" % ch
     a = Image.open(gold).convert("RGB")
-    b = Image.open(SHOT).convert("RGB")
+    b = Image.open(path or SHOT).convert("RGB")
     if a.size != b.size:
         return False, "[ch%d] size mismatch %s vs %s" % (ch, a.size, b.size)
     n, _ = pixel_diff(gold, SHOT)
@@ -170,6 +170,29 @@ def golden_compare(ch):
     if frac > 0.03:
         return False, "[ch%d] golden MISMATCH: %.2f%% ( tolerance 3%% )" % (ch, frac * 100)
     return True, "[ch%d] golden ok (%.2f%% diff)" % (ch, frac * 100)
+
+
+def golden_strip_compare(ch, rows=95, gate=0.06):
+    """top-strip ( title + menu bar + NC buttons ) chrome oracle, PrintWindow
+    based: self-capture is occlusion-immune ( an owned win2 always sits above
+    main and would fake a desktop diff ), and stale PrintWindow frames still
+    carry chrome - only content goes stale."""
+    from PIL import Image, ImageChops
+    gold = os.path.join(GOLDEN, "e2e_ch%d.png" % ch)
+    if not os.path.exists(gold):
+        return False, "[ch%d] golden missing ( run --gold first )" % ch
+    a = Image.open(gold).convert("RGB")
+    b = Image.open(SHOT).convert("RGB")
+    if a.size != b.size:
+        return False, "[ch%d] size mismatch %s vs %s" % (ch, a.size, b.size)
+    diff = ImageChops.difference(a.crop((0, 0, a.size[0], rows)),
+                                 b.crop((0, 0, b.size[0], rows)))
+    px = diff.load()
+    n = sum(1 for y in range(rows) for x in range(a.size[0]) if sum(px[x, y]) > 12)
+    frac = n / float(a.size[0] * rows)
+    if frac > gate:
+        return False, "[ch%d] top-strip MISMATCH: %.2f%% ( gate %.0f%% )" % (ch, frac * 100, gate * 100)
+    return True, "[ch%d] top-strip ok (%.2f%%)" % (ch, frac * 100)
 
 
 def new_evt_lines(before_text, after_text):
@@ -189,8 +212,10 @@ def step_chapter(results, ch):
     if bad:
         results.append((False, "[ch%d] visibility wrong for %s" % (ch, sorted(bad))))
         return
-    screenshot()
-    results.append(golden_compare(ch))
+    # desktop capture, not PrintWindow: the redirection surface can serve a
+    # stale frame ( documented lie mode ), the composed screen cannot
+    scr = screenshot_screen()
+    results.append(golden_compare(ch, scr))
 
 
 def main():
@@ -229,6 +254,31 @@ def run_suite():
     time.sleep(0.3)
 
     results = []
+
+    # ---- second skin window ( WP2 multi-window specimen ) ----
+    agent("win2 open")
+    time.sleep(0.5)
+    nodes = live_tree()
+    byid = {n["id"]: n for n in nodes}
+    bad = [k for k in (59, 60, 61) if k not in byid or not byid[k]["visible"]]
+    results.append((not bad, "[win2-open] K59/60/61 present+visible %s"
+                    % ("ok" if not bad else "BAD %s" % bad)))
+    # chrome regression guard ( 2026-11-01 ): while win2 is open the MAIN
+    # window must keep its top strip. PrintWindow self-capture: occlusion-
+    # immune ( win2 is OWNED by main, always above it, would fake a desktop
+    # diff ), and stale frames still carry chrome.
+    screenshot()
+    ok, msg = golden_strip_compare(1)
+    results.append((ok, msg.replace("[ch1]", "[win2-open]", 1)))
+    agent("win2 close")
+    time.sleep(0.3)
+    agent("raise")   # win2 interlude shuffled the Z-order - reclaim it
+    time.sleep(0.3)
+    try:
+        agent("ping", timeout=4)
+        results.append((True, "[win2-close] demo alive"))
+    except Exception as e:
+        results.append((False, "[win2-close] demo died: %s" % e))
 
     # ---- chapters: structure + appearance ----
     for ch in (1, 2, 3, 4):

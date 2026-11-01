@@ -57,6 +57,10 @@ BEGIN
     BEGIN
         MENUITEM "关于(&A) ...",                IDM_ABOUT
     END
+    POPUP "窗口(&W)"
+    BEGIN
+        MENUITEM "第二窗口(&2)",                IDM_WIN2
+    END
 END
 
 

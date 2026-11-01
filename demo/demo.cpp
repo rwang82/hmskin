@@ -20,6 +20,8 @@
 
 //////////////////////////////////////////////////////////
 #define MAINWND_WNDPROPID (258)
+#define WIN2_WNDPROPID    (300)
+#define WIN2_KEELOBJ_BTN  (60)
 #define KEELOBJID_MAINBKGND (1)
 #define KEELOBJID_OWNDRAWBTN (3)
 #define KEELOBJID_MAINTAB (4)
@@ -51,6 +53,8 @@ HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 HWND g_hWnd;
+HWND g_hWnd2 = NULL;                      // second skin window ( WP2 )
+volatile LONG g_nWin2Cmd = 0;             // agent win2 op: 0 open / 1 close / 2 toggle
 HWND g_hBtnTest1 = NULL;
 // "--dump-tree <path>" mode: dump the keelobj tree after the first frame
 // settles and exit ( empty = interactive mode, no dump ).
@@ -102,6 +106,76 @@ void OpenSkinPopupMenu( unsigned int uRootItemIndex ) {
 	hm_lib_popupmenu_show( g_pHMRoot, hSubMenu,
 		rcWnd.left + hm_layout_scale_px( 20 + 5 + (int)uRootItemIndex * 60 ),
 		rcWnd.top + hm_layout_scale_px( 80 ), g_hWnd );
+}
+
+// ---- second skin window ( WP2 ): PropId 300, K59 root + K60 button + K61
+// label in the manifest. close = explicit disconnect + destroy ( the
+// rolled-back NCDESTROY auto-clean means manual disconnect is the contract ).
+// own window class: sharing the main class ran the main WndProc here too -
+// WM_DESTROY re-destroyed win2 from its own teardown ( recursive, 31 deep )
+// and posted WM_QUIT when win2 alone was closed.
+static const TCHAR szWindowClass2[] = _T("HmskinGallerySecondWnd");
+static LRESULT CALLBACK Wnd2Proc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) {
+	switch ( message )
+	{
+	case WM_RBUTTONDOWN: {
+		// win2 popup specimen: the engine popup served from the second window
+		POINT ptCursor;
+		MENUITEMINFO menuInfo;
+		HMENU hPopMenu;
+		::GetCursorPos( &ptCursor );
+		hPopMenu = ::CreatePopupMenu();
+		memset( &menuInfo, 0, sizeof( MENUITEMINFO ) );
+		menuInfo.cbSize = sizeof( MENUITEMINFO );
+		menuInfo.fMask = MIIM_STRING | MIIM_ID;
+		menuInfo.fType = MFT_STRING;
+		menuInfo.dwTypeData = _T("win2 sub menu");
+		menuInfo.wID = 209;
+		::InsertMenuItem( hPopMenu, 0, TRUE, &menuInfo );
+		hm_lib_popupmenu_show( g_pHMRoot, hPopMenu,
+			ptCursor.x, ptCursor.y, g_hWnd2 );
+		break;
+	}
+	case WM_COMMAND:
+		if ( LOWORD( wParam ) == 209 )
+			AppendEventLog( _T("WIN2-MENU 209 via WM_COMMAND") );
+		break;
+	case WM_CLOSE:
+		::DestroyWindow( hWnd );
+		break;
+	case WM_ERASEBKGND:
+		// the win2 skin paints the whole client - skip the class-brush flash
+		return 1;
+	case WM_DESTROY:
+		// single death path: unbind the skin, drop the global
+		hm_wndpropid_disconnect( g_pHMRoot, g_hWnd2, WIN2_WNDPROPID );
+		g_hWnd2 = NULL;
+		break;
+	default:
+		return ::DefWindowProc( hWnd, message, wParam, lParam );
+	}
+	return 0;
+}
+
+void Win2Open() {
+	if ( g_hWnd2 && ::IsWindow( g_hWnd2 ) ) {
+		::SetForegroundWindow( g_hWnd2 );
+		return;
+	}
+	g_hWnd2 = ::CreateWindow( szWindowClass2, _T("hmskin Gallery - second window"),
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		hm_layout_scale_px( 560 ), hm_layout_scale_px( 480 ),
+		g_hWnd, NULL, NULL, NULL );
+	if ( !g_hWnd2 )
+		return;
+	hm_wndpropid_connect( g_pHMRoot, g_hWnd2, WIN2_WNDPROPID );
+	::ShowWindow( g_hWnd2, SW_SHOW );
+	::UpdateWindow( g_hWnd2 );
+}
+
+void Win2Close() {
+	if ( g_hWnd2 && ::IsWindow( g_hWnd2 ) )
+		::DestroyWindow( g_hWnd2 );   // WM_DESTROY does the disconnect
 }
 
 // event log ( EVT-08 ) : prepend newest line, keep last 12, refresh the text WMP.
@@ -310,6 +384,21 @@ static DWORD WINAPI hmsh_agent_thread( LPVOID ) {
 				}
 			}
 			hmsh_agent_reply( s, true, "%s", szEsc );
+		} else if ( 0 == strcmp( szOp, "win2" ) ) {
+			// szA1 = open|close|toggle; window work happens on the UI thread
+			if ( 0 == strcmp( szA1, "open" ) )
+				g_nWin2Cmd = 0;
+			else if ( 0 == strcmp( szA1, "close" ) )
+				g_nWin2Cmd = 1;
+			else if ( 0 == strcmp( szA1, "toggle" ) )
+				g_nWin2Cmd = 2;
+			else {
+				hmsh_agent_reply( s, false, "bad win2 args" );
+				closesocket( s );
+				continue;
+			}
+			::PostMessage( g_hWnd, WM_APP + 6, 0, 0 );
+			hmsh_agent_reply( s, true, "win2 %s", szA1 );
 		} else {
 			hmsh_agent_reply( s, false, "unknown op" );
 		}
@@ -526,6 +615,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
+	if ( !RegisterClassEx(&wcex) )
+		return 0;
+	// second skin window class ( WP2 ): same look, own proc - see Wnd2Proc
+	wcex.lpfnWndProc	= Wnd2Proc;
+	wcex.lpszMenuName	= NULL;                     // win2 carries no menu bar
+	wcex.lpszClassName	= szWindowClass2;
 	return RegisterClassEx(&wcex);
 }
 
@@ -714,6 +809,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
+		case IDM_WIN2:
+			if ( g_hWnd2 ) Win2Close(); else Win2Open();
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -813,6 +911,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
+	case ( WM_APP + 6 ): {
+		// agent win2 op, executed on the UI thread ( window creation rules )
+		switch ( g_nWin2Cmd ) {
+		case 0: Win2Open(); break;
+		case 1: Win2Close(); break;
+		default: if ( g_hWnd2 ) Win2Close(); else Win2Open(); break;
+		}
+		break;
+	}
 	case ( WM_APP + 5 ): {
 		// agent desktop capture: BitBlt the window rect off the real screen
 		// into _mcp_shot2.png ( see the "shotscreen" op for the rationale )
@@ -851,6 +958,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_DESTROY:
+		// win2 outliving the main window would leak its PropId binding -
+		// destroy it first ( its WM_DESTROY does the disconnect )
+		if ( g_hWnd2 && ::IsWindow( g_hWnd2 ) )
+			::DestroyWindow( g_hWnd2 );
 		PostQuitMessage(0);
 		break;
 	default:

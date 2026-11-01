@@ -23,3 +23,8 @@ void OpenSkinPopupMenu( unsigned int uRootItemIndex );
 
 // switch the visible tab chapter ( 0..3 = sec.1..sec.4, demo.cpp ).
 void SwitchChapter( unsigned int uChapterIndex );
+
+// second skin window ( WP2 multi-window specimen ): open/close the
+// PropId-300 window. close = explicit disconnect + destroy.
+void Win2Open();
+void Win2Close();
