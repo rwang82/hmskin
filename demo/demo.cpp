@@ -328,6 +328,28 @@ static DWORD WINAPI hmsh_agent_thread( LPVOID ) {
 			} else {
 				hmsh_agent_reply( s, false, "bad click args" );
 			}
+		} else if ( 0 == strcmp( szOp, "rclick" ) ) {
+			// real-input RIGHT click at MAIN-client coords ( e2e win2 popup
+			// specimen: the cursor really sits there, so GetCursorPos-based
+			// popup placement in Wnd2Proc is deterministic )
+			int x = 0, y = 0;
+			char szX[ 64 ] = { 0 };
+			if ( sscanf_s( szA1, "%63[^,],%d", szX, (unsigned)sizeof( szX ), &y ) == 2 ) {
+				x = atoi( szX );
+				POINT pt = { x, y };
+				::ClientToScreen( g_hWnd, &pt );
+				::SetCursorPos( pt.x, pt.y );
+				Sleep( 80 );
+				INPUT inp[ 2 ] = { 0 };
+				inp[ 0 ].type = INPUT_MOUSE;
+				inp[ 0 ].mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+				inp[ 1 ].type = INPUT_MOUSE;
+				inp[ 1 ].mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+				::SendInput( 2, inp, sizeof( INPUT ) );
+				hmsh_agent_reply( s, true, "rclicked %d,%d", x, y );
+			} else {
+				hmsh_agent_reply( s, false, "bad rclick args" );
+			}
 		} else if ( 0 == strcmp( szOp, "wheel" ) ) {
 			// szA1 = "x,y,delta" in CLIENT coords ( delta in wheel notches,
 			// e.g. -3 for three steps down ) - same synthetic-post pattern

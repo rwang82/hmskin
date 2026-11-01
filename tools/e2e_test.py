@@ -131,6 +131,11 @@ def ncclick(x, y):
     time.sleep(0.6)
 
 
+def rclick(x, y):
+    agent("rclick %d,%d" % (x, y))
+    time.sleep(0.6)
+
+
 def node_center(nodes, kid):
     n = next((n for n in nodes if n["id"] == kid), None)
     if not n or not n.get("rect"):
@@ -165,7 +170,7 @@ def golden_compare(ch, path=None):
     b = Image.open(path or SHOT).convert("RGB")
     if a.size != b.size:
         return False, "[ch%d] size mismatch %s vs %s" % (ch, a.size, b.size)
-    n, _ = pixel_diff(gold, SHOT)
+    n, _ = pixel_diff(gold, path or SHOT)
     frac = n / float(a.size[0] * a.size[1])
     if frac > 0.03:
         return False, "[ch%d] golden MISMATCH: %.2f%% ( tolerance 3%% )" % (ch, frac * 100)
@@ -270,6 +275,22 @@ def run_suite():
     screenshot()
     ok, msg = golden_strip_compare(1)
     results.append((ok, msg.replace("[ch1]", "[win2-open]", 1)))
+
+    # win2 popup specimen: right-click on win2 opens the ENGINE popup owned
+    # by win2 ( Wnd2Proc WM_RBUTTONDOWN ); selecting its single item must
+    # deliver WM_COMMAND 209 back to win2 -> "WIN2-MENU 209" in the EVT log.
+    n61 = byid.get(61)
+    if n61 and n61.get("rect"):
+        r = n61["rect"]
+        px, py = r["l"] + 10, r["b"] + 40      # empty win2 area below the label
+        before = agent("evtlog")
+        rclick(px, py)
+        time.sleep(0.6)
+        ncclick(px + 80, py + 15)             # the single popup item row
+        time.sleep(0.6)
+        got = new_evt_lines(before, agent("evtlog"))
+        ok = any("WIN2-MENU 209" in ln for ln in got)
+        results.append((ok, "[win2-menu] EVT %s" % (got[:1],)))
     agent("win2 close")
     time.sleep(0.3)
     agent("raise")   # win2 interlude shuffled the Z-order - reclaim it
