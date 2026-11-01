@@ -251,6 +251,7 @@ python tools\smoke_test.py --perf D2D         ← 渲染后端性能 A/B（滚�
 python tools\smoke_test.py --perf Gdiplus
 python tools\smoke_test.py --tree           # 控件树转储 + 断言
 python tools\e2e_test.py              # 交互 E2E（需 demo 已启动）
+run_regression.cmd                 # 无头引擎门禁（无需桌面会话）
 ```
 
 金图基线（`tools/golden/`）守护当前 D2D 渲染外观；`--perf` 模式自动

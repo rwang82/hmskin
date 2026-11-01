@@ -44,3 +44,11 @@ demo 运行需 `demo.exe + hmskin.dll + demo.hm.manifest + image\` 同目录
 | AtlConv.h 找不到 | 缺 ATL 组件（见前置） |
 | .pch 找不到 | PCH 条件需逐平台写在 stdafx.cpp 条目（历史踩坑），Rebuild 一次 |
 | ARM64 平台不存在 | 旧 sln；确认拉了最新 master |
+
+## 无头回归门禁
+
+`run_regression.cmd`（仓库根）是第二道、不依赖会话的检查：只构建 hmskin +
+HMSkinRegression 控制台项目并运行 22 条无头引擎断言（生命周期/DPI 数学/契约）。
+退出码 = 失败用例数；输出落 `regression.log`。与 `tools/smoke_test.py` /
+`e2e_test.py`（驱动 GUI demo、必须交互桌面会话）不同，这道门禁随处可跑——
+ssh 直连也行。

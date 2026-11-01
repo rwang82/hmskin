@@ -566,7 +566,7 @@ void hm_wmp_rootmenu::_doDrawMenuItem( HDC hDC, const RECT& rcDMICanvas, unsigne
 		// explicit CJK font: the DC default ( bitmap System font ) has no
 		// Chinese glyphs - localized labels would render as tofu.
 		HFONT hFontOld = (HFONT)::SelectObject( hDC, _GetMenuLabelFont() );
-		::DrawText( hDC, rmiinfo.m_strText.c_str(), rmiinfo.m_strText.length(), (RECT*)&rcDMICanvas, DT_CENTER|DT_VCENTER|DT_SINGLELINE );
+		::DrawText( hDC, rmiinfo.m_strText.c_str(), (int)rmiinfo.m_strText.length(), (RECT*)&rcDMICanvas, DT_CENTER|DT_VCENTER|DT_SINGLELINE );
 		::SelectObject( hDC, hFontOld );
 		::SetTextColor( hDC, clrTextOld );
 		::SetBkMode( hDC, nBKModeOld );

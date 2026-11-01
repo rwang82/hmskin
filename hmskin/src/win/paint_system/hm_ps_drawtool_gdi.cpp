@@ -100,7 +100,7 @@ bool hm_ps_drawtool_gdi::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_data
 	nBkModeOld = ::SetBkMode( hDC, TRANSPARENT );
 	
 	//
-	::DrawText( hDC, pText->m_tstrData.c_str(), _tcslen( pText->m_tstrData.c_str() ), &rcText, format );
+	::DrawText( hDC, pText->m_tstrData.c_str(), (int)_tcslen( pText->m_tstrData.c_str() ), &rcText, format );
 
 	//
 	::SetBkMode( hDC, nBkModeOld );
@@ -128,7 +128,7 @@ bool hm_ps_drawtool_gdi::calcRect( HDC hDC, RECT& rcCanvas, const TCHAR* szText,
 	int a = 0;
 
 	//
-	::DrawText( hDC, szText, _tcslen( szText ), &rcCanvas, format|DT_CALCRECT );
+	::DrawText( hDC, szText, (int)_tcslen( szText ), &rcCanvas, format|DT_CALCRECT );
 	//
 	::SelectObject( hDC, hFontOld );
 	::SetTextColor( hDC, clrTextOld );

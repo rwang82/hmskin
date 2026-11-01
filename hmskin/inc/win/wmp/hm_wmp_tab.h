@@ -66,7 +66,7 @@ public:
 	void pushDown( unsigned int uTabBtnIndex );
 
 protected:
-	unsigned int _getTabBtnCount() { return m_containerTabBtns.size(); }
+	unsigned int _getTabBtnCount() { return (unsigned int)m_containerTabBtns.size(); }
 	void _doDrawSkin( HDC hDC, const RECT& rcCanvas, unsigned int uIndexSel, unsigned int uIndexPre, unsigned int uIndexHover );
 	void _doDrawSkinRaw( HDC hDC, const RECT& rcCanvas, unsigned int uIndexSel, unsigned int uIndexPre, unsigned int uIndexHover );
 	void _doDrawBtnRaw( HDC hDC, const RECT& rcCanvas, unsigned int uTabBtnIndex, ENUMDISTRICTID eDistrictType );

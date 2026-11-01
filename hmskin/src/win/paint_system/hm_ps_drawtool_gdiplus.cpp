@@ -96,7 +96,7 @@ bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_
 	Gdiplus::Graphics graph( hDC );
 	Gdiplus::RectF rcDraw( (Gdiplus::REAL)rcCanvas.left, (Gdiplus::REAL)rcCanvas.top, (Gdiplus::REAL)(rcCanvas.right - rcCanvas.left), (Gdiplus::REAL)(rcCanvas.bottom - rcCanvas.top) );
 	
-	sizeTextData = _tcslen( pText->m_tstrData.c_str() ) + 1;
+	sizeTextData = (int)_tcslen( pText->m_tstrData.c_str() ) + 1;
 	pTextData = new TCHAR[ sizeTextData ];
 	CFuncPack fpkDelBuf( ::gfnDelBuf< TCHAR >, pTextData );
 	_tcscpy_s( pTextData, sizeTextData, pText->m_tstrData.c_str() );
@@ -123,7 +123,7 @@ bool hm_ps_drawtool_gdiplus::draw( HDC hDC, const RECT& rcCanvas, hm_uires_text_
 //	  NoClip    0x00004000   let glyphs overhang the layout rect
 
 	USES_CONVERSION;
-	graph.DrawString( T2W( pTextData ), _tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &brushTextClr );
+	graph.DrawString( T2W( pTextData ), (int)_tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &brushTextClr );
     //
 
 	return true;
@@ -142,7 +142,7 @@ bool hm_ps_drawtool_gdiplus::calcRect( HDC hDC, RECT& rcCanvas, const TCHAR* szT
 	int linesFilled;
 	
 	strFormat.SetAlignment( Gdiplus::StringAlignmentFar );
-	sizeTextData = _tcslen( szText ) + 1;
+	sizeTextData = (int)_tcslen( szText ) + 1;
 	pTextData = new TCHAR[ sizeTextData ];
 	CFuncPack fpkDelBuf( ::gfnDelBuf< TCHAR >, pTextData );
 	_tcscpy_s( pTextData, sizeTextData, szText );
@@ -151,7 +151,7 @@ bool hm_ps_drawtool_gdiplus::calcRect( HDC hDC, RECT& rcCanvas, const TCHAR* szT
 		codepointsFitted = 0;
 		while( 1 ) {
 			USES_CONVERSION;
-			graphic.MeasureString( T2W( pTextData ), _tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &boundingBox, &codepointsFitted, &linesFilled );
+			graphic.MeasureString( T2W( pTextData ), (int)_tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &boundingBox, &codepointsFitted, &linesFilled );
 			if ( codepointsFitted != _tcslen( pTextData ) ) {
 				rcDraw.Height += 1;
 				continue;
@@ -163,7 +163,7 @@ bool hm_ps_drawtool_gdiplus::calcRect( HDC hDC, RECT& rcCanvas, const TCHAR* szT
 		linesFilled = 0;
 		while ( 1 ) {
 			USES_CONVERSION;
-			status = graphic.MeasureString( T2W( pTextData ), _tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &boundingBox, &codepointsFitted, &linesFilled );
+			status = graphic.MeasureString( T2W( pTextData ), (int)_tcslen( pTextData ), pRawResFont->getGPFont(), rcDraw, &strFormat, &boundingBox, &codepointsFitted, &linesFilled );
 			if ( linesFilled != 1 
 			|| codepointsFitted != _tcslen( pTextData ) ) {
 				rcDraw.Width += 1;

@@ -258,3 +258,6 @@ drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制�
 | 2026-10-18 | 观察者失效链 + 公共文字 API | uires text 可观察化（TEXTCHANGED 广播），WMP 内嵌 observer 收到事件即作废像素缓存；hm_wmp_set_text/_at 宿主只给 manifest id |
 | 2026-10-18 | E2E 交互回归套件 | tools/e2e_test.py 九断言（章节金图+交互 EVT+像素 diff），经 demo 内嵌 agent 服务可远程驱动 |
 | 2026-10-19 | 对外接口整理专项：正门 11→18 函数 | 登记册 21 触点逐项裁决：11 项升正门（id 寻址：显隐/裁剪/布局矩形/树转储/文字读写/全量换后端/DPI 换算）；其余判过渡高级面（根因=控件不完善，逐控件完善时回收评估）；demo 引擎穿透清零，hmskin_helper 退役 |
+| 2026-10-19 | A 组加固：五项小修 | UnRegMsgSinks 快照迭代；单 uiroot 启动守卫；shutdown 弹窗守卫+菜单子系统单一 s_pMenuRoot；depository Release 诊断；坐标系模板名纠正——⑤ 审计欠账清零 |
+| 2026-11-01 | 无头回归门禁（HMSkinRegression） | 仿 hmeditor 的控制台门禁，22 条引擎用例，退出码=失败数；可经 ssh 直跑——GUI 套件仍需桌面会话 |
+| 2026-10-19 | #32768 原地菜单皮肤化实验（已回滚） | 判决：皮肤条接管抑制原生菜单模式（NC 点击/SC_MOUSEMENU/注入 Alt 三路被拒）；抓菜单窗须 WH_CBT 而非 WH_CALLWNDPROC——结论存档备翻新场景 |

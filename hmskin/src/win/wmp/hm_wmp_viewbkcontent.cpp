@@ -160,7 +160,7 @@ void hm_wmp_viewbkcontent::_OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pW
 	wtd_container_type* pWTDContainer = NULL;
 	int nDistance;
 	
-	uNoTriggerTagCount = pWP->wParam;
+	uNoTriggerTagCount = (unsigned int)pWP->wParam;
 	pWTDContainer = (wtd_container_type*)pWP->lParam;
 	nDistance = WHELLHELPER_INSTANCE->getDistancePixel( uNoTriggerTagCount, pWTDContainer, 2000 );
 	if ( nDistance == 0 ) {

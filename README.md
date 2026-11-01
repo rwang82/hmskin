@@ -274,6 +274,7 @@ python tools\smoke_test.py --perf D2D         ← renderer A/B perf (wheel scena
 python tools\smoke_test.py --perf Gdiplus
 python tools\smoke_test.py --tree           # keelobj tree dump + assertions
 python tools\e2e_test.py              # interaction E2E ( demo must be running )
+run_regression.cmd                 # headless engine gate ( no desktop needed )
 ```
 
 The golden baseline (`tools/golden/`) guards the current D2D appearance;

@@ -93,6 +93,12 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 		::OutputDebugString( _T("hmskin: second uiroot refused ( single-uiroot contract ).\n") );
 		return false;
 	}
+	// a listener is the host's only event surface - refuse fast instead
+	// of asserting deep inside the uiroot ctor.
+	if ( !pParam || !pParam->m_pHMSkinEventListener ) {
+		::OutputDebugString( _T("hmskin: startup refused - an event listener is required.\n") );
+		return false;
+	}
 
 	if ( !g_hModule ) {
 		::OutputDebugString( _T("error: g_hModule == NULL.\n") );
@@ -524,7 +530,7 @@ HMLIB_API unsigned int hm_wmp_get_text( hm_uiroot* pHMUIRoot, unsigned int uKeel
 	const hm_uires_text_data* pTextData = pText->getData();
 	if ( !pTextData )
 		return 0;
-	unsigned int uLenText = pTextData->m_tstrData.length();
+	unsigned int uLenText = (unsigned int)pTextData->m_tstrData.length();
 	if ( !lpszBuf )
 		return uLenText + 1;   // chars the caller needs to allocate
 	if ( nMaxTextCount == 0 )

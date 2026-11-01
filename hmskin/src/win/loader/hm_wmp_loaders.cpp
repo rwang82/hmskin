@@ -427,7 +427,9 @@ bool hm_wmp_display_loader::_createPosDecoder_Stack( const Json::Value& valPDC, 
 		assert( false );
 		return false;
 	}
-	pctxStartPos = (int*)valTmp.asInt();
+	// dormant 2016 path: manifest stores a raw start position; keep
+	// the historical int-to-pointer handoff explicit for 64-bit.
+	pctxStartPos = (int*)(INT_PTR)valTmp.asInt();
 	//
 	hm_posdecoder_stack* pPDCStack = new hm_posdecoder_stack( eStackType, pctxStartPos );
 	//

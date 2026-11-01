@@ -40,7 +40,7 @@ public:
 	//
 	bool pushFrontShowObj( hm_showobj* pShowObj );
 	//
-	unsigned int getShowObjCount() { return m_containerShowObjs.size(); };
+	unsigned int getShowObjCount() { return (unsigned int)m_containerShowObjs.size(); };
 	//
 	hm_showobj* getShowObj( unsigned int uIndex );
 	//

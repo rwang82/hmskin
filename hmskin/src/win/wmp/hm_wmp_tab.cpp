@@ -103,7 +103,7 @@ void hm_wmp_tabheader::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 	RECT rcTabBtn;
 	POINT ptClient;
 	unsigned int uTabBtnIndex;
-	unsigned int uTabBtnCount = m_containerTabBtns.size();
+	unsigned int uTabBtnCount = (unsigned int)m_containerTabBtns.size();
 	unsigned int uIndexSelOld = m_uIndexSel;
 	HDC hDC;
 
@@ -165,7 +165,7 @@ void hm_wmp_tabheader::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	hm_layout_obj* pLayoutObj = NULL;
 	HDC hDC;
 	unsigned int uTabBtnIndex;
-	unsigned int uTabBtnCount = m_containerTabBtns.size();
+	unsigned int uTabBtnCount = (unsigned int)m_containerTabBtns.size();
 	unsigned int uTabBtnWidth;
 	BOOL bNeedDraw = FALSE;
 	unsigned int uIndexHovOld = m_uIndexHov;
@@ -287,7 +287,7 @@ void hm_wmp_tabheader::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	// wrap-around. WM_KEYDOWN reaches the focused window ( the canvas ),
 	// the dispatcher fans it out to this WMP. runs the exact same
 	// select/redraw/notify path as a click.
-	unsigned int uTabBtnCount = m_containerTabBtns.size();
+	unsigned int uTabBtnCount = (unsigned int)m_containerTabBtns.size();
 	unsigned int uIndexSelOld = m_uIndexSel;
 	hm_layout_obj* pLayoutObj = NULL;
 	RECT rcKeelObj;
@@ -426,7 +426,7 @@ void hm_wmp_tabheader::_doDrawSkinRaw( HDC hDC, const RECT& rcCanvas, unsigned i
 	hm_districtobj* pDistrictObj = NULL;
 	unsigned int uTabBtnWidth;
 	unsigned int uTabBtnIndex;
-	unsigned int uTabBtnCount = m_containerTabBtns.size();
+	unsigned int uTabBtnCount = (unsigned int)m_containerTabBtns.size();
 	hm_posdecoder_dock* pPosDecoder = NULL;
 
 	// draw background
@@ -466,7 +466,7 @@ void hm_wmp_tabheader::_doDrawSkinRaw( HDC hDC, const RECT& rcCanvas, unsigned i
 }
 
 void hm_wmp_tabheader::_doDrawBtnRaw( HDC hDC, const RECT& rcCanvas, unsigned int uTabBtnIndex, ENUMDISTRICTID eDistrictType ) {
-	unsigned int uTabBtnCount = m_containerTabBtns.size();
+	unsigned int uTabBtnCount = (unsigned int)m_containerTabBtns.size();
 	if ( !hDC || uTabBtnIndex >= uTabBtnCount )
 		return;
 	hm_districtobj* pDistrictObj = NULL;

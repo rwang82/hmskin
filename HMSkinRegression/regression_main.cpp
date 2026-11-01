@@ -52,6 +52,12 @@ static bool _file_contains( const TCHAR* szPath, const char* szNeedle ) {
 int main() {
 	printf( "HMSkinRegression: begin ( headless engine gate )\n" );
 
+	// ---- startup contract: a listener is required ( fail fast, no assert ) ----
+	hm_startup_param paramNull( (HINSTANCE)::GetModuleHandle( NULL ), NULL, 96 );
+	hm_uiroot* pRootNull = NULL;
+	CHECK( hm_lib_startup( &paramNull, _T( "demo.hm.manifest" ), &pRootNull ) == false,
+	       "startup without listener refused" );
+
 	regression_listener listener;
 	hm_startup_param param( (HINSTANCE)::GetModuleHandle( NULL ), &listener, 144 );
 	hm_uiroot* pRoot = NULL;

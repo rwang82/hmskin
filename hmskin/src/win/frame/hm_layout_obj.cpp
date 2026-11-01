@@ -56,20 +56,29 @@ bool hm_layout_obj::mapPosition( HWND hWndDest, coordinate_system_hwnd::ENUMCSHT
 {
 	if ( !m_pCoordinateSystem )
 		return false;
-	RECT rcMap2WndDest;
-	
-	// map m_rect from hWndSrc to hWndDest.
+	RECT rcMap2Dest;
+
+	// map m_rect from hWndSrc into hWndDest's CLIENT area.
 	if ( m_pCoordinateSystem->getHWnd() == hWndDest ) {
-		rcMap2WndDest = m_rect;
+		rcMap2Dest = m_rect;
+		if ( m_pCoordinateSystem->getType() == coordinate_system_hwnd::CSH_WINDOW_TYPE ) {
+			if ( !WndToClient( hWndDest, &rcMap2Dest ) ) return false;
+		}
+	} else if ( m_pCoordinateSystem->getType() == coordinate_system_hwnd::CSH_CLIENT_TYPE ) {
+		// client -> client: MapWindowPoints is NC-aware. window-rect
+		// deltas ( the old way ) mis-place by the non-client height
+		// whenever the two windows frame differently.
+		rcMap2Dest = m_rect;
+		if ( ::MapWindowPoints( m_pCoordinateSystem->getHWnd(), hWndDest, (POINT*)&rcMap2Dest, 2 ) == 0 )
+			return false;
 	} else {
-		HWND hWndSrc;
+		// window -> window offset, then into the client area.
 		RECT rcScreenSrc;
 		RECT rcScreenDest;
 		int x;
 		int y;
-		
-		hWndSrc = m_pCoordinateSystem->getHWnd();
-		if ( !::GetWindowRect( hWndSrc, &rcScreenSrc ) )
+
+		if ( !::GetWindowRect( m_pCoordinateSystem->getHWnd(), &rcScreenSrc ) )
 			return false;
 		if ( !::GetWindowRect( hWndDest, &rcScreenDest ) )
 			return false;
@@ -77,22 +86,19 @@ bool hm_layout_obj::mapPosition( HWND hWndDest, coordinate_system_hwnd::ENUMCSHT
 		x = rcScreenSrc.left - rcScreenDest.left;
 		y = rcScreenSrc.top - rcScreenDest.top;
 		//
-		rcMap2WndDest.left = m_rect.left + x;
-		rcMap2WndDest.right = m_rect.right + x;
-		rcMap2WndDest.top = m_rect.top + y;
-		rcMap2WndDest.bottom = m_rect.bottom + y;
+		rcMap2Dest = m_rect;
+		rcMap2Dest.left += x;
+		rcMap2Dest.right += x;
+		rcMap2Dest.top += y;
+		rcMap2Dest.bottom += y;
+		if ( !WndToClient( hWndDest, &rcMap2Dest ) ) return false;
 	}
-	// CSH_CLIENT_TYPE -> CSH_CLIENT_TYPE || CSH_WINDOW_TYPE -> CSH_WINDOW_TYPE
-	if ( m_pCoordinateSystem->getType() == eType ) {
-		rcDest = rcMap2WndDest;
-	} else if ( m_pCoordinateSystem->getType() == coordinate_system_hwnd::CSH_CLIENT_TYPE ) { // CSH_CLIENT_TYPE -> CSH_WINDOW_TYPE
-		if ( !ClientToWnd( hWndDest, &rcMap2WndDest ) ) return false;
-		rcDest = rcMap2WndDest;
-	} else { // CSH_WINDOW_TYPE -> CSH_CLIENT_TYPE
-		if ( !WndToClient( hWndDest, &rcMap2WndDest ) ) return false;
-		rcDest = rcMap2WndDest;
+	// dest CLIENT -> requested eType
+	rcDest = rcMap2Dest;
+	if ( eType == coordinate_system_hwnd::CSH_WINDOW_TYPE ) {
+		if ( !ClientToWnd( hWndDest, &rcDest ) ) return false;
 	}
-	
+
 	return true;
 }
 
