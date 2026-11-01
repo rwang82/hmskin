@@ -14,7 +14,7 @@ BOOL hm_rs_hwnddepository::bindHWND2PropId( HWND hWnd, propid_type propId ) {
 	if ( !hWnd || _isHWNDBind2PropId( hWnd ) || _isPropIdBind2HWND( propId ) ) {
 		// one propId <-> one HWND: a reject usually means a stale entry
 		// leaked ( release build: diagnose via DebugView ).
-		::OutputDebugString( _T("hmskin: bindHWND2PropId rejected ( hwnd or propId already bound ).\n") );
+		::OutputDebugString( TEXT("hmskin: bindHWND2PropId rejected ( hwnd or propId already bound ).\n") );
 		assert( FALSE );
 		return FALSE;
 	}
@@ -54,7 +54,7 @@ void hm_rs_hwnddepository::unBindHWND( HWND hWnd ) {
 		}
 	}
 	if ( !bFound )
-		::OutputDebugString( _T("hmskin: unBindHWND found no binding ( double disconnect? ).\n") );
+		::OutputDebugString( TEXT("hmskin: unBindHWND found no binding ( double disconnect? ).\n") );
 }
 
 HWND hm_rs_hwnddepository::propId2HWND( propid_type propId ) {
