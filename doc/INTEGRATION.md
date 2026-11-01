@@ -296,3 +296,34 @@ the `_at` variant targeting ( district id, declaration index ).
 
 More design detail in the repo-root `DESIGN.md`; behavioral baseline in
 `demo/`.
+
+## 8. Multi-window hosting ( one process, several skinned windows )
+
+The contract is **one uiroot, one manifest, one PropId per window** ( see
+`hmskin.h` ): the second ( and further ) windows are just another subtree
+in the same manifest, connected with their own `hm_wndpropid_connect`
+call. The demo carries a live specimen - the frameless "second window"
+( `PropId 300`, `K59..K61`, `MsgSink 13`, `CS 5`, demo menu
+`Window -> Second window` ).
+
+Rules learned the hard way:
+
+- **Own window class per wndproc**: never share the main window's class
+  for an extra window - the main `WndProc` then runs for it too ( a
+  recursive self-destroy on `WM_DESTROY`, a stray `PostQuitMessage` when
+  the extra window alone closes ).
+- **No NC unless you skin it**: a connected window with no
+  `hm_wmp_bkgnd_nca` WMP keeps its native frame. The demo's second window
+  is born frameless instead ( `WS_POPUP | WS_SYSMENU` ) - that is a
+  legitimate form for tool/specimen windows.
+- **Per-window instances**: every trigger WMP instance belongs to exactly
+  one window - sharing a drawtrigger across windows cross-stomps canvases.
+- **Teardown from event callbacks must defer**: closing a window from
+  inside an engine event ( e.g. a skinned close button ) must
+  `PostMessage( hWnd, WM_CLOSE )`, never destroy/disconnect inline - the
+  callback runs inside the dispatcher's sink iteration and tearing the
+  containers down mid-loop trips an assert
+  ( `hm_hs_wnd_msg_dispatch.cpp` ). Explicit paths ( your own message
+  handlers, shutdown ) are fine.
+- `WM_DESTROY` of the extra window is the single death path: disconnect
+  there, null the global handle.

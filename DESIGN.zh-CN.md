@@ -261,3 +261,6 @@ drawtrigger 用 ps.rcPaint 驱动裁剪遍历 + BitBlt 只拷损坏区。绘制�
 | 2026-10-19 | A 组加固：五项小修 | UnRegMsgSinks 快照迭代；单 uiroot 启动守卫；shutdown 弹窗守卫+菜单子系统单一 s_pMenuRoot；depository Release 诊断；坐标系模板名纠正——⑤ 审计欠账清零 |
 | 2026-11-01 | 无头回归门禁（HMSkinRegression） | 仿 hmeditor 的控制台门禁，22 条引擎用例，退出码=失败数；可经 ssh 直跑——GUI 套件仍需桌面会话 |
 | 2026-10-19 | #32768 原地菜单皮肤化实验（已回滚） | 判决：皮肤条接管抑制原生菜单模式（NC 点击/SC_MOUSEMENU/注入 Alt 三路被拒）；抓菜单窗须 WH_CBT 而非 WH_CALLWNDPROC——结论存档备翻新场景 |
+| 2026-11-01 | 坐标转换修复 + 门禁坐标映射用例 | 遗产 WndToClient/ClientToWnd 是输入依赖的（一个抵消输入、一个翻倍输入）；mapPosition 重写让 WINDOW→WINDOW 路径经它们往返后才暴露——NC 命中矩形整体偏带，菜单/三钮画得出点不动；门禁 23→28 用例，换回坏函数即红（test-the-test 已验证） |
+| 2026-11-01 | 主窗外壳形态定谳：皮肤自绘 NC 保留 | "保留非客户区"=存在且被换肤，不是回归原生样式——一天的原生外壳插曲已回退；今后方向性变更一律用外观语言确认 |
+| 2026-11-01 | win2 终态：天生无边框（WS_POPUP\|WS_SYSMENU）裸标本 | 用户两次裁决——完全无非客户区、不配皮肤菜单/标题件、创建即无边框而非事后剥离；事件回调里拆窗必须 defer（PostMessage WM_CLOSE）——派发栈铁律第三实证（sink 迭代器断言 hm_hs_wnd_msg_dispatch.cpp:359） |

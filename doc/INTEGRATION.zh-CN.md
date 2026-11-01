@@ -234,3 +234,28 @@ InvalidateRect。
   `hmskin_perf.log`（进程退出自动落盘的文字绘制性能统计）。无 marker 时全部静默。
 
 更多设计细节见仓库根 `DESIGN.zh-CN.md`；行为基线见 `demo/`。
+
+## 8. 多窗口宿主（一个进程，多个皮肤窗口）
+
+契约是**单 uiroot、单 manifest、每窗口一个 PropId**（见 `hmskin.h`）：
+第二个（及更多）窗口就是同一份 manifest 里的另一棵子树，各自调一次
+`hm_wndpropid_connect`。demo 里有活标本——无边框「第二窗口」
+（`PropId 300`、`K59..K61`、`MsgSink 13`、`CS 5`，demo 菜单
+「窗口 → 第二窗口」）。
+
+用血泪换来的规则：
+
+- **每个 wndproc 配自己的窗口类**：附加窗口绝不要共用主窗口类——否则主
+  `WndProc` 也会跑在它上面（`WM_DESTROY` 自递归销毁、只关附加窗口却
+  `PostQuitMessage` 整个退出）。
+- **不配皮肤件就别想当然**：连接进皮肤但没有 `hm_wmp_bkgnd_nca` 件的窗口
+  保留原生边框。demo 第二窗口是天生无边框（`WS_POPUP | WS_SYSMENU`）——
+  工具窗/标本窗的合法形态。
+- **WMP 实例按窗独占**：每个 trigger WMP 实例只属于一个窗口——跨窗共享
+  drawtrigger 会互相践踏画布。
+- **事件回调里拆窗必须 defer**：在引擎事件里关窗（比如皮肤关闭按钮）必须
+  `PostMessage( hWnd, WM_CLOSE )`，绝不能内联 destroy/disconnect——回调
+  运行在派发器的 sink 迭代里，中途拆容器必断言
+  （`hm_hs_wnd_msg_dispatch.cpp`）。显式路径（你自己的消息处理、shutdown）
+  不受限。
+- 附加窗口的 `WM_DESTROY` 是唯一死亡路径：在那里断连 + 清全局句柄。
