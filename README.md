@@ -252,7 +252,7 @@ build.cmd                    ← all 6 configurations
 ```
 
 All output is redirected to `build.log`; any failure yields a non-zero exit
-code. See `doc/BUILDING.md` (Chinese).
+code. See `doc/BUILDING.md`.
 
 ### Visual Studio
 
@@ -292,7 +292,7 @@ button/toggle/radio/menu interactions asserted by event log and pixel diff.
 | `tools/` | `gen_skin.py` bitmap generator + `smoke_test.py` smoke tests + `hmskin_mcp.py` agent bridge |
 | `doc/` | `INTEGRATION.md` integration guide + `BUILDING.md` build guide + `img/` screenshots |
 | `tools/golden/` | golden-image regression baseline (the appearance the smoke test guards) |
-| `DESIGN.md` | design system (palette / type scale / layout / component specs, Chinese) |
+| `DESIGN.md` | design system (palette / type scale / layout / component specs) |
 
 ## Platform & Dependencies
 

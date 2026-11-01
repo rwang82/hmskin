@@ -1,137 +1,159 @@
-# hmskin 集成指南
+# hmskin Integration Guide
 
-hmskin 是 Win32 换肤库：**hook 已有窗口 + GDI/GDI+ 位图自绘 + JSON manifest 驱动**。
-本文面向 C++ 集成者，覆盖最小接入、manifest 语法、控件（WMP）清单、事件表与已知坑。
-活例子：`demo/` 整个演示程序就是一份可运行的集成样例。
+[中文](INTEGRATION.zh-CN.md) | **English**
+
+hmskin is a Win32 skinning library: **hooks existing windows + GDI/GDI+
+bitmap self-drawing + JSON manifest driven**.
+This guide targets C++ integrators: minimal hookup, manifest syntax, the
+control (WMP) catalog, the event table and known pitfalls.
+A living example: the whole `demo/` application is a runnable integration
+sample.
 
 ---
 
-## 1. 最小接入（五步）
+## 1. Minimal hookup ( five steps )
 
 ```cpp
 #include "hmskin_cpp.h"
 #include "hmskin_event_listener_base.h"
 
-// ① 实现事件监听器（所有控件交互都从这里出）
+// (1) implement an event listener - every control interaction surfaces here
 class my_listener : public hmskin_event_listener_base {
 public:
     virtual void onHKSkinEvent( unsigned int uEventId, void* lParam1, void* lParam2 ) {
-        // 见 §5 事件表；lParam1 通常是 keelobj 指针
+        // see the section-5 event table; lParam1 is usually the keelobj pointer
     }
 };
 static my_listener g_listener;
 
-// ② 启动引擎：传入宿主实例 + 监听器 + manifest 路径（exe 相对路径）
+// (2) start the engine: host instance + listener + manifest path ( exe-relative )
 hm_startup_param param( hInstance, &g_listener );
 hm_uiroot* pRoot = NULL;
 hm_lib_startup( &param, _T("myapp.hm.manifest"), &pRoot );
 
-// ③ 创建窗口后连接皮肤（PropId 任选，manifest 的 MsgSink/CoordinateSystem 引用它）
-CreateWindow( ... );                       // 你的窗口
-hm_wndpropid_connect( pRoot, hWnd, 258 );  // 258 = demo 主窗口用的值
+// (3) connect the skin after creating the window ( PropId is your pick;
+//     the manifest's MsgSink / CoordinateSystem entries reference it )
+CreateWindow( ... );                       // your window
+hm_wndpropid_connect( pRoot, hWnd, 258 );  // 258 = the value the demo main window uses
 
-// ④ 接收事件、驱动业务；可按 id 取控件实例做运行时控制
+// (4) receive events and drive your app; fetch controls by id for
+//     runtime control
 hm_keel_obj* pKeelObj = NULL;
-hm_get_keelobj( pRoot, 47, &pKeelObj );    // manifest 里的 idKeelObj
+hm_get_keelobj( pRoot, 47, &pKeelObj );    // an idKeelObj from the manifest
 hm_wmp_scrollbar* pBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObj->getWMP( 70 ) );
 pBar->setValRange( 0, 100 );
-hm_wmp_set_text( pRoot, 47, 62, _T("READY") );  // 文字 WMP：公共 API 直改（缓存自动失效）
+hm_wmp_set_text( pRoot, 47, 62, _T("READY") );  // text WMP: public API, cache
+                                                // invalidates itself
 
-// ⑤ 退出时（自管生命周期的弹窗类窗口需先 disconnect，见 §3 铁律 3）
+// (5) at exit ( popup-class windows with self-managed lifetimes must
+//     disconnect first - see section 3, iron rule 3 )
 hm_lib_shutdown( pRoot );
 ```
 
-窗口消息不需要你转发——引擎自行 hook/子类化分发（`hm_hs_wnd_msg_dispatch`）。
-链接：`hmskin.lib`（导入库），运行时需要 `hmskin.dll` + manifest + 皮肤位图目录在 exe 旁。
+You never forward window messages - the engine hooks/subclasses and
+dispatches on its own ( `hm_hs_wnd_msg_dispatch` ).
+Linking: `hmskin.lib` ( import library ); at runtime `hmskin.dll` + the
+manifest + the skin bitmap directory sit next to the exe.
 
-### 运行时正门速查（hmskin.h，全部按 manifest id 寻址）
+### Runtime front-door quick reference ( hmskin.h, all addressed by manifest id )
 
-| 域 | 函数 |
+| Domain | Functions |
 |---|---|
-| 会话 | `hm_lib_startup` / `hm_lib_shutdown` |
-| 窗口绑定 | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
-| keelobj 控制 | `hm_get_keelobj`（取高级面指针）/ `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree`（JSON 树转储，agent/调试） |
-| 文字 | `hm_wmp_set_text` / `hm_wmp_set_text_at`（多文字定位）/ `hm_wmp_get_text`（两段式读） |
-| 渲染 | `hm_set_drawtool_all`（`HM_DRAWTOL_GDI/GDIPLUS/D2D` 全量换后端）/ `hm_layout_scale`、`hm_layout_scale_px`（96 基准换算） |
-| 菜单 | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
+| Session | `hm_lib_startup` / `hm_lib_shutdown` |
+| Window binding | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
+| keelobj control | `hm_get_keelobj` ( advanced-face pointer ) / `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree` ( JSON tree dump, agent/debug ) |
+| Text | `hm_wmp_set_text` / `hm_wmp_set_text_at` ( multi-text targeting ) / `hm_wmp_get_text` ( two-call read ) |
+| Rendering | `hm_set_drawtool_all` ( `HM_DRAWTOL_GDI/GDIPLUS/D2D` backend swap for every WMP ) / `hm_layout_scale`, `hm_layout_scale_px` ( 96-baseline conversion ) |
+| Menus | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
 
-常用操作（章节切换/滚动容器/文字/失效矩形）**全程不需要引擎指针**——id 进、结果出；
-控件级与布局级配置走 §3「高级面」。
+Common operations ( chapter switching, scroll containers, text, invalidation
+rects ) **never need an engine pointer** - ids in, results out;
+control-level and layout-level configuration goes through the section-3
+"advanced face".
 
 ---
 
-## 2. 核心概念（五分钟版）
+## 2. Core concepts ( five-minute version )
 
-| 概念 | 是什么 |
+| Concept | What it is |
 | --- | --- |
-| **keelobj** | 控件树节点（有布局、有可见性、有父子里含关系）。`idKeelObj` 是 manifest 里的数字身份 |
-| **WMP** | 窗口消息处理器 = 控件行为类（按钮/复选框/滚动条……）。挂在 keelobj 上，一个 keelobj 可挂多个 |
-| **manifest** | JSON 皮肤描述：位图表、字体表、色表、坐标系、控件树、每个 WMP 的绘制配置 |
-| **MsgSink** | 消息源绑定：PropId（窗口属性标记）或 CtrlId（子控件 id）→ 决定 WMP 收哪个窗口的消息 |
-| **CoordinateSystem** | 坐标系：某个窗口的客户区/窗口区，布局解码器的 rect 在它里面表达 |
-| **district** | WMP 内的绘制分区：一组 showobj（位图/文字/纯色 + 可选 posdecoder） |
+| **keelobj** | A node of the control tree ( has layout, visibility and parent/child ownership ). `idKeelObj` is its numeric identity in the manifest |
+| **WMP** | Window message processor = the control behavior class ( button / checkbox / scrollbar ... ). Attached to a keelobj; one keelobj can carry several |
+| **manifest** | The JSON skin description: bitmap table, font table, color table, coordinate systems, the control tree, per-WMP drawing config |
+| **MsgSink** | Message-source binding: PropId ( window property mark ) or CtrlId ( child control id ) - decides which window's messages a WMP receives |
+| **CoordinateSystem** | A coordinate system: some window's client or window area; layout decoder rects are expressed inside it |
+| **district** | A drawing partition inside a WMP: a group of showobjs ( bitmap / text / solid color + optional posdecoder ) |
 
-## 3. manifest 章节速查
+## 3. Manifest section quick reference
 
 ```
-RawPic           { DirPath, PicFiles:[{id, name}] }   位图表（PNG，alpha 可用）
+RawPic           { DirPath, PicFiles:[{id, name}] }   bitmap table ( PNG, alpha ok )
 Font             [{id, FaceName, Style, SizeUnit, Size}]   Style: REGULAR|BOLD|ITALIC
 Color            [{id, R, G, B}]
 CoordinateSystem [{CSId, WndMarkFlag:PropId|CtrlId, Type:Client|Window}]
 MsgSink          [{idMsgSink, WndMark:PropId|CtrlId}]
-WndMsgProcessor  [{idWMP, WMPClsName, DrawTool, DistrictObjs, ...各类 Cfg}]
+WndMsgProcessor  [{idWMP, WMPClsName, DrawTool, DistrictObjs, ...various Cfg}]
 KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, LayoutDecoder}, WMP:[{id, RegEvts}]}]
 ```
 
-**三条铁律**：
-1. `ParentKeelObjId` 决定**绘制树归属**（子不在父子树里就永远不画）；
-   `RefKeelObjId`（在 LayoutDecoder 里）只管**定位参照**。两者独立，别混。
-2. KeelObj 数组顺序 = 加载顺序；`RefKeelObjId` 引用的对象必须已存在。
-3. **一个 PropId ↔ 一个 HWND**（`hm_rs_hwnddepository` 会断言）；弹窗类自管生命周期的窗口，
-   两条死亡路径都要先 `hm_wndpropid_disconnect`。
+**Three iron rules**:
+1. `ParentKeelObjId` decides **draw-tree ownership** ( a child outside its
+   parent's subtree never draws ); `RefKeelObjId` ( inside the
+   LayoutDecoder ) only sets the **positioning reference**. They are
+   independent - do not conflate.
+2. The KeelObj array order = load order; an object referenced by
+   `RefKeelObjId` must already exist.
+3. **One PropId <-> one HWND** ( `hm_rs_hwnddepository` asserts it );
+   popup-class windows with self-managed lifetimes must
+   `hm_wndpropid_disconnect` on both death paths.
 
-### 布局解码器速查
+### Layout decoder quick reference
 
-| Decoder | 语义 | 随窗口 resize 时 |
+| Decoder | Semantics | On window resize |
 | --- | --- | --- |
-| `hm_layoutdecoder_corner` | 参考矩形某角 + **定宽高** | 只跟着角走，尺寸不变 |
-| `hm_layoutdecoder_dock` | 贴参考某边 + **定厚**（thickness），其余方向贴满 | 厚度方向不变，其余跟随 |
-| `hm_layoutdecoder_offset` | 四边**内缩**（右/下是 inset，正值向内） | 宽高都随参考伸缩 |
-| `hm_layoutdecoder_clientarea` | = 宿主窗口客户区（用于被接管的原生控件皮肤） | 跟随 |
+| `hm_layoutdecoder_corner` | anchored to a corner of the reference rect + **fixed size** | follows the corner, size unchanged |
+| `hm_layoutdecoder_dock` | docked to an edge + **fixed thickness**, fills the rest | thickness axis unchanged, rest follows |
+| `hm_layoutdecoder_offset` | **inset** on four sides ( right/bottom are insets, positive = inward ) | width and height stretch with the reference |
+| `hm_layoutdecoder_clientarea` | = the host window's client area ( for adopted native control skins ) | follows |
 
-经验：贴边随动控件用 dock（滚动条=DOCK_RIGHT 定宽贴满高）；行式文本用 DOCK_TOP（横流纵高钉死）；
-参考比内缩小会塌缩成空矩形（干净隐藏，2016 年的老版本会反转出负宽矩形——已修）。
+Rules of thumb: edge-following controls use dock ( scrollbar = DOCK_RIGHT,
+fixed width, full height ); row-style text uses DOCK_TOP ( horizontal flow,
+height pinned ). A reference smaller than the insets collapses to an empty
+rect ( cleanly hidden - the 2016 vintage used to invert into negative-width
+rects; fixed ).
 
-### WMP 类清单
+### WMP class catalog
 
-| WMPClsName | 用途 | 关键 API / 备注 |
+| WMPClsName | Purpose | Key API / notes |
 | --- | --- | --- |
-| `hm_wmp_bkgnd` | 静态面/文本/位图 | 文字走公共 API `hm_wmp_set_text`/`_at`（像素缓存自动失效） |
-| `hm_wmp_button` | 按钮 | 三态位图 |
-| `hm_wmp_checkbox` | 复选框/开关 | `setCheck(BOOL)`（保留交互子态跨勾选族）；`setRadioStyle` 已被 radio 类取代 |
-| `hm_wmp_radio` | 单选（继承 checkbox） | 已选中点击不翻转（无中间态闪屏）；点击发独立 RADIO_CLICK；组语义（选一灭兄弟）由应用层驱动 |
-| `hm_wmp_tabheader` | Tab 条 | `←/→` 键循环切换（wrap）；雪碧图三态+SEL |
-| `hm_wmp_scrollbar` | 滚动条 | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`；滚轮悬停父容器内自动步进 |
-| `hm_wmp_rootmenu` | 皮肤菜单栏 | 标签直接读 HMENU（GetMenuItemInfo） |
-| `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目 |
-| `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | 非客户区三件套 | 标题栏按钮/边框；NC 跟踪用 `TME_LEAVE\|TME_NONCLIENT` |
-| `hm_wmp_drawtrigger` | WM_PAINT 承接 | 整树离屏合成一次 blit；配 `layouttrigger` 处理 WM_SIZE 重排 |
-| `hm_wmp_movewnd` | **布局驱动原生窗口位置** | 见 §6 坑 5 |
-| `hm_wmp_viewbkcontent` | 2016 滚动视图骨架（休眠） | 已被「setClipChildren + 滚动条」组合方案取代 |
+| `hm_wmp_bkgnd` | static surface / text / bitmap | text via the public API `hm_wmp_set_text`/`_at` ( pixel cache invalidates itself ) |
+| `hm_wmp_button` | button | tri-state bitmaps |
+| `hm_wmp_checkbox` | checkbox / toggle | `setCheck(BOOL)` ( interactive substates kept across the check family ); `setRadioStyle` superseded by the radio class |
+| `hm_wmp_radio` | radio ( inherits checkbox ) | a checked radio does not flip on re-click ( no mid-state flicker ); fires its own RADIO_CLICK; group semantics ( select one, uncheck siblings ) is app-driven |
+| `hm_wmp_tabheader` | tab strip | `left/right` arrow cycling ( wrap ); sprite tri-state + SEL |
+| `hm_wmp_scrollbar` | scrollbar | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`; wheel auto-steps while hovering the parent container |
+| `hm_wmp_rootmenu` | skin menu bar | labels read straight from the HMENU ( GetMenuItemInfo ) |
+| `hm_wmp_popupmenu` | skin popup menu | `HMWM_BINDMENU` binds an HMENU; self-sizing, self-drawn items |
+| `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | the non-client trio | title-bar buttons / borders; NC tracking uses `TME_LEAVE\|TME_NONCLIENT` |
+| `hm_wmp_drawtrigger` | WM_PAINT taker | composites the tree offscreen, one blit; pair with `layouttrigger` for WM_SIZE relayout |
+| `hm_wmp_movewnd` | **layout drives a native window's position** | see section 6, pit 5 |
+| `hm_wmp_viewbkcontent` | 2016 scroll-view skeleton ( dormant ) | superseded by the setClipChildren + scrollbar combo |
 
-### 高级面（指针流）标准姿势
+### The advanced face ( pointer flows ), standard posture
 
-需要**控件级/布局级配置**时，经 `hm_get_keelobj` 取指针深入（demo 是活教材）：
+For **control-level / layout-level configuration**, go through
+`hm_get_keelobj` and dive in ( the demo is the living textbook ):
 
 ```cpp
-// ① 控件配置流：keelobj → WMP → 具体控件类
+// (1) control configuration flow: keelobj -> WMP -> concrete control class
 hm_keel_obj* pKeelObj = NULL;
 hm_get_keelobj( pRoot, 47, &pKeelObj );
 hm_wmp_scrollbar* pBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObj->getWMP( 70 ) );
 pBar->setValRange( 0, 100 );
 
-// ② 运行时布局调整（过渡方案）：decoder 参数就是 manifest 同款旋钮，
-//    三步契约 = 改参数 → calcPosition() 重算 → 失效目标矩形
+// (2) runtime layout adjustment ( transitional ): decoder parameters are
+//     the same knobs the manifest authors; three-step contract =
+//     change the parameter -> calcPosition() -> invalidate the target rect
 hm_layout_obj* pLayout = pKeelObj->getLayoutObj();
 hm_layoutdecoder_corner* pDecoder =
     dynamic_cast< hm_layoutdecoder_corner* >( pLayout->getLayoutDecoder() );
@@ -142,93 +164,135 @@ hm_keelobj_get_layout_rect( pRoot, id, &rc );
 ::InvalidateRect( hWnd, &rc, FALSE );
 ```
 
-事件回调天然是指针流（`lParam1` = keelobj*，`getId()` 识别来源）。
+Event callbacks are inherently pointer flows ( `lParam1` = keelobj*,
+`getId()` identifies the source ).
 
 ---
 
-## 4. 绘制模型（为什么不会闪）
+## 4. Drawing model ( why it never flickers )
 
-三层缓冲规则（`hm_wmp_display` 基类统一执行，控件只实现 `_render`）：
+The buffering rules ( enforced by the `hm_wmp_display` base; controls only
+implement `_render` ):
 
-| 路径 | 缓冲 |
+| Path | Buffering |
 | --- | --- |
-| 全窗 WM_PAINT（拉伸/章节切换） | 根画布离屏合成，单次 blit；BUF_CACHE_SIZE 控件直接 blt 缓存位图 |
-| 交互直绘（点击/悬停） | 控件声明策略：BUF_ALLOC（点击级现建）/ BUF_CACHE_SIZE（真像素缓存：首绘一次，其后 blt） |
+| Full-window WM_PAINT ( stretch / chapter switch ) | root canvas offscreen composite, single blit; BUF_CACHE_SIZE controls blt their cached bitmap directly |
+| Interactive direct draw ( click / hover ) | control-declared strategy: BUF_ALLOC ( build per click-rate draw ) / BUF_CACHE_SIZE ( true pixel cache: render once, blt afterwards ) |
 
-**失效契约（全自动，双通道）**：① 控件状态切换（`setCheck` 等）——状态感知缓存
-快照比对，一变即重绘；② 宿主改文字（`hm_wmp_set_text`/`_at`）——uires 观察者链
-广播 TEXTCHANGED，对应 WMP 自动作废像素缓存。宿主与控件作者都不需要碰
-InvalidateRect。
+**The invalidation contract ( fully automatic, two channels )**:
+(1) control state changes ( `setCheck` etc. ) - the state-aware cache
+snapshots and compares, any change re-renders; (2) host text updates
+( `hm_wmp_set_text`/`_at` ) - the uires observer chain broadcasts
+TEXTCHANGED and the owning WMP invalidates its pixel cache by itself.
+Neither hosts nor control authors ever touch InvalidateRect.
 
-写新控件：继承 `hm_wmp_display`，实现 `_render(hDC, rcCanvas)`（局部坐标系，
-对"最终画到屏幕还是离屏"无感），交互处理器里一行 `drawSelf(pKeelObj, hwnd)`，
-构造函数声明 `m_eBufStrategy`。有状态控件参考 button/tabheader 的快照模式
-（缓存绘制时的状态，切换时 `invalidateBuffer`）。悬停离开跟踪用基类
-`armMouseLeaveTracking/onLeaveArrived`。
+Writing a new control: inherit `hm_wmp_display`, implement
+`_render(hDC, rcCanvas)` ( local coordinates, oblivious to screen vs
+offscreen ), call `drawSelf(pKeelObj, hwnd)` from interaction handlers, and
+declare `m_eBufStrategy` in the constructor. Stateful controls follow the
+button/tabheader snapshot pattern ( cache the drawn state, call
+`invalidateBuffer` on switch ). Hover-leave tracking uses the base-class
+`armMouseLeaveTracking/onLeaveArrived`.
 
 ---
 
-## 5. 事件表（`hmskin_event_defs.h`）
+## 5. Event table ( `hmskin_event_defs.h` )
 
-| 事件 | lParam1 | lParam2 |
+| Event | lParam1 | lParam2 |
 | --- | --- | --- |
-| `HMSKIN_EVENT_BTN_CLICK` (1) | keelobj* | — |
-| `HMSKIN_EVENT_CHECKBOX_CLICK` (2) | keelobj* | 勾选态 BOOL |
-| `HMSKIN_EVENT_NCABTN_CLICK` (3) | keelobj*（id 区分 min/max/close） | — |
-| `HMSKIN_EVENT_TABBTN_CLICK` (4) | keelobj* | 选中索引（0 基） |
-| `HMSKIN_EVENT_ROOTMENU_CLICK` (5) | keelobj* | 菜单栏条目索引 |
-| `HMSKIN_EVENT_POPUPMENU_CLICK` (6) | keelobj*（弹窗） | 命令 id（菜单项 id） |
-| `HMSKIN_EVENT_SCROLLBAR_CHANGED` (7) | keelobj* | 当前值 |
-| `HMSKIN_EVENT_RADIO_CLICK` (8) | keelobj* | 恒 TRUE（radio 不翻转） |
-| `HMSKIN_EVENT_POPUPMENU_CLICK` (6) | keelobj*（弹窗） | 命令 id（菜单项 id）——引擎弹窗选中时 WM_COMMAND 已同时投递属主 |
+| `HMSKIN_EVENT_BTN_CLICK` (1) | keelobj* | - |
+| `HMSKIN_EVENT_CHECKBOX_CLICK` (2) | keelobj* | checked BOOL |
+| `HMSKIN_EVENT_NCABTN_CLICK` (3) | keelobj* ( id tells min/max/close apart ) | - |
+| `HMSKIN_EVENT_TABBTN_CLICK` (4) | keelobj* | selected index ( 0-based ) |
+| `HMSKIN_EVENT_ROOTMENU_CLICK` (5) | keelobj* | menu bar item index |
+| `HMSKIN_EVENT_POPUPMENU_CLICK` (6) | keelobj* ( the popup ) | command id ( the menu item id ) - the engine popup also posts native WM_COMMAND to the owner on selection |
+| `HMSKIN_EVENT_SCROLLBAR_CHANGED` (7) | keelobj* | current value |
+| `HMSKIN_EVENT_RADIO_CLICK` (8) | keelobj* | always TRUE ( radios do not flip ) |
 
-外部改控件状态（如灭单选兄弟）调 `setCheck`——它内部广播状态事件，
-宿主 keelobj 自动作废矩形重画，**应用层不需要碰任何 InvalidateRect**。
-改文字同理：`hm_wmp_set_text`/`_at` 经 uires 观察者链自动失效像素缓存（§4 失效契约）；
-多文字 WMP 用 `_at` 版本按（district id， 声明序号）精确定位。
-
----
-
-## 6. 已知坑（全部实测踩过）
-
-1. **文本矩形高度**：GDI+ 单行模式带 `StringFormatFlagsLineLimit`——行高放不下的整行不画。
-   文本 district 高度必须 ≥ 字号行高（12pt ≈ 19px）。"换字体就隐身"多半是矩形太矮。
-2. **位图 1:1**：district 位图是整体拉伸绘制的，非原生尺寸即变形发糊。
-   `gen_skin.py` 与 manifest 尺寸必须同步（滚动条 thumb/端钮的教训）。
-3. **九宫格无擦除**：NOR 态位图必须不透明（透明 NOR 会让上一态残留）。透明角落只允许在圆角处。
-4. **TrackMouseEvent 是窗口级共享资源**：武装幂等无害；**取消（TME_CANCEL）会拆全窗口的台**
-   ——控件层不要取消，离开恢复走几何路径或基类 leave 框架。
-5. **窗口位置可能被 manifest 驱动**：`hm_wmp_movewnd` + `WndMark` 会在宿主 keelobj 布局
-   计算时 `MoveWindow` 被标记窗口。动原生窗口位置前先查 manifest 有没有 movewnd 绑定。
-6. **源码编码**：老注释是 GBK，绝不整文件重存；新文件含中文要 UTF-8 BOM；
-   `.rc` 中文需 `code_page(65001)` + BOM；菜单文字（裸 DrawText）必须显式选 CJK 字体。
-7. **拆除顺序**：uiroot 析构 keelobj 工厂先于 WMP 工厂（依赖方向决定死亡顺序），别改回。
+Changing control state externally ( e.g. unchecking radio siblings ) goes
+through `setCheck` - it broadcasts the state event internally, the owning
+keelobj invalidates and repaints, **the app layer never touches
+InvalidateRect**. Text likewise: `hm_wmp_set_text`/`_at` ride the uires
+observer chain ( section-4 invalidation contract ); multi-text WMPs use
+the `_at` variant targeting ( district id, declaration index ).
 
 ---
 
-## 7. 能力边界（诚实清单）
+## 6. Known pitfalls ( all stepped on for real )
 
-- **不支持**：阴影/模糊（设计立场：深度靠面层级+发丝线）、保留模式合成、alpha 混合窗口。
-- **DPI**：Phase 1 已落——`hm_startup_param` 第三参 `uDpi`（96 基准 manifest 在加载咽喉点缩放；
-  GDI+ 点制字体由 Graphics 真实 DPI 自动换算，**切勿再手动乘 scale**）；专用 Cfg 几何
-  （菜单条目/NC 边框厚度）同步缩放。Phase 2 backlog：Per-Monitor 动态换档 + 多倍率位图集。
-- **透明菜单接管**（opt-in）：`hm_lib_enable_trackpopupmenu_hook(root, TRUE)` 后，宿主的原生
-  `TrackPopupMenu` 调用被引擎接管并皮肤化，选单按**原生语义** `PostMessage(WM_COMMAND, id)`
-  送回属主窗口——宿主零配合、现有 WM_COMMAND 处理器无感工作。manifest 需声明
-  `"PopupSkin": {"PropId": N}`（引擎弹窗连接的皮肤槽位）。主动式弹窗走
-  `hm_lib_popupmenu_show(root, hMenu, x, y, hWndOwner)`（同一引擎路径）。
-- **渲染后端三选一**：WMP 级声明 `"DrawTool": "Gdiplus"（默认）| "Gdi" | "D2D"`。
-  D2D 为混合形态（M1）：文字走 DirectWrite，位图/纯色/`calcRect` 转发 GDI+
-  （文本测量保持 GDI+ 度量，跨后端切换布局零位移）。宿主亦可在启动参数整体覆盖
-  （`--drawtool D2D`，遍历全部 WMP 运行时换后端）。性能观测常开：进程退出自动
-  产出 exe 旁 `hmskin_perf.log`（文字绘制的 count/avg/p50/p95/直方图）。
-- **未做**：完整焦点模型+焦点环（backlog）；D2D 位图原生路径（M2——判别实验
-  已定谳：DCRT BindDC/EndDraw 往返主导，TextLayout/Brush 缓存仅再省 ~30%）。
-- 滚动视图的正确姿势：容器 keelobj `setClipChildren(TRUE)` + 内容 keelobj 高于容器 +
-  滚动条值域 = 内容高 − 容器高；三路输入（拖/端钮/滚轮）开箱即用。
-- **诊断 API（常开零成本）**：exe 旁放 `hmskin.trace` marker 文件即全家族生效——
-  `hmskin_trace.log`（每条派发消息；首字符 `2` = 含 mousemove 全量）、
-  `hmskin_invalidate.log`（失效矩形普查，宿主可调 `hm_util_invlog` 打自定义点）、
-  `hmskin_perf.log`（进程退出自动落盘的文字绘制性能统计）。无 marker 时全部静默。
+1. **Text rect height**: GDI+ single-line mode with
+   `StringFormatFlagsLineLimit` - a line that does not fit the line height
+   is not drawn at all. Text districts must be >= the font's line height
+   ( 12pt ~ 19px ). "Vanishes when I change the font" is almost always a
+   too-short rect.
+2. **Bitmaps are 1:1**: district bitmaps draw stretched as a whole;
+   non-native sizes deform and blur. `gen_skin.py` and the manifest sizes
+   must stay in sync ( the scrollbar thumb/endbutton lesson ).
+3. **Nine-patch has no erase**: NOR-state bitmaps must be opaque ( a
+   transparent NOR leaves the previous state bleeding through ). Transparent
+   corners are only allowed at rounded corners.
+4. **TrackMouseEvent is window-global shared state**: arming is idempotent
+   and harmless; **cancelling ( TME_CANCEL ) pulls the rug from under the
+   whole window** - controls must not cancel; leave-restoration goes
+   through geometry or the base-class leave framework.
+5. **Window positions may be manifest-driven**: `hm_wmp_movewnd` +
+   `WndMark` calls `MoveWindow` on marked windows during host keelobj
+   layout calc. Check the manifest for movewnd bindings before moving
+   native windows yourself.
+6. **Source encodings**: old comments are GBK - never re-save whole files;
+   new files with Chinese need UTF-8 BOM; `.rc` Chinese needs
+   `code_page(65001)` + BOM; menu labels ( raw DrawText ) need an explicit
+   CJK font.
+7. **Teardown order**: uiroot destroys the keelobj factory before the WMP
+   factory ( the dependency direction decides the death order ) - do not
+   change it back.
 
-更多设计细节见仓库根 `DESIGN.md`；行为基线见 `demo/`。
+---
+
+## 7. Capability boundaries ( the honest list )
+
+- **Not supported**: shadows / blur ( by design stance: depth comes from
+  surface tiers + hairlines ), retained-mode compositing, alpha-blended
+  windows.
+- **DPI**: Phase 1 shipped - `hm_startup_param`'s third argument `uDpi`
+  ( 96-baseline manifests scale at the loader choke point; GDI+ point-size
+  fonts convert automatically through the Graphics DPI - **never multiply
+  by the scale yourself** ); dedicated Cfg geometry ( menu item / NC border
+  thicknesses ) scales in step. Phase 2 backlog: per-monitor dynamic
+  switching + multi-scale bitmap sets.
+- **Transparent menu takeover** ( opt-in ): after
+  `hm_lib_enable_trackpopupmenu_hook(root, TRUE)`, the host's native
+  `TrackPopupMenu` calls are intercepted and skinned by the engine;
+  selections return to the owner with **native semantics** via
+  `PostMessage(WM_COMMAND, id)` - zero host cooperation, existing
+  WM_COMMAND handlers work untouched. The manifest needs
+  `"PopupSkin": {"PropId": N}` ( the skin slot the engine popup connects
+  to ). Direct popups go through
+  `hm_lib_popupmenu_show(root, hMenu, x, y, hWndOwner)` ( same engine
+  path ).
+- **Three rendering backends**: per-WMP declaration
+  `"DrawTool": "Gdiplus" ( default ) | "Gdi" | "D2D"`. D2D is the hybrid
+  ( M1 ): text via DirectWrite; bitmaps / solids / `calcRect` forward to
+  GDI+ ( text measurement stays GDI+-metric - switching backends moves no
+  layout ). Hosts can also override globally ( the demo's `--drawtool D2D`
+  swaps every WMP at runtime ). Perf telemetry is always on: process exit
+  drops `hmskin_perf.log` next to the exe ( text draw count/avg/p50/p95/
+  histogram ).
+- **Not done yet**: a full focus model + focus ring ( backlog ); the D2D
+  native bitmap path ( M2 - the discrimination experiment concluded: the
+  DCRT BindDC/EndDraw round trip dominates; TextLayout/Brush caching only
+  saves another ~30% ).
+- The correct scroll-view recipe: container keelobj
+  `setClipChildren(TRUE)` + content keelobj taller than the container +
+  scrollbar range = content height - container height; all three input
+  paths ( drag / arrow buttons / wheel ) work out of the box.
+- **Diagnostics APIs ( always on, zero cost )**: drop a `hmskin.trace`
+  marker file next to the exe and the whole family wakes up -
+  `hmskin_trace.log` ( every dispatched message; first char `2` = include
+  the mousemove flood ), `hmskin_invalidate.log` ( invalidation-rect
+  census; hosts can add custom points via `hm_util_invlog` ),
+  `hmskin_perf.log` ( text-drawing perf stats dumped at process exit ).
+  Without the marker everything stays silent.
+
+More design detail in the repo-root `DESIGN.md`; behavioral baseline in
+`demo/`.

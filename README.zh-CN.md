@@ -219,7 +219,7 @@ hm_lib_enable_trackpopupmenu_hook( g_pHMRoot, TRUE );
 hm_lib_shutdown( g_pHMRoot );
 ```
 
-详细指南见 **`doc/INTEGRATION.md`**（五步接入 / manifest 速查 / WMP 清单 / 事件表 / 已知坑）。
+详细指南见 **`doc/INTEGRATION.zh-CN.md`**（五步接入 / manifest 速查 / WMP 清单 / 事件表 / 已知坑）。
 
 ## 构建
 
@@ -230,7 +230,7 @@ build.cmd Debug ARM64        ← 日常开发
 build.cmd                    ← 全 6 配置
 ```
 
-全量输出重定向到 `build.log`，任一失败 exit code 非零。详见 `doc/BUILDING.md`。
+全量输出重定向到 `build.log`，任一失败 exit code 非零。详见 `doc/BUILDING.zh-CN.md`。
 
 ### Visual Studio
 
@@ -266,9 +266,9 @@ E2E 套件经 demo 内嵌 agent 服务驱动运行中的 demo——章节金图 
 | `demo/` | 集成示例（「基准台」Gallery：四章节控件标本 + 事件日志 + token 表） |
 | `scrolldecorator/` | 独立自绘滚动条 DLL（可脱离 hmskin 单独使用） |
 | `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 + `hmskin_mcp.py` agent 桥 |
-| `doc/` | `INTEGRATION.md` 集成指南 + `BUILDING.md` 构建指南 + `img/` 截图 |
+| `doc/` | `INTEGRATION.zh-CN.md` 集成指南 + `BUILDING.zh-CN.md` 构建指南（均有英文版）+ `img/` 截图 |
 | `tools/golden/` | 金图回归基线（冒烟守护的渲染外观） |
-| `DESIGN.md` | 设计系统（色板/字阶/布局/组件规范） |
+| `DESIGN.zh-CN.md` | 设计系统（色板/字阶/布局/组件规范，[英文版](DESIGN.md)） |
 
 ## 平台与依赖
 
