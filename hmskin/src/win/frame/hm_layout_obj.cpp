@@ -165,44 +165,29 @@ void hm_layoutdecoder_i::setLayoutRefObj( const ref_obj_ptr_type pRefObj ) {
 //
 bool ClientToWnd( HWND hWnd, RECT* prcClt2Wnd )
 {
+	// window = client + ( clientOrigin - windowOrigin ), both origins in
+	// screen space: a uniform shift independent of the INPUT rect ( the old
+	// body fed the rect topleft into ClientToScreen, which cancelled or
+	// doubled the input coordinates ).
 	if ( !prcClt2Wnd ) return false;
+	POINT ptCltLT = { 0, 0 };
 	RECT rcWnd;
-	POINT ptCltLT;
-	RECT rcDest;
-	
-	//
-	ptCltLT.x = prcClt2Wnd->left;
-	ptCltLT.y = prcClt2Wnd->top;
+	if ( !::GetWindowRect( hWnd, &rcWnd ) )
+		return false;
 	::ClientToScreen( hWnd, &ptCltLT );
-	::GetWindowRect( hWnd, &rcWnd );
-	//
-	rcDest.left = prcClt2Wnd->left - ( rcWnd.left - ptCltLT.x );
-	rcDest.top = prcClt2Wnd->top - ( rcWnd.top - ptCltLT.y );
-	rcDest.right = rcDest.left + ( prcClt2Wnd->right - prcClt2Wnd->left );
-	rcDest.bottom = rcDest.top + ( prcClt2Wnd->bottom - prcClt2Wnd->top );
-	//
-	*prcClt2Wnd = rcDest;
+	OffsetRect( prcClt2Wnd, ptCltLT.x - rcWnd.left, ptCltLT.y - rcWnd.top );
 	return true;
 }
 //
 bool WndToClient( HWND hWnd, RECT* prcWnd2Clt )
 {
+	// client = window - ( clientOrigin - windowOrigin )
 	if ( !prcWnd2Clt ) return false;
+	POINT ptCltLT = { 0, 0 };
 	RECT rcWnd;
-	POINT ptCltLT;
-	RECT rcDest;
-	
-	//
-	ptCltLT.x = prcWnd2Clt->left;
-	ptCltLT.y = prcWnd2Clt->top;
+	if ( !::GetWindowRect( hWnd, &rcWnd ) )
+		return false;
 	::ClientToScreen( hWnd, &ptCltLT );
-	::GetWindowRect( hWnd, &rcWnd );
-	//
-	rcDest.left = prcWnd2Clt->left + ( rcWnd.left - ptCltLT.x );
-	rcDest.top = prcWnd2Clt->top + ( rcWnd.top - ptCltLT.y );
-	rcDest.right = rcDest.left + ( prcWnd2Clt->right - prcWnd2Clt->left );
-	rcDest.bottom = rcDest.top + ( prcWnd2Clt->bottom - prcWnd2Clt->top );
-	//
-	*prcWnd2Clt = rcDest;
+	OffsetRect( prcWnd2Clt, rcWnd.left - ptCltLT.x, rcWnd.top - ptCltLT.y );
 	return true;
-}	
+}
