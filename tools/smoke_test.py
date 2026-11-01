@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-hmskin smoke tests - golden-image compare + event-chain assertion + manifest validation
+hmskin smoke tests - manifest validation + event-chain trace + e2e interaction suite
 
 Usage ( Windows VM, any cmd ):
-python tools\\smoke_test.py                # all three phases
-python tools\\smoke_test.py --gold         # first-time golden capture ( verify the shot by hand )
-python tools\\smoke_test.py --no-screenshot  # skip golden ( manifest + event chain only )
+python tools\\smoke_test.py                # manifest + trace + e2e ( one command, full GUI verify )
+python tools\\smoke_test.py --no-e2e      # manifest + trace only
 python tools\\smoke_test.py --perf D2D     # A/B perf: backend override + EVT wheel scenario + graceful close -> prints hmskin_perf.log
 python tools\\smoke_test.py --perf Gdiplus
 python tools\\smoke_test.py --tree           # keelobj tree dump + assertions ( AI-agent infra )
 
 Phases:
 1. manifest validation - JSON syntax + structure of both manifests ( K/WMP reference consistency )
-2. event-chain assertion - launch demo -> simulate interaction -> expected events in hmskin_trace.log
-3. golden compare - screenshot after settle -> tolerance compare against tools/golden/*.png
+2. event-chain trace - launch demo -> dispatcher flow assertions in hmskin_trace.log
+3. e2e interaction suite ( e2e_test.run_with_fresh_demo, a private demo
+   instance - no hand-started resident needed ):
+     structure   live_tree keelobj visibility per chapter
+     appearance  the FOUR chapter goldens - the only screenshot tier, the
+                 pixel-truth guard for cache/draw regressions logs can't see
+     behavior    EVT log lines + click-target pixel diffs
 
 Exit code: 0 = all pass, non-zero = failures ( CI friendly ).
 """
@@ -24,7 +28,6 @@ import os, sys, json, re, time, subprocess, argparse
 REPO   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTDIR = os.path.join(REPO, "ARM64", "Debug")
 TRACE  = os.path.join(OUTDIR, "hmskin_trace.log")
-GOLDEN = os.path.join(REPO, "tools", "golden")
 MANIFESTS = [
     os.path.join(REPO, "demo", "assets", "Debug", "demo.hm.manifest"),
     os.path.join(REPO, "demo", "assets", "Release", "demo.hm.manifest"),
@@ -125,98 +128,7 @@ def check_trace_basics():
     return True, f"[trace] ok ({n_paint} paints, dispatcher alive, no MAPFAIL)"
 
 # ============================================================
-# phase 3: golden-image compare
-# ============================================================
-def grab_screenshot():
-    """Launch demo, wait for stability, capture window via PowerShell PrintWindow."""
-    exe = os.path.join(OUTDIR, "demo.exe")
-    if not os.path.exists(exe):
-        return None, "demo.exe not found ( build first )"
-    # clean old trace so the run is fresh
-    if os.path.exists(TRACE):
-        os.remove(TRACE)
-    # the engine gates the message trace on a marker file next to the exe
-    # ( '1' = level 1: everything but the mousemove flood ). smoke owns
-    # this precondition itself - depending on a marker left behind by some
-    # earlier debug session made the phase pass or fail on leftover state.
-    marker = os.path.join(OUTDIR, "hmskin.trace")
-    open(marker, "w").write("1")
-    # launch
-    proc = subprocess.Popen([exe], cwd=OUTDIR)
-    time.sleep(4)  # paint + settle
-    # capture via PowerShell ( PrintWindow into BMP, convert handled by PIL )
-    shot = os.path.join(REPO, "tools", "_smoke_shot.png")
-    ps_script = r'''
-Add-Type -AssemblyName System.Windows.Forms,System.Drawing
-Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-public class Win32Cap {
-    [DllImport("user32.dll")] public static extern bool PrintWindow(IntPtr h, IntPtr dc, uint flags);
-    [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
-    [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L, T, R, B; }
-}
-"@
-$p = Get-Process demo -ErrorAction SilentlyContinue | Select-Object -First 1
-if (-not $p) { exit 2 }
-$h = $p.MainWindowHandle
-if ($h -eq [IntPtr]::Zero) { exit 3 }
-$r = New-Object Win32Cap+RECT
-[Win32Cap]::GetWindowRect($h, [ref]$r) | Out-Null
-$w = $r.R - $r.L; $ht = $r.B - $r.T
-$bmp = New-Object System.Drawing.Bitmap($w, $ht)
-$g = [System.Drawing.Graphics]::FromImage($bmp)
-$hdc = $g.GetHdc()
-[Win32Cap]::PrintWindow($h, $hdc, 2) | Out-Null
-$g.ReleaseHdc($hdc)
-$g.Dispose()
-$bmp.Save("SHOT_PATH", [System.Drawing.Imaging.ImageFormat]::Png)
-exit 0
-'''.replace("SHOT_PATH", shot)
-    r = subprocess.run(["powershell", "-NoProfile", "-Command", ps_script],
-                       capture_output=True, text=True, timeout=30)
-    if r.returncode != 0 or not os.path.exists(shot):
-        proc.terminate()
-        os.remove(marker)
-        return None, f"screenshot failed ( ps rc={r.returncode}: {r.stderr[:200] if r.stderr else 'unknown'} )"
-    shot_png = shot
-    # run trace check while demo was up
-    trace_ok, trace_msg = check_trace_basics()
-    proc.terminate()
-    try: proc.wait(timeout=5)
-    except: proc.kill()
-    os.remove(marker)   # leave the output dir as we found it
-    return (shot_png, trace_msg) if trace_ok else (None, trace_msg)
-
-def compare_golden(shot_path, tolerance=0.03):
-    """Compare screenshot against golden image. tolerance = fraction of pixels allowed to differ."""
-    from PIL import Image
-    gold_path = os.path.join(GOLDEN, "demo_default.png")
-    if not os.path.exists(gold_path):
-        return False, f"golden not found: {gold_path} ( run with --gold first )"
-    a = Image.open(gold_path).convert("RGB")
-    b = Image.open(shot_path).convert("RGB")
-    if a.size != b.size:
-        return False, f"size mismatch: gold {a.size} vs shot {b.size}"
-    pa, pb = a.load(), b.load()
-    W, H = a.size
-    diff = 0
-    total = W * H
-    step = 3  # sample every 3rd px ( speed )
-    sampled = 0
-    for y in range(0, H, step):
-        for x in range(0, W, step):
-            ca, cb = pa[x, y], pb[x, y]
-            if abs(ca[0]-cb[0]) > 30 or abs(ca[1]-cb[1]) > 30 or abs(ca[2]-cb[2]) > 30:
-                diff += 1
-            sampled += 1
-    frac = diff / max(sampled, 1)
-    if frac > tolerance:
-        return False, f"golden MISMATCH: {frac:.1%} pixels differ ( tolerance {tolerance:.0%} )"
-    return True, f"golden ok ({frac:.1%} diff, tolerance {tolerance:.0%})"
-
-# ============================================================
-# phase 4: perf A/B ( backend override + wheel scenario )
+# perf A/B variant ( backend override + wheel scenario )
 # ============================================================
 def run_perf(tool):
     """A/B perf run: launch demo with --drawtool override, CLICK the sec.4
@@ -354,8 +266,7 @@ def run_tree_dump():
 # ============================================================
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--gold", action="store_true", help="save screenshot as new golden")
-    ap.add_argument("--no-screenshot", action="store_true", help="skip golden compare ( manifest + trace only )")
+    ap.add_argument("--no-e2e", action="store_true", help="skip the merged e2e interaction phase")
     ap.add_argument("--perf", nargs="?", const="D2D", default=None,
                     help="A/B perf run ( D2D | Gdiplus ): backend override + EVT wheel scenario + graceful close")
     ap.add_argument("--tree", action="store_true",
@@ -383,49 +294,57 @@ def main():
         results.append((ok, msg))
         if not ok: fail += 1
 
-    # phase 2+3 ( Windows only - demo.exe can't run elsewhere ).
-    # skipped entirely in perf/tree mode ( those runs ARE the demo launch ).
+    # phase 2+3 ( Windows only - demo.exe can't run elsewhere ): ONE demo
+    # instance carries both the trace check and the e2e suite ( no double
+    # launch, no window handover ). skipped in perf/tree mode ( those runs
+    # ARE the demo launch ).
     if ( args.perf or args.tree ) and sys.platform == "win32":
         pass
     elif sys.platform != "win32":
         results.append((True, "[smoke] non-Windows: manifest phase only"))
-    elif args.gold:
-        # --gold: capture screenshot and save as new golden ( manual verify + commit )
-        os.makedirs(GOLDEN, exist_ok=True)
-        shot, trace_msg = grab_screenshot()
-        if shot:
-            from PIL import Image
-            img = Image.open(shot)
-            img.save(os.path.join(GOLDEN, "demo_default.png"))
-            results.append((True, f"[golden] saved {img.size} + trace: {trace_msg}"))
-            os.remove(shot)
-        else:
-            results.append((False, f"[golden] capture failed: {trace_msg}"))
-            fail += 1
-    elif not args.no_screenshot:
-        # full mode: launch -> screenshot -> golden compare + trace check
-        shot, trace_msg = grab_screenshot()
-        if shot:
-            ok, msg = compare_golden(shot)
-            results.append((ok, msg + f" | {trace_msg}"))
-            if not ok: fail += 1
-            os.remove(shot)
-        else:
-            results.append((False, f"[smoke] {trace_msg}"))
-            fail += 1
+    elif not os.path.exists(os.path.join(OUTDIR, "demo.exe")):
+        results.append((False, "[trace] demo.exe not found ( build first )"))
+        fail += 1
     else:
-        # --no-screenshot: launch + trace check only ( no golden compare )
-        exe = os.path.join(OUTDIR, "demo.exe")
-        if os.path.exists(exe):
-            if os.path.exists(TRACE): os.remove(TRACE)
-            p = subprocess.Popen([exe], cwd=OUTDIR)
-            time.sleep(3)
-            ok, msg = check_trace_basics()
-            p.terminate()
-            try: p.wait(timeout=5)
-            except: p.kill()
-            results.append((ok, msg))
-            if not ok: fail += 1
+        # pre-flight: a leftover demo holding port 9321 would hijack every
+        # e2e agent op ( the suite's own instance binds nothing ) - refuse
+        # loudly instead of testing the WRONG process.
+        import socket
+        s = socket.socket()
+        s.settimeout(0.5)
+        try:
+            s.connect(("127.0.0.1", 9321))
+            busy = True
+        except OSError:
+            busy = False
+        finally:
+            s.close()
+        if busy:
+            results.append((False, "[setup] a demo is already running on port "
+                            "9321 - close it first ( the suite launches its "
+                            "own instance ) / 已有 demo 在运行，请先关闭再跑套件"))
+            fail += 1
+        else:
+            if os.path.exists(TRACE):
+                os.remove(TRACE)
+            marker = os.path.join(OUTDIR, "hmskin.trace")
+            open(marker, "w").write("1")
+            proc = subprocess.Popen([os.path.join(OUTDIR, "demo.exe")], cwd=OUTDIR)
+            try:
+                time.sleep(4)  # paint + settle
+                ok, msg = check_trace_basics()
+                results.append((ok, msg))
+                if not ok: fail += 1
+                if not args.no_e2e:
+                    import e2e_test
+                    print("\n-- phase 3: e2e interaction suite --")
+                    fail += e2e_test.run_suite()
+            finally:
+                proc.terminate()
+                try: proc.wait(timeout=5)
+                except: proc.kill()
+                if os.path.exists(marker):
+                    os.remove(marker)   # leave the output dir as we found it
 
     print()
     print("=" * 60)

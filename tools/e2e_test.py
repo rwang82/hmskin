@@ -203,10 +203,6 @@ def main():
     except Exception:
         print("FAIL:", DEMO_NOT_RUNNING)
         return 1
-    # lift the window above anything covering it ( the console running this
-    # very script ): desktop captures and menu clicks need a clear view
-    agent("raise")
-    time.sleep(0.3)
 
     if args.gold:
         os.makedirs(GOLDEN, exist_ok=True)
@@ -220,6 +216,17 @@ def main():
             print("  saved", dst)
         print("GOLD CAPTURED - review the 4 images, then commit")
         return 0
+
+    return run_suite()
+
+
+def run_suite():
+    """the full assertion suite against an ALREADY-RUNNING demo ( raises
+    the window first, sinks it back at the end ). returns fail count."""
+    # lift the window above anything covering it ( the console running
+    # this very script ): desktop captures and menu clicks need a clear view
+    agent("raise")
+    time.sleep(0.3)
 
     results = []
 
@@ -296,7 +303,7 @@ def main():
             fail += 1
         print(("  PASS  " if good else "  FAIL  ") + msg)
     print("E2E " + ("PASS" if fail == 0 else "FAIL (%d)" % fail))
-    return 0 if fail == 0 else 1
+    return fail
 
 
 if __name__ == "__main__":
