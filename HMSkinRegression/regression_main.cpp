@@ -49,6 +49,32 @@ static bool _file_contains( const TCHAR* szPath, const char* szNeedle ) {
 	return bFound;
 }
 
+// one dump node line -> its mapped rect ( formatter is the dump's own,
+// stable: `{ "id": N, ..., "rect": { "l": L, "t": T, "r": R, "b": B } }` )
+static bool _find_node_rect( const TCHAR* szPath, int nId, RECT* prc ) {
+	FILE* fp = _tfopen( szPath, _T( "rb" ) );
+	if ( !fp )
+		return false;
+	char szLine[ 512 ];
+	char szWant[ 32 ];
+	sprintf_s( szWant, "\"id\": %d,", nId );
+	bool bFound = false;
+	while ( fgets( szLine, 512, fp ) ) {
+		if ( strstr( szLine, szWant ) ) {
+			const char* szRect = strstr( szLine, "\"l\":" );
+			int l, t, r, b;
+			if ( szRect && sscanf_s( szRect, "\"l\": %d, \"t\": %d, \"r\": %d, \"b\": %d",
+			                          &l, &t, &r, &b ) == 4 ) {
+				prc->left = l; prc->top = t; prc->right = r; prc->bottom = b;
+				bFound = true;
+			}
+			break;
+		}
+	}
+	fclose( fp );
+	return bFound;
+}
+
 int main() {
 	printf( "HMSkinRegression: begin ( headless engine gate )\n" );
 
@@ -125,6 +151,44 @@ int main() {
 	// ---- disconnect safety on unknown handles ( no crash + idempotent ) ----
 	CHECK( hm_wndpropid_disconnect( pRoot, hWndFake, 21 ) == true,
 	       "disconnect unknown hwnd -> true ( idempotent no-op )" );
+
+	// ---- NC-aware coordinate mapping ( 2026-11-01 menu-click regression ) ----
+	// the dump maps every rect via mapPosition CLIENT. K6 ( wndarea root,
+	// window origin ) must land at exactly -( clientOrigin - windowOrigin ),
+	// measured independently here via Win32; K8 ( rootmenu, CS window type,
+	// docked top: inset 20, offset 54, thickness 26 at 96dpi ) must land at
+	// K6 + decoder geometry. the input-dependent conversion bug put every
+	// rect at a constant offset - K8 off by inset*scale - menu and caption
+	// clicks went dead while rendering stayed fine.
+	{
+		HWND hWndMap = ::CreateWindowEx( 0, _T("STATIC"), _T("rgmap"),
+			WS_OVERLAPPEDWINDOW, 0, 0, 400, 300, NULL, NULL,
+			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
+		CHECK( hWndMap != NULL, "mapcase window created" );
+		CHECK( hm_wndpropid_connect( pRoot, hWndMap, 258 ) == true,
+		       "mapcase connect PropId 258" );
+		RECT rcK6 = { 0, 0, 0, 0 }, rcK8 = { 0, 0, 0, 0 };
+		hm_keelobj_dump_tree( pRoot, hWndMap, _T( "hmskin_tree.mapcase.json" ) );
+		BOOL bGot6 = _find_node_rect( _T( "hmskin_tree.mapcase.json" ), 6, &rcK6 );
+		BOOL bGot8 = _find_node_rect( _T( "hmskin_tree.mapcase.json" ), 8, &rcK8 );
+		POINT ptClient00 = { 0, 0 };
+		RECT rcWndMap;
+		::ClientToScreen( hWndMap, &ptClient00 );
+		::GetWindowRect( hWndMap, &rcWndMap );
+		int nDx = ptClient00.x - rcWndMap.left;   // window -> client shift
+		int nDy = ptClient00.y - rcWndMap.top;
+		CHECK( bGot6 && rcK6.left == -nDx && rcK6.top == -nDy,
+		       "map K6 window-origin == -clientDelta ( win32 oracle )" );
+		RECT rcWant8 = {
+			hm_layout_scale_px( 20 ) + rcK6.left,  hm_layout_scale_px( 54 ) + rcK6.top,
+			rcK6.right - hm_layout_scale_px( 20 ),  hm_layout_scale_px( 54 + 26 ) + rcK6.top };
+		CHECK( bGot8 && abs( rcK8.left - rcWant8.left ) <= 1 && abs( rcK8.top - rcWant8.top ) <= 1
+		       && abs( rcK8.right - rcWant8.right ) <= 1 && abs( rcK8.bottom - rcWant8.bottom ) <= 1,
+		       "map K8 rootmenu == K6 + dock geometry ( off-origin invariant )" );
+		CHECK( hm_wndpropid_disconnect( pRoot, hWndMap, 258 ) == true,
+		       "mapcase disconnect" );
+		::DestroyWindow( hWndMap );
+	}
 
 	// ---- shutdown ( must simply complete ) ----
 	hm_lib_shutdown( pRoot );
