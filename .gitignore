@@ -37,6 +37,10 @@ tools/_mcp_tree.json
 tools/_mcp_shot.png
 ARM64/Debug/_dump_req
 
+# regression gate transients ( run_regression.cmd )
+regression_run.tmp
+ARM64/Release/hmskin_tree.regression.json
+
 # local MCP mount ( copy from .mcp.json.example, fill in your ssh host )
 .mcp.json
 
