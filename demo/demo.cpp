@@ -377,6 +377,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	//start up hm lib
 	hm_lib_startup( &paramHMStartup, strUIManifest.c_str(), &g_pHMRoot );
 
+#ifdef _DEBUG
+	// debug dogfood: the single manifest stays Gdiplus ( portable default ),
+	// debug builds flip the whole skin to D2D at runtime so the hybrid
+	// backend gets daily use. --drawtool below still overrides both.
+	hm_set_drawtool_all( g_pHMRoot, HM_DRAWTOL_D2D );
+#endif
+
 	// "--drawtool D2D|Gdiplus|Gdi" - runtime backend override for A/B perf
 	// runs ( tools/smoke_test.py --perf ). swaps the draw tool of every
 	// display WMP after the manifest loaded; resource refcounts of both

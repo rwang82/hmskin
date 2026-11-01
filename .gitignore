@@ -15,8 +15,6 @@ x64/
 ARM64/
 Debug/
 Release/
-!demo/assets/Debug/
-!demo/assets/Release/
 *.pch
 *.pdb
 *.ilk

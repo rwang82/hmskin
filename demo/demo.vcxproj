@@ -141,7 +141,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)assets\image" "$(OutDir)image"
-copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
+copy /Y "$(ProjectDir)assets\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -164,7 +164,7 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)assets\image" "$(OutDir)image"
-copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
+copy /Y "$(ProjectDir)assets\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -191,7 +191,7 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)assets\image" "$(OutDir)image"
-copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
+copy /Y "$(ProjectDir)assets\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -217,7 +217,7 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)assets\image" "$(OutDir)image"
-copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
+copy /Y "$(ProjectDir)assets\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -240,7 +240,7 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)assets\image" "$(OutDir)image"
-copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
+copy /Y "$(ProjectDir)assets\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -266,7 +266,7 @@ copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.h
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)assets\image" "$(OutDir)image"
-copy /Y "$(ProjectDir)assets\$(Configuration)\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
+copy /Y "$(ProjectDir)assets\demo.hm.manifest" "$(OutDir)demo.hm.manifest"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

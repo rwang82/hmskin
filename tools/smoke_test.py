@@ -28,10 +28,7 @@ import os, sys, json, re, time, subprocess, argparse
 REPO   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTDIR = os.path.join(REPO, "ARM64", "Debug")
 TRACE  = os.path.join(OUTDIR, "hmskin_trace.log")
-MANIFESTS = [
-    os.path.join(REPO, "demo", "assets", "Debug", "demo.hm.manifest"),
-    os.path.join(REPO, "demo", "assets", "Release", "demo.hm.manifest"),
-]
+MANIFESTS = [os.path.join(REPO, "demo", "assets", "demo.hm.manifest")]
 
 # ============================================================
 # phase 1: manifest validation
