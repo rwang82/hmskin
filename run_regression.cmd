@@ -41,9 +41,12 @@ popd
 type regression_run.tmp
 type regression_run.tmp >> regression.log
 del regression_run.tmp
-if "%RETCODE%"=="0" (
-    echo hmskin: REGRESS ALL GREEN ^(exit code 0^)
-) else (
-    echo hmskin: REGRESS FAILED: %RETCODE% case^(s) failed, full output in regression.log
-)
+rem goto-style: a bare ")" inside an if-block's echo text closes the block
+rem early and the parser chokes on the rest ( "was unexpected at this
+rem time" ) - keep echo text paren-free.
+if "%RETCODE%"=="0" goto regress_green
+echo hmskin: REGRESS FAILED: %RETCODE% failed case count, see regression.log
 exit /b %RETCODE%
+:regress_green
+echo hmskin: REGRESS ALL GREEN - exit code 0
+exit /b 0
