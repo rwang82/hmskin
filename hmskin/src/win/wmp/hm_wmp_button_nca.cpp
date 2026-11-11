@@ -53,7 +53,7 @@ void hm_wmp_button_nca::_createDistrictObjs() {
 //
 void hm_wmp_button_nca::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ){
 	switch ( idEvent ) {
-		case HMKEELOBJEVENT_DRAWSELF:
+		case HM_EVENT_DRAWSELF:
 			{
 				HEDSPARAM* pHEDSParam = NULL;
 				RECT rcCanvas;

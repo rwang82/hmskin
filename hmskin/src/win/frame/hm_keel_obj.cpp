@@ -23,7 +23,7 @@ hm_keel_obj::hm_keel_obj()
 , m_pParentObj( NULL )
 , m_uId( KEELOBJ_INVALID_ID )
 {
-	Register( this, HMKEELOBJEVENT_LAYOUTOBJ_CHANGED );
+	Register( this, HM_EVENT_LAYOUTOBJ_CHANGED );
 }
 //
 hm_keel_obj::~hm_keel_obj()
@@ -31,7 +31,7 @@ hm_keel_obj::~hm_keel_obj()
 	//delete all layout obj
 	_delAllLayoutObj();
 	//
-	UnRegister( this, HMKEELOBJEVENT_LAYOUTOBJ_CHANGED );
+	UnRegister( this, HM_EVENT_LAYOUTOBJ_CHANGED );
 	// drop the state-changed subscriptions on all WMPs: WMPs live in the
 	// factory and may outlive this keelobj - a stale observer pointer would
 	// dangle at their next Notify.
@@ -79,7 +79,7 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			}
 		}
 		break;
-	case HMKEELOBJEVENT_DRAWSUBOBJS:
+	case HM_EVENT_DRAWSUBOBJS:
 		{
 			HDC hDC = ( HDC )pEventParam;
 			HWND hWndCanvas = (HWND)pEventParam2;
@@ -87,7 +87,7 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			doDrawAll( hDC, hWndCanvas );
 		}
 		break;
-	case HMKEELOBJEVENT_LAYOUTOBJ_CHANGED:
+	case HM_EVENT_LAYOUTOBJ_CHANGED:
 		{
 			hm_layout_obj* pLayoutObjNew = (hm_layout_obj*)pEventParam;
 			hm_layout_obj* pLayoutObjOld = (hm_layout_obj*)pEventParam2;
@@ -103,7 +103,7 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 		break;
 	case cmn::ID_EVENT_POSCHANGED:
 		{
-			Notify( HMKEELOBJEVENT_POSCHANGED, (LPARAM)this );
+			Notify( HM_EVENT_POSCHANGED, (LPARAM)this );
 		}
 		break;
 	case HM_EVENT_WMP_STATECHANGED:
@@ -455,13 +455,13 @@ void hm_keel_obj::setParent( hm_keel_obj* pParentObj ) {
 		return;
 	//
 	if ( m_pParentObj ) {
-		m_pParentObj->UnRegister( this, HMKEELOBJEVENT_DRAWSUBOBJS );
+		m_pParentObj->UnRegister( this, HM_EVENT_DRAWSUBOBJS );
 	}
 	//
 	m_pParentObj = pParentObj;
 	//
 	if ( m_pParentObj ) {
-		m_pParentObj->Register( this, HMKEELOBJEVENT_DRAWSUBOBJS );
+		m_pParentObj->Register( this, HM_EVENT_DRAWSUBOBJS );
 	}
 }
 //
@@ -487,7 +487,7 @@ void hm_keel_obj::setLayoutObj( hm_layout_obj* pLayoutObjNew )
 	pLayoutObjOld = m_pLayoutObj;
 	m_pLayoutObj = pLayoutObjNew;
 
-	Notify( HMKEELOBJEVENT_LAYOUTOBJ_CHANGED, (LPARAM)pLayoutObjNew, (LPARAM)pLayoutObjOld );
+	Notify( HM_EVENT_LAYOUTOBJ_CHANGED, (LPARAM)pLayoutObjNew, (LPARAM)pLayoutObjOld );
 
 	if ( pLayoutObjOld ) {
 		delete pLayoutObjOld;
@@ -559,12 +559,12 @@ void hm_keel_obj::_doDrawSelf( HDC hDC, HWND hWndCanvas ) {
 	param.m_hDCCanvas = hDC;
 	param.m_hWndCanvas = hWndCanvas;
 	param.m_pLayoutObjCanvas = m_pLayoutObj;
-	Notify( HMKEELOBJEVENT_DRAWSELF, (LPARAM)(&param) );
+	Notify( HM_EVENT_DRAWSELF, (LPARAM)(&param) );
 }
 //
 void hm_keel_obj::_doDrawChildKeelObjs( HDC hDC, HWND hWndCanvas )
 {
-	Notify( HMKEELOBJEVENT_DRAWSUBOBJS, (LPARAM)hDC, (LPARAM)hWndCanvas );
+	Notify( HM_EVENT_DRAWSUBOBJS, (LPARAM)hDC, (LPARAM)hWndCanvas );
 }
 //
 void hm_keel_obj::setVisible( BOOL bVisible ) {
@@ -576,7 +576,7 @@ void hm_keel_obj::setVisible( BOOL bVisible ) {
 	else
 		m_uFlag &= ~HMKEELOBJ_FLAG_VISIBLE;
 	//
-	Notify( HMKEELOBJEVENT_SETVISIBLE, (LPARAM)bVisible );
+	Notify( HM_EVENT_SETVISIBLE, (LPARAM)bVisible );
 }
 //
 BOOL hm_keel_obj::isVisible() const {

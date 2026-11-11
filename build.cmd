@@ -3,9 +3,10 @@ rem ==========================================================================
 rem hmskin build.cmd - developer command-line build with log redirection.
 rem
 rem usage:
-rem   build.cmd                     build ALL 6 configs, log ^> build.log
-rem   build.cmd Debug ARM64         build one config
-rem   build.cmd Release             all platforms, one config
+rem   build.cmd                     build Debug ARM64 ( daily default ), log ^> build.log
+rem   build.cmd Debug ARM64         build one explicit config
+rem   build.cmd Release             Release ARM64 ( one config word = override, plat stays ARM64 )
+rem   build.cmd all                 build ALL 6 configs ( CI sweep )
 rem
 rem works from ANY cmd ( auto-locates msbuild via vswhere ) or from a
 rem "Developer Command Prompt for VS 2026" ( msbuild already on PATH ).
@@ -43,11 +44,16 @@ if not defined MSBUILD (
 echo [build] using: !MSBUILD!
 
 :found
-rem ---- config matrix ----
-set CFGS=Debug Release
-set PLATS=Win32 x64 ARM64
-if not "%~1"=="" set CFGS=%~1
-if not "%~2"=="" set PLATS=%~2
+rem ---- config matrix: daily default is Debug ARM64; "all" sweeps 6 configs ----
+set CFGS=Debug
+set PLATS=ARM64
+if /i "%~1"=="all" (
+    set CFGS=Debug Release
+    set PLATS=Win32 x64 ARM64
+) else (
+    if not "%~1"=="" set CFGS=%~1
+    if not "%~2"=="" set PLATS=%~2
+)
 
 echo [build] solution:  %SLN%
 echo [build] configs:   %CFGS%

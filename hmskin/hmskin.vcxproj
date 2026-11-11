@@ -333,8 +333,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\hook_system\hm_hs_wnd_msg_dispatch.cpp" />
     <ClCompile Include="src\win\hook_system\hm_hs_wnd_proc_hook.cpp" />
     <ClCompile Include="src\win\hook_system\hm_hs_wnd_proc_mgr.cpp" />
-    <ClCompile Include="src\win\keelctrl_repository\hm_keelctrl_base.cpp" />
-    <ClCompile Include="src\win\keelctrl_repository\hm_keelctrl_scrollview.cpp" />
     <ClCompile Include="src\win\paint_system\hm_ps_canvas.cpp" />
     <ClCompile Include="src\win\paint_system\hm_ps_drawtool_gdi.cpp" />
     <ClCompile Include="src\win\paint_system\hm_ps_drawtool_gdiplus.cpp" />
@@ -348,7 +346,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\wmp\hm_wmp_bkgnd_nca.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_button.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_button_nca.cpp" />
-    <ClCompile Include="src\win\wmp\hm_wmp_dialogview.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_display.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_drawtrigger.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_drawtrigger_nca.cpp" />
@@ -357,6 +354,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\wmp\hm_wmp_popupmenu.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_rootmenu.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_scrollbar.cpp" />
+    <ClCompile Include="src\win\wmp\hm_wmp_scrollview.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_tab.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_viewbkcontent.cpp" />
     <ClCompile Include="src\win\wmp\hm_wndmsgprocessor_i.cpp" />
@@ -410,8 +408,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\hook_system\hm_hs_wnd_msg_dispatch.h" />
     <ClInclude Include="inc\win\hook_system\hm_hs_wnd_proc_hook.h" />
     <ClInclude Include="inc\win\hook_system\hm_hs_wnd_proc_mgr.h" />
-    <ClInclude Include="inc\win\keelctrl_repository\hm_keelctrl_base.h" />
-    <ClInclude Include="inc\win\keelctrl_repository\hm_keelctrl_scrollview.h" />
     <ClInclude Include="inc\win\paint_system\hm_ps_canvas.h" />
     <ClInclude Include="inc\win\paint_system\hm_ps_drawtool_gdi.h" />
     <ClInclude Include="inc\win\paint_system\hm_ps_drawtool_gdiplus.h" />
@@ -429,7 +425,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\wmp\hm_wmp_bkgnd_nca.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_button.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_button_nca.h" />
-    <ClInclude Include="inc\win\wmp\hm_wmp_dialogview.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_display.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_drawtrigger.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_drawtrigger_nca.h" />
@@ -438,6 +433,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\wmp\hm_wmp_popupmenu.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_rootmenu.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_scrollbar.h" />
+    <ClInclude Include="inc\win\wmp\hm_wmp_scrollview.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_tab.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_viewbkcontent.h" />
     <ClInclude Include="inc\win\wmp\hm_wndmsgprocessor_i.h" />

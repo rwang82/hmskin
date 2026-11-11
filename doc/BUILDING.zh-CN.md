@@ -14,9 +14,9 @@ VS Installer 确认已装：
 打开 **Developer Command Prompt for VS 2026**，cd 到仓库根：
 
 ```
-build.cmd                rem 全 6 配置（Win32/x64/ARM64 × Debug/Release）
-build.cmd Debug ARM64    rem 单配置（日常开发推荐）
-build.cmd Release        rem 三平台单配置
+build.cmd                rem Debug ARM64（日常默认）
+build.cmd all            rem 全 6 配置（Win32/x64/ARM64 × Debug/Release）
+build.cmd Release        rem Release ARM64（只给配置词时平台保持 ARM64）
 ```
 
 - 全量输出重定向到 **build.log**（仓库根，已 .gitignore）——Mac/协作者直接读文件

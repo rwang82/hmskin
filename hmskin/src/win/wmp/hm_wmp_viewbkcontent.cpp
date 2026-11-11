@@ -41,7 +41,7 @@ void hm_wmp_viewbkcontent::update( void* pSubject, UINT idEvent, LPARAM pEventPa
 			int a = 0;					  
 		}
 		break;
-	case HMKEELOBJEVENT_DRAWSELF:
+	case HM_EVENT_DRAWSELF:
 		{
 			HEDSPARAM* pParam = NULL;
 			RECT rcCanvas;
@@ -59,15 +59,7 @@ void hm_wmp_viewbkcontent::update( void* pSubject, UINT idEvent, LPARAM pEventPa
 		break;
 	case HM_EVENT_MOVE_VIEWCONTENT:
 		{
-			HEVMPARAM* pParam = NULL;
-			RECT rcCanvas;
-
-			pParam = (HEVMPARAM*)pEventParam;
-			rcCanvas.left = 0;
-			rcCanvas.top = 0;
-			rcCanvas.right = pParam->m_sizeCanvas.cx;
-			rcCanvas.bottom = pParam->m_sizeCanvas.cy;
-			_doDrawSkinRaw( pParam->m_hDCMem, rcCanvas );
+			// pure notification - nothing to do.
 		}
 		break;
 	default:

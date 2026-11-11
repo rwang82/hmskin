@@ -42,7 +42,6 @@ void hm_wmp_loader_depot::_init() {
 	ADD_WMP_LOADER( hm_wmp_bkgnd_nca );
 	ADD_WMP_LOADER( hm_wmp_button );
 	ADD_WMP_LOADER( hm_wmp_button_nca );
-	ADD_WMP_LOADER( hm_wmp_dialogview );
 	ADD_WMP_LOADER( hm_wmp_drawtrigger );
 	ADD_WMP_LOADER( hm_wmp_drawtrigger_nca );
 	ADD_WMP_LOADER( hm_wmp_layouttrigger );
@@ -50,6 +49,7 @@ void hm_wmp_loader_depot::_init() {
 	ADD_WMP_LOADER( hm_wmp_popupmenu );
 	ADD_WMP_LOADER( hm_wmp_rootmenu );
 	ADD_WMP_LOADER( hm_wmp_scrollbar );
+	ADD_WMP_LOADER( hm_wmp_scrollview );
 	ADD_WMP_LOADER( hm_wmp_tabheader );
 	ADD_WMP_LOADER( hm_wmp_viewbkcontent );
 	ADD_WMP_LOADER( hm_wmp_checkbox );

@@ -10,22 +10,27 @@ hm_wmp_display::hm_wmp_display( hmskin_event_listener_base* pEventListener )
 , m_bLeaveTracking( FALSE )
 , m_eBufStrategy( BUF_NONE )
 , m_hBufBmp( NULL )
-, m_bBufDirty( TRUE )
-, m_uiresObserver() {
-	m_uiresObserver.m_pOwner = this;
+, m_bBufDirty( TRUE ){
 	memset( &m_rcBufCanvas, 0, sizeof( RECT ) );
 }
 
 void hm_wmp_display::registerShowObjEvents( hm_showobj* pShowObj ) {
-	// subscribe the adapter to text-content broadcasts: setText on the
-	// uires then invalidates this WMP's pixel cache automatically
+	// subscribe the adapter to content-change broadcasts at the ABSTRACT
+	// uires level: setText on a text uires then invalidates this WMP's
+	// pixel cache automatically. silent for resource kinds that never
+	// broadcast.
 	if ( !pShowObj || !pShowObj->m_pUIRes )
 		return;
-	hm_rs_uires_text* pText = dynamic_cast< hm_rs_uires_text* >( pShowObj->m_pUIRes );
-	if ( !pText )
-		return;
-	if ( !pText->HasRegister( &m_uiresObserver, HM_UIRES_EVENT_TEXTCHANGED ) )
-		pText->Register( &m_uiresObserver, HM_UIRES_EVENT_TEXTCHANGED );
+}
+
+bool hm_wmp_display::pushShowObj( district_id_type idDistrict, hm_showobj* pShowObj ) {
+	hm_districtobj* pDistrictObj = NULL;
+	if ( !pShowObj || !_getDistrictObj( idDistrict, &pDistrictObj ) )
+		return false;
+	if ( !pDistrictObj->pushBackShowObj( pShowObj ) )
+		return false;
+	registerShowObjEvents( pShowObj );
+	return true;
 }
 //
 hm_wmp_display::~hm_wmp_display() {
@@ -183,12 +188,6 @@ bool hm_wmp_display::_setDistrictObj( district_id_type idDistrict, hm_districtob
 	//
 	m_mapId2District[ idDistrict ] = pDistrictObj;
 
-	// remember the owner ( for showobjs pushed later ) and subscribe to
-	// the text uires already inside
-	pDistrictObj->m_pOwnerWMP = this;
-	for ( unsigned int i = 0; i < pDistrictObj->getShowObjCount(); ++i )
-		registerShowObjEvents( pDistrictObj->getShowObj( i ) );
-
 	if ( m_pDrawTool )
 		pDistrictObj->loadRes( m_pDrawTool );
 
@@ -279,7 +278,6 @@ bool hm_showobj::unloadRes( hm_ps_drawtool_i* pDrawTool ) {
 //
 hm_districtobj::hm_districtobj( hm_pos_decoder_i* pPosDecoder ) {
 	m_pPosDecoder = pPosDecoder;
-	m_pOwnerWMP = NULL;
 };
 //
 hm_districtobj::~hm_districtobj() { 
@@ -295,18 +293,12 @@ hm_districtobj::~hm_districtobj() {
 bool hm_districtobj::pushBackShowObj( hm_showobj* pShowObj ) {
 	if ( !pShowObj ) return false;
 	m_containerShowObjs.push_back( pShowObj );
-	// late push into an installed district: join the owner's subscriptions
-	if ( m_pOwnerWMP )
-		m_pOwnerWMP->registerShowObjEvents( pShowObj );
 	return true;
 }
 //
 bool hm_districtobj::pushFrontShowObj( hm_showobj* pShowObj ) {
 	if ( !pShowObj ) return false;
 	m_containerShowObjs.push_front( pShowObj );
-	// late push into an installed district: join the owner's subscriptions
-	if ( m_pOwnerWMP )
-		m_pOwnerWMP->registerShowObjEvents( pShowObj );
 	return true;
 }
 //

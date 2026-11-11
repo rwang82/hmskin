@@ -18,7 +18,6 @@
 #include "win\wmp\hm_wmp_bkgnd_nca.h"
 #include "win\wmp\hm_wmp_button.h"
 #include "win\wmp\hm_wmp_button_nca.h"
-#include "win\wmp\hm_wmp_dialogview.h"
 #include "win\wmp\hm_wmp_display.h"
 #include "win\wmp\hm_wmp_drawtrigger.h"
 #include "win\wmp\hm_wmp_drawtrigger_nca.h"

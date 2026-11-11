@@ -2982,6 +2982,21 @@
       ]
     },
     {
+      "idWMP": 87,
+      "WMPClsName": "hm_wmp_scrollview",
+      "ScrollViewCfg": {
+        "ScrollBarWMPId": 70,
+        "ContentKeelObjId": 38,
+        "BarKeelObjId": 47,
+        "ContentExtent96": { "W": 560, "H": 600 },
+        "ArrowLen96": 20,
+        "MinThumbLen96": 20,
+        "FixedThumbLen96": 48,
+        "LayoutScroll": true,
+        "WheelStep96": 60
+      }
+    },
+    {
       "idWMP": 71,
       "WMPClsName": "hm_wmp_checkbox",
       "DrawTool": "Gdiplus",
@@ -5429,9 +5444,10 @@
     },
     {
       "idKeelObj": 2,
+      "ClipChildren": true,
       "WndMsgSource": {
-        "Type": "KeelObj",
-        "KeelObjId": 1
+        "Type": "MsgSink",
+        "MsgSinkId": 10
       },
       "ParentKeelObjId": 1,
       "LayoutObj": {
@@ -5450,6 +5466,12 @@
           "id": 19,
           "RegEvts": [
             6
+          ]
+        },
+        {
+          "id": 87,
+          "RegEvts": [
+            10
           ]
         }
       ]

@@ -7,7 +7,11 @@ static bool WndToClient( HWND hWnd, RECT* prcWnd2Clt );
 hm_layout_obj::hm_layout_obj()
 : m_pLayoutDecoder( NULL )
 , m_pCoordinateSystem( NULL )
-{}
+{
+	m_ptScrollOffset.x = 0;
+	m_ptScrollOffset.y = 0;
+	::SetRect( &m_rect, 0, 0, 0, 0 );
+}
 //
 hm_layout_obj::~hm_layout_obj()
 {
@@ -48,7 +52,11 @@ void hm_layout_obj::calcPosition()
 		return;
 	//
 	m_pLayoutDecoder->decoderLayout();
-	// 
+	// the scroll offset rides on top of the decoder result ( scroll
+	// containers translate a subtree; the decoder keeps its base rules ).
+	if ( m_ptScrollOffset.x || m_ptScrollOffset.y )
+		::OffsetRect( &m_rect, m_ptScrollOffset.x, m_ptScrollOffset.y );
+	//
 	Notify( cmn::ID_EVENT_POSCHANGED );
 }
 

@@ -15,9 +15,9 @@ Confirm in the VS Installer:
 Open a **Developer Command Prompt for VS 2026**, cd to the repo root:
 
 ```
-build.cmd                rem all 6 configs ( Win32/x64/ARM64 x Debug/Release )
-build.cmd Debug ARM64    rem single config ( recommended for daily work )
-build.cmd Release        rem single config across three platforms
+build.cmd                rem Debug ARM64 ( daily default )
+build.cmd all            rem all 6 configs ( Win32/x64/ARM64 x Debug/Release )
+build.cmd Release        rem Release ARM64 ( config word overrides, platform stays ARM64 )
 ```
 
 - All output is redirected to **build.log** ( repo root, gitignored ) -

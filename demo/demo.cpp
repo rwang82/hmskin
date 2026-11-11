@@ -699,31 +699,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    // tab chapters : sec.1 basics is the default visible section.
    SwitchChapter( 0 );
 
-   // sec.4 scroll view: the well ( K2 ) clips its children, the content rows
-   // ( K38 ) are taller than the well, the scrollbar range spans exactly
-   // the overflow ( content height - well height ). thumb / arrow thicknesses
-   // must equal the sbthumb_* / sbbtn_* bitmap dimensions ( gen_skin.py ).
-   {
-	   hm_keelobj_set_clip_children( g_pHMRoot, 2, TRUE );
-	   hm_keel_obj* pKeelObjScrollBar = NULL;
-	   if ( hm_get_keelobj( g_pHMRoot, 47, &pKeelObjScrollBar ) && pKeelObjScrollBar ) {
-		   hm_wmp_scrollbar* pWMPScrollBar = dynamic_cast< hm_wmp_scrollbar* >( pKeelObjScrollBar->getWMP( 70 ) );
-		   if ( pWMPScrollBar ) {
-			   pWMPScrollBar->setStartThumbLen( hm_layout_scale_px( 20 ) );
-			   pWMPScrollBar->setEndThumbLen( hm_layout_scale_px( 20 ) );
-			   pWMPScrollBar->setTrackThumbLen( hm_layout_scale_px( 48 ) );
-			   int nRange = 0;
-			   RECT rcWell, rcContent;
-			   if ( hm_keelobj_get_layout_rect( g_pHMRoot, 2, &rcWell )
-				   && hm_keelobj_get_layout_rect( g_pHMRoot, 38, &rcContent ) ) {
-				   nRange = ( rcContent.bottom - rcContent.top ) - ( rcWell.bottom - rcWell.top );
-				   if ( nRange < 0 )
-					   nRange = 0;
-			   }
-			   pWMPScrollBar->setValRange( 0, nRange );
-		   }
-	   }
-   }
+   // sec.4 scroll view: fully engine-orchestrated - WMP87 ( hm_wmp_scrollview )
+   // on the K2 well binds the K38 content and the K47 scrollbar. all sizing
+   // ( clipping, arrow lengths, fixed 48px thumb, value range, wheel step )
+   // lives in the manifest ScrollViewCfg - zero host glue here.
 
    // sec.1 RAD-11 radio group ( K49..K51 / WMP72..74, hm_wmp_radio ): GDI is
    // the default selection. stay-checked + RADIO_CLICK event are baked into

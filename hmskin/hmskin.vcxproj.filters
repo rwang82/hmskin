@@ -31,15 +31,6 @@
     <Filter Include="hook_system\src">
       <UniqueIdentifier>{7fd354bc-e1a5-42be-8a85-add24ec90016}</UniqueIdentifier>
     </Filter>
-    <Filter Include="keelctrl_repository">
-      <UniqueIdentifier>{617977e2-2185-4b15-8f27-8e06241826d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="keelctrl_repository\inc">
-      <UniqueIdentifier>{494ab386-07dd-42ad-b0f6-25358f51f470}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="keelctrl_repository\src">
-      <UniqueIdentifier>{66411fca-8e7e-477f-a4ff-89fe341e948f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="paint_system">
       <UniqueIdentifier>{ff3ce8d2-366a-4406-a5cb-e19fa432e22a}</UniqueIdentifier>
     </Filter>
@@ -165,12 +156,6 @@
     <ClCompile Include="src\win\hook_system\hm_hs_wnd_proc_mgr.cpp">
       <Filter>hook_system\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\win\keelctrl_repository\hm_keelctrl_base.cpp">
-      <Filter>keelctrl_repository\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win\keelctrl_repository\hm_keelctrl_scrollview.cpp">
-      <Filter>keelctrl_repository\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\win\paint_system\hm_ps_canvas.cpp">
       <Filter>paint_system\src</Filter>
     </ClCompile>
@@ -210,9 +195,6 @@
     <ClCompile Include="src\win\wmp\hm_wmp_button_nca.cpp">
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\win\wmp\hm_wmp_dialogview.cpp">
-      <Filter>wndmsgprocessor\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\win\wmp\hm_wmp_display.cpp">
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
@@ -235,6 +217,9 @@
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
     <ClCompile Include="src\win\wmp\hm_wmp_scrollbar.cpp">
+      <Filter>wndmsgprocessor\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win\wmp\hm_wmp_scrollview.cpp">
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
     <ClCompile Include="src\win\wmp\hm_wmp_tab.cpp">
@@ -386,12 +371,6 @@
     <ClInclude Include="inc\win\hook_system\hm_hs_wnd_proc_mgr.h">
       <Filter>hook_system\inc</Filter>
     </ClInclude>
-    <ClInclude Include="inc\win\keelctrl_repository\hm_keelctrl_base.h">
-      <Filter>keelctrl_repository\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\win\keelctrl_repository\hm_keelctrl_scrollview.h">
-      <Filter>keelctrl_repository\inc</Filter>
-    </ClInclude>
     <ClInclude Include="inc\win\paint_system\hm_ps_canvas.h">
       <Filter>paint_system\inc</Filter>
     </ClInclude>
@@ -443,9 +422,6 @@
     <ClInclude Include="inc\win\wmp\hm_wmp_button_nca.h">
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
-    <ClInclude Include="inc\win\wmp\hm_wmp_dialogview.h">
-      <Filter>wndmsgprocessor\inc</Filter>
-    </ClInclude>
     <ClInclude Include="inc\win\wmp\hm_wmp_display.h">
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
@@ -468,6 +444,9 @@
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\wmp\hm_wmp_scrollbar.h">
+      <Filter>wndmsgprocessor\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\wmp\hm_wmp_scrollview.h">
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\wmp\hm_wmp_tab.h">

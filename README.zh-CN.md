@@ -105,6 +105,7 @@ click_keelobj(3) -> WM_LBUTTONDOWN/UP 经消息 trace 实证
 | 单选(Radio) | `hm_wmp_radio` | 继承 checkbox；已选中点击不翻转；组语义由应用层驱动 |
 | Tab 标签条 | `hm_wmp_tabheader` | 雪碧图三态 + 选中态；键盘 ←/→ 循环切换 |
 | 滚动条 | `hm_wmp_scrollbar` | 值域 API；拖动/端钮/滚轮三路输入；容器内自动步进 |
+| 滚动视口 | `hm_wmp_scrollview` | 编排 WMP：manifest 子树 + ClipChildren 视口；拖动/滚轮/钳位/失效全引擎化，宿主零粘合 |
 | 根菜单栏 | `hm_wmp_rootmenu` | 标签直接读 HMENU（`GetMenuItemInfo`） |
 | 弹出菜单 | `hm_wmp_popupmenu` | 引擎自建弹窗、自适尺寸、自绘条目；透明接管或主动调用 |
 | 静态面/文本 | `hm_wmp_bkgnd` | 文字走 `hm_wmp_set_text()`/`_at()` 实时刷新，像素缓存自动失效 |
@@ -226,8 +227,8 @@ hm_lib_shutdown( g_pHMRoot );
 ### 命令行（推荐 CI / 远程协作）
 
 ```
-build.cmd Debug ARM64        ← 日常开发
-build.cmd                    ← 全 6 配置
+build.cmd                    ← 日常开发（默认 Debug ARM64）
+build.cmd all                ← 全 6 配置
 ```
 
 全量输出重定向到 `build.log`，任一失败 exit code 非零。详见 `doc/BUILDING.zh-CN.md`。

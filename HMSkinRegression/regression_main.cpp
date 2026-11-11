@@ -76,6 +76,10 @@ static bool _find_node_rect( const TCHAR* szPath, int nId, RECT* prc ) {
 }
 
 int main() {
+	// crash-resilient output: unbuffered stdout keeps every PASS line that
+	// preceded a crash inside the harness log ( the failing step is then the
+	// first missing one ).
+	setvbuf( stdout, NULL, _IONBF, 0 );
 	printf( "HMSkinRegression: begin ( headless engine gate )\n" );
 
 	// ---- startup contract: a listener is required ( fail fast, no assert ) ----
@@ -188,6 +192,91 @@ int main() {
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndMap, 258 ) == true,
 		       "mapcase disconnect" );
 		::DestroyWindow( hWndMap );
+	}
+
+	// ---- scrollview orchestration ( WMP87 hm_wmp_scrollview on the K2 well:
+	// wheel -> layout scroll offset, value range, clamp, bar fine-step ) ----
+	// SendMessage drives the dispatcher subclass synchronously - no message
+	// pump needed headless; the wheel point rides in lParam ( screen coords ),
+	// the same contract real hardware input uses.
+	{
+		printf( "scrollcase: begin\n" );
+		// window big enough for the FULL demo layout at the session scale
+		// ( 1100x750@96 x1.5 ): a narrow window collapses the left panel
+		// ( right inset 430@96=645px ) and degenerates K2 to zero width.
+		HWND hWndScroll = ::CreateWindowEx( 0, _T("STATIC"), _T("rgscroll"),
+			WS_OVERLAPPEDWINDOW, 0, 0, 1700, 1200, NULL, NULL,
+			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
+		CHECK( hWndScroll != NULL, "scrollcase window created" );
+		CHECK( hm_wndpropid_connect( pRoot, hWndScroll, 258 ) == true,
+		       "scrollcase connect PropId 258" );
+		// sec.4 is hidden by default ( chapter mechanism ) - show the trio.
+		hm_keelobj_set_visible( pRoot, 2, TRUE );
+		hm_keelobj_set_visible( pRoot, 38, TRUE );
+		hm_keelobj_set_visible( pRoot, 47, TRUE );
+		printf( "scrollcase: wired, dumping initial rects\n" );
+
+		const TCHAR* szDumpScroll = _T( "hmskin_tree.scrollcase.json" );
+		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpScroll );
+		RECT rcK2s = { 0, 0, 0, 0 }, rcK38s = { 0, 0, 0, 0 };
+		CHECK( _find_node_rect( szDumpScroll, 2, &rcK2s ) && _find_node_rect( szDumpScroll, 38, &rcK38s ),
+		       "scrollcase K2/K38 rects dumped" );
+		const int nStep = hm_layout_scale_px( 60 );      // WheelStep96
+		const int nContentH = hm_layout_scale_px( 600 ); // ContentExtent96.H
+		const int nTop0 = rcK38s.top;
+		const int nRange = nContentH - ( rcK2s.bottom - rcK2s.top );
+		CHECK( rcK38s.bottom - rcK38s.top == nContentH, "scrollcase content height == 600@96" );
+		CHECK( nRange > nStep, "scrollcase content taller than viewport" );
+
+		// wheel points in CLIENT coords ( from the dumped viewport rect ),
+		// content-side and bar-strip-side, then translated to screen.
+		POINT ptContent = { rcK2s.left + hm_layout_scale_px( 50 ), rcK2s.top + hm_layout_scale_px( 50 ) };
+		POINT ptBar = { rcK2s.right - hm_layout_scale_px( 9 ),
+		                ( rcK2s.top + rcK2s.bottom ) / 2 };
+		::ClientToScreen( hWndScroll, &ptContent );
+		::ClientToScreen( hWndScroll, &ptBar );
+		LPARAM lpContent = MAKELPARAM( ptContent.x, ptContent.y );
+		LPARAM lpBar = MAKELPARAM( ptBar.x, ptBar.y );
+		WPARAM wpDown1 = MAKEWPARAM( 0, (SHORT)( -1 * WHEEL_DELTA ) );
+		WPARAM wpUp1 = MAKEWPARAM( 0, (SHORT)( 1 * WHEEL_DELTA ) );
+		// "overshoot" deltas must stay inside a 16-bit wheel-delta field:
+		// +-10 notches ( 1200 ) far exceeds the range yet truncates nowhere.
+		WPARAM wpUpBig = MAKEWPARAM( 0, (SHORT)( 10 * WHEEL_DELTA ) );
+		WPARAM wpDownBig = MAKEWPARAM( 0, (SHORT)( -10 * WHEEL_DELTA ) );
+
+		// (a) one notch over the content == exactly one wheel step.
+		printf( "scrollcase: step (a) wheel -1 over content\n" );
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL, wpDown1, lpContent );
+		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpScroll );
+		CHECK( _find_node_rect( szDumpScroll, 38, &rcK38s ) && rcK38s.top == nTop0 - nStep,
+		       "scrollcase wheel -1 notch -> one step" );
+
+		// (b) huge wheel clamps at the bottom ( contentH - viewportH ).
+		printf( "scrollcase: step (b) wheel overshoot down\n" );
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL, wpDownBig, lpContent );
+		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpScroll );
+		CHECK( _find_node_rect( szDumpScroll, 38, &rcK38s ) && rcK38s.top == nTop0 - nRange,
+		       "scrollcase wheel overshoot clamps at range" );
+
+		// (c) step back up one notch, then wheel over the BAR STRIP: the
+		// scrollbar's own 3px fine step, through the same TRACKTHUMB chain.
+		printf( "scrollcase: step (c) bar-strip fine wheel\n" );
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL, wpUp1, lpContent );
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL, wpDown1, lpBar );
+		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpScroll );
+		CHECK( _find_node_rect( szDumpScroll, 38, &rcK38s ) && rcK38s.top == nTop0 - nRange + nStep - 3,
+		       "scrollcase bar-wheel -1 notch -> 3px fine step" );
+
+		// (d) huge wheel up returns exactly to the top.
+		printf( "scrollcase: step (d) wheel overshoot up\n" );
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL, wpUpBig, lpContent );
+		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpScroll );
+		CHECK( _find_node_rect( szDumpScroll, 38, &rcK38s ) && rcK38s.top == nTop0,
+		       "scrollcase wheel up clamps back at top" );
+
+		CHECK( hm_wndpropid_disconnect( pRoot, hWndScroll, 258 ) == true,
+		       "scrollcase disconnect" );
+		::DestroyWindow( hWndScroll );
 	}
 
 	// ---- shutdown ( must simply complete ) ----

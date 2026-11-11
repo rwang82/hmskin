@@ -87,28 +87,11 @@ void hmskin_event_listener_demo::onHKSkinEvent( unsigned int uEventId, void* lPa
 		OpenSkinPopupMenu( (unsigned int)(UINT_PTR)lParam2 );
 		break;
 	case HMSKIN_EVENT_SCROLLBAR_CHANGED:
-		{ // sec.4 : scrollbar value moves the content rows ( parallax demo,
-		  // K38 base offset y=22, value 0..16 moves content up 0..16px ).
+		{ // sec.4 : scrolling is engine-orchestrated ( WMP87 hm_wmp_scrollview
+		  // on the K2 well, manifest ScrollViewCfg ); the bar still bridges
+		  // here - log only, zero host-side content math.
 			int nVal = (int)(UINT_PTR)lParam2;
 			_stprintf_s( szLine, 64, _T("SCB-03 -> %d"), nVal );
-			hm_keel_obj* pKeelObjContent = NULL;
-			if ( hm_get_keelobj( g_pHMRoot, 38, &pKeelObjContent ) && pKeelObjContent ) {
-				hm_layout_obj* pLayoutObj = pKeelObjContent->getLayoutObj();
-				hm_layoutdecoder_corner* pDecoder = pLayoutObj
-					? dynamic_cast< hm_layoutdecoder_corner* >( pLayoutObj->getLayoutDecoder() ) : NULL;
-				if ( pDecoder ) {
-					pDecoder->m_space2 = hm_layout_scale_px( 22 ) - nVal;
-					pLayoutObj->calcPosition();
-					// invalidate ONLY the content rows rect: the scrollbar
-					// redraws itself directly while dragging, a wider
-					// invalidate would repaint every control per mousemove.
-					RECT rcContent;
-					if ( hm_keelobj_get_layout_rect( g_pHMRoot, 38, &rcContent ) ) {
-						hm_util_invlog( _T("scb-content"), &rcContent );
-						::InvalidateRect( g_hWnd, &rcContent, FALSE );
-					}
-				}
-			}
 		}
 		break;
 	case HMSKIN_EVENT_POPUPMENU_CLICK:

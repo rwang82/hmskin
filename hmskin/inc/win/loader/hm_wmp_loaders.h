@@ -1,9 +1,8 @@
 #ifndef __HM_WMP_LOADERS_H__
 #define __HM_WMP_LOADERS_H__
 #include "hm_wmp_loader_base.h"
+#include "win\wmp\hm_wmp_display.h"
 //
-class hm_wmp_display;
-class hm_districtobj;
 class hm_rs_uires_i;
 class hm_wmp_tabheader;
 class hm_wmp_movewnd;
@@ -21,7 +20,7 @@ private:
 	bool _fillDrawTool( const Json::Value& valWMP, hm_wmp_display* pWMPDest );
 	bool _fillBufStrategy( const Json::Value& valWMP, hm_wmp_display* pWMPDest );
 	bool _fillDistrictObjs( const Json::Value& valWMP, hm_wmp_display* pWMPDest );
-	bool _fillShowObjs( const Json::Value& aryShowObjs, hm_districtobj* pDistrict );
+	bool _fillShowObjs( const Json::Value& aryShowObjs, hm_wmp_display* pWMPDest, hm_wmp_display::district_id_type idDistrict );
 	bool _fillRect( const Json::Value& valRect, RECT& rect );
 	bool _createUIRes( const Json::Value& valUIRes, hm_rs_uires_i** ppUIRes );
 	bool _createUIRes_Pic( const Json::Value& valUIRes, hm_rs_uires_i** ppUIRes );
@@ -70,15 +69,6 @@ class hm_wmp_button_nca_loader : public hm_wmp_display_loader {
 public:
 	hm_wmp_button_nca_loader();
 	virtual ~hm_wmp_button_nca_loader();
-
-public:
-	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
-};
-//
-class hm_wmp_dialogview_loader : public hm_wmp_display_loader {
-public:
-	hm_wmp_dialogview_loader();
-	virtual ~hm_wmp_dialogview_loader();
 
 public:
 	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
@@ -153,6 +143,15 @@ class hm_wmp_scrollbar_loader : public hm_wmp_display_loader {
 public:
 	hm_wmp_scrollbar_loader();
 	virtual ~hm_wmp_scrollbar_loader();
+
+public:
+	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
+};
+//
+class hm_wmp_scrollview_loader : public hm_wmp_loader_base {
+public:
+	hm_wmp_scrollview_loader();
+	virtual ~hm_wmp_scrollview_loader();
 
 public:
 	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );

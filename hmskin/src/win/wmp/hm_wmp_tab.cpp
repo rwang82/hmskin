@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\wmp\hm_wmp_tab.h"
+#include "win\resource_system\hm_rs_uires_text.h"
 #include "win\frame\hm_debug_utils.h"
 #include "win\frame\hm_pos_decoders.h"
 #include "win\frame\hm_layout_obj.h"
@@ -65,7 +66,7 @@ void hm_wmp_tabheader::_createDistrictObjs() {
 //
 void hm_wmp_tabheader::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
-	case HMKEELOBJEVENT_DRAWSELF:
+	case HM_EVENT_DRAWSELF:
 		{
 			HEDSPARAM* pHEDSParam = NULL;
 			RECT rcCanvas;
@@ -137,13 +138,13 @@ void hm_wmp_tabheader::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 		::ReleaseDC( pWP->hwnd, hDC );
 		invalidateBuffer();   // partial draw changed the visible state
 		//
-		//Notify( HMWMPTABEVENT_SELECTCHANGED, m_uIndexSel, uIndexSelOld );
+		//Notify( HM_EVENT_SELECTCHANGED, m_uIndexSel, uIndexSelOld );
 		HKEREPARAM hkereParam;
 		hkereParam.m_pEventSender = this;
-		hkereParam.m_uEvent = HMWMPTABEVENT_SELECTCHANGED;
+		hkereParam.m_uEvent = HM_EVENT_SELECTCHANGED;
 		hkereParam.m_lEventParam = m_uIndexSel;
 		hkereParam.m_lEventParam2 = uIndexSelOld;
-		pKeelObj->Notify( HMKEELOBJEVENT_RELAYEVENT, (LPARAM)&hkereParam );
+		pKeelObj->Notify( HM_EVENT_RELAYEVENT, (LPARAM)&hkereParam );
 		//
 		if ( m_pEventListener ) {
 			m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_TABBTN_CLICK, (void*)pKeelObj, (void*)(UINT_PTR)m_uIndexSel );
@@ -317,10 +318,10 @@ void hm_wmp_tabheader::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	//
 	HKEREPARAM hkereParam;
 	hkereParam.m_pEventSender = this;
-	hkereParam.m_uEvent = HMWMPTABEVENT_SELECTCHANGED;
+	hkereParam.m_uEvent = HM_EVENT_SELECTCHANGED;
 	hkereParam.m_lEventParam = m_uIndexSel;
 	hkereParam.m_lEventParam2 = uIndexSelOld;
-	pKeelObj->Notify( HMKEELOBJEVENT_RELAYEVENT, (LPARAM)&hkereParam );
+	pKeelObj->Notify( HM_EVENT_RELAYEVENT, (LPARAM)&hkereParam );
 	//
 	if ( m_pEventListener ) {
 		m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_TABBTN_CLICK, (void*)pKeelObj, (void*)(UINT_PTR)m_uIndexSel );

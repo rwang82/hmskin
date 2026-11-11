@@ -110,7 +110,7 @@ void hm_wmp_scrollbar::_createDistrictObjs() {
 //
 void hm_wmp_scrollbar::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
-	case HMKEELOBJEVENT_DRAWSELF:
+	case HM_EVENT_DRAWSELF:
 		{
 			HEDSPARAM* pParam = NULL;
 			RECT rcCanvas;
@@ -145,7 +145,14 @@ void hm_wmp_scrollbar::update( void* pSubject, UINT idEvent, LPARAM pEventParam,
 }
 
 void hm_wmp_scrollbar::drawSelf() {
-	if ( !m_pHEDSParamCache ) return;
+	// the cache OBJECT exists from construction, but its canvas fields are
+	// only filled by the first real DRAWSELF dispatch - before any paint
+	// ( headless tests, pre-show interaction ) they are NULL. drawing from
+	// a cold cache is a no-op, not a crash.
+	if ( !m_pHEDSParamCache
+		|| !m_pHEDSParamCache->m_pLayoutObjCanvas
+		|| !m_pHEDSParamCache->m_hWndCanvas )
+		return;
 	BOOL bContinue = false;
 	RECT rcCanvas;
 	POINT ptCursorS2L;
@@ -162,7 +169,7 @@ void hm_wmp_scrollbar::drawSelf() {
 	
 	m_pCurStateObj->_doDrawSkin( this, m_pHEDSParamCache->m_hDCCanvas, rcCanvas, _getCursorPos( rcCanvas, ptCursorS2L ) );
 
-	//update( NULL, HMKEELOBJEVENT_DRAWSELF, (long)m_pHEDSParamCache, 0, &bContinue );
+	//update( NULL, HM_EVENT_DRAWSELF, (long)m_pHEDSParamCache, 0, &bContinue );
 
 	::ReleaseDC( m_pHEDSParamCache->m_hWndCanvas, m_pHEDSParamCache->m_hDCCanvas );
 }
@@ -537,23 +544,27 @@ void hm_wmp_scrollbar::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 }
 
 void hm_wmp_scrollbar::_OnMouseWheel( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	// wheel over the SCROLL CONTAINER ( this bar's parent keelobj ) steps
-	// the value through the existing changed-event chain, same as dragging.
-	// WM_MOUSEWHEEL is delivered to the whole window, so hit-test the
-	// cursor against the parent rect first.
-	hm_keel_obj* pParent = pKeelObj ? pKeelObj->getParent() : NULL;
+	// wheel over the BAR STRIP ITSELF steps the value through the existing
+	// changed-event chain, same as dragging. wheel over the surrounding
+	// viewport belongs to the scroll orchestrator ( hm_wmp_scrollview ),
+	// which drives this bar through the same TRACKTHUMB_MOVED chain - so
+	// hit-test against THIS keelobj's rect only, no double handling.
 	RECT rcContainer;
 	POINT ptCursor;
-	if ( !pParent || !pParent->getLayoutObj() )
+	if ( !pKeelObj || !pKeelObj->getLayoutObj() )
 		return;
-	if ( !pParent->getLayoutObj()->mapPosition( pWP->hwnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcContainer ) )
+	if ( !pKeelObj->getLayoutObj()->mapPosition( pWP->hwnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcContainer ) )
 		return;
-	if ( !::GetCursorPos( &ptCursor ) )
-		return;
+	// the wheel event point rides in the message lParam ( SCREEN coords ):
+	// real hardware and synthetic posts agree on it, GetCursorPos does not.
+	ptCursor.x = (int)(short)LOWORD( pWP->lParam );
+	ptCursor.y = (int)(short)HIWORD( pWP->lParam );
 	if ( !::ScreenToClient( pWP->hwnd, &ptCursor ) )
 		return;
-	if ( !::PtInRect( &rcContainer, ptCursor ) )
+	if ( !::PtInRect( &rcContainer, ptCursor ) ) {
+		hm_util_invlog( _T("scbar-wheel-outside"), &rcContainer );
 		return;
+	}
 
 	int nDelta = GET_WHEEL_DELTA_WPARAM( pWP->wParam );
 	int nValNew = m_nValCur - ( nDelta > 0 ? WHEEL_STEP : -WHEEL_STEP );

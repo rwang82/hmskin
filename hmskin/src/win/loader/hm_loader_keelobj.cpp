@@ -95,6 +95,13 @@ bool hm_loader_keelobj::load( hm_manifest_json* pManifestData, hm_uiroot* pHMUIR
 			}
 		}
 
+		// clip children ( optional, scroll-viewport semantics: this subtree
+		// never draws outside my rect - draw-time property, no side effects ).
+		valTmp = keelobjVal["ClipChildren"];
+		if ( valTmp.isBool() && valTmp.asBool() ) {
+			pNewKeelObj->setClipChildren( TRUE );
+		}
+
 		// LayOutObj Coordinate System
 		valLayOutObj = keelobjVal["LayoutObj"];
 		if ( valLayOutObj.isNull() )

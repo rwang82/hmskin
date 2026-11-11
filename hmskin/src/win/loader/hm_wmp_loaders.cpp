@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\loader\hm_wmp_loaders.h"
+#include "win\resource_system\hm_rs_uires_text.h"
 #include "win\hm_win_misc.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\wmp\hm_wmp_bkgnd.h"
@@ -8,13 +9,13 @@
 #include "win\wmp\hm_wmp_button_nca.h"
 #include "win\wmp\hm_wmp_checkbox.h"
 #include "win\wmp\hm_wmp_radio.h"
-#include "win\wmp\hm_wmp_dialogview.h"
 #include "win\wmp\hm_wmp_drawtrigger.h"
 #include "win\wmp\hm_wmp_drawtrigger_nca.h"
 #include "win\wmp\hm_wmp_layouttrigger.h"
 #include "win\wmp\hm_wmp_popupmenu.h"
 #include "win\wmp\hm_wmp_rootmenu.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
+#include "win\wmp\hm_wmp_scrollview.h"
 #include "win\wmp\hm_wmp_tab.h"
 #include "win\wmp\hm_wmp_viewbkcontent.h"
 #include "win\wmp\hm_wmp_movewnd.h"
@@ -156,7 +157,6 @@ bool hm_wmp_display_loader::_fillDistrictObjs( const Json::Value& valWMP, hm_wmp
 	Json::Value valDistrict;
 	Json::Value valTmp;
 	hm_wmp_display::district_id_type idDistrict;
-	hm_districtobj* pDistrictObj = NULL;
 
 	aryDistrictObjs = valWMP[ STR_DISTRICTOBJS ];
 	if ( !aryDistrictObjs.isArray() || !pWMPDest ) {
@@ -178,13 +178,9 @@ bool hm_wmp_display_loader::_fillDistrictObjs( const Json::Value& valWMP, hm_wmp
 		}
 		idDistrict = valTmp.asInt();
 		//
-		if ( !pWMPDest->getDistrictObj( idDistrict, &pDistrictObj ) ) {
-			assert( false );
-			return false;
-		}
-		// fill showobj to district object.
+		// fill showobj through the WMP proxy: store + uires subscriptions.
 		valTmp = valDistrict[ "ShowObjs" ];
-		if ( !_fillShowObjs( valTmp, pDistrictObj ) ) {
+		if ( !_fillShowObjs( valTmp, pWMPDest, idDistrict ) ) {
 			assert( false );
 			return false;
 		}
@@ -193,8 +189,8 @@ bool hm_wmp_display_loader::_fillDistrictObjs( const Json::Value& valWMP, hm_wmp
 	return true;
 }
 
-bool hm_wmp_display_loader::_fillShowObjs( const Json::Value& aryShowObjs, hm_districtobj* pDistrict ) {
-	if ( !aryShowObjs.isArray() || !pDistrict ) {
+bool hm_wmp_display_loader::_fillShowObjs( const Json::Value& aryShowObjs, hm_wmp_display* pWMPDest, hm_wmp_display::district_id_type idDistrict ) {
+	if ( !aryShowObjs.isArray() || !pWMPDest ) {
 		assert( false );
 		return false;
 	}
@@ -230,7 +226,10 @@ bool hm_wmp_display_loader::_fillShowObjs( const Json::Value& aryShowObjs, hm_di
 		}
 		//
 		pShowObj = new hm_showobj( pUIRes, pPDC );
-		pDistrict->pushBackShowObj( pShowObj );
+		if ( !pWMPDest->pushShowObj( idDistrict, pShowObj ) ) {
+			assert( false );
+			return false;
+		}
 	}
 	//
 
@@ -811,19 +810,6 @@ hm_wndmsgprocessor_i* hm_wmp_button_nca_loader::_createWMP( const Json::Value& v
 	HM_WMP_X_LOADER_IMPL( hm_wmp_button_nca );
 };
 //////////////////////////////////////////////////////////////////////////
-hm_wmp_dialogview_loader::hm_wmp_dialogview_loader() {
-
-}
-
-hm_wmp_dialogview_loader::~hm_wmp_dialogview_loader() {
-
-}
-
-hm_wndmsgprocessor_i* hm_wmp_dialogview_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	return NULL;
-	// HM_WMP_X_LOADER_IMPL( hm_wmp_dialogview );
-};
-//////////////////////////////////////////////////////////////////////////
 hm_wmp_drawtrigger_loader::hm_wmp_drawtrigger_loader() {
 
 }
@@ -1042,6 +1028,86 @@ hm_wndmsgprocessor_i* hm_wmp_scrollbar_loader::_createWMP( const Json::Value& va
 	}
 	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_scrollbar, hm_wmp_scrollbar::ENUMDIRECTIONTYPE, hmskin_event_listener_base* >(
 		idWMP, eDirection, pHMUIRoot->m_pEventListener );
+};
+//////////////////////////////////////////////////////////////////////////
+hm_wmp_scrollview_loader::hm_wmp_scrollview_loader() {
+
+}
+
+hm_wmp_scrollview_loader::~hm_wmp_scrollview_loader() {
+
+}
+
+hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
+	if ( !pHMUIRoot ) { assert( false ); return NULL; }
+	Json::Value valTmp;
+	hm_wmp_factory::obj_id_type idWMP = 0;
+	std::string strWMPClsName;
+
+	assert( _getWMPName( valWMP, strWMPClsName ) );
+	assert( strWMPClsName == "hm_wmp_scrollview" );
+	valTmp = valWMP[ "idWMP" ];
+	if ( !valTmp.isInt() ) { assert( false ); return NULL; }
+	idWMP = valTmp.asInt();
+
+	// ScrollViewCfg: binds this orchestrator to a manifest-declared subtree.
+	hm_wmp_scrollview::SCROLLVIEW_CFG cfg;
+	valTmp = valWMP[ "ScrollViewCfg" ];
+	if ( !valTmp.isObject() ) { assert( false ); return NULL; }
+	Json::Value valCfg = valTmp;
+	Json::Value v;
+	// ScrollBarWMPId ( required ) - shutdown contract: referenced WMP ids
+	// must be SMALLER than ours ( factory destroys by ascending id ).
+	v = valCfg[ "ScrollBarWMPId" ];
+	if ( !v.isInt() ) { assert( false ); return NULL; }
+	cfg.m_idWMPSearchBar = v.asInt();
+	assert( cfg.m_idWMPSearchBar < idWMP );
+	// ContentKeelObjId ( required ).
+	v = valCfg[ "ContentKeelObjId" ];
+	if ( !v.isInt() ) { assert( false ); return NULL; }
+	cfg.m_idKeelObjContent = v.asInt();
+	// BarKeelObjId ( optional: wheel hit-test exclusion + track measure ).
+	v = valCfg[ "BarKeelObjId" ];
+	if ( v.isInt() ) cfg.m_idKeelObjBar = v.asInt();
+	// ContentWMPId ( optional: dynamic CONTENT_EXTENT source ).
+	v = valCfg[ "ContentWMPId" ];
+	if ( v.isInt() ) {
+		cfg.m_idWMPContent = v.asInt();
+		assert( cfg.m_idWMPContent < idWMP );   // shutdown contract
+	}
+	// ContentExtent96 ( optional: static extent; 0 = measure at runtime ).
+	v = valCfg[ "ContentExtent96" ];
+	if ( v.isObject() ) {
+		Json::Value ve = v[ "W" ];
+		if ( ve.isInt() && ve.asInt() > 0 )
+			cfg.m_uContentExtentW = (unsigned int)_ScalePx( m_dblScale, ve.asInt() );
+		ve = v[ "H" ];
+		if ( ve.isInt() && ve.asInt() > 0 )
+			cfg.m_uContentExtentH = (unsigned int)_ScalePx( m_dblScale, ve.asInt() );
+	}
+	// ArrowLen96 ( optional, default 20 = sbbtn bitmap size ).
+	v = valCfg[ "ArrowLen96" ];
+	if ( v.isInt() && v.asInt() > 0 )
+		cfg.m_uArrowLen = (unsigned int)_ScalePx( m_dblScale, v.asInt() );
+	// MinThumbLen96 ( optional, default 20 ).
+	v = valCfg[ "MinThumbLen96" ];
+	if ( v.isInt() && v.asInt() > 0 )
+		cfg.m_uMinThumbLen = (unsigned int)_ScalePx( m_dblScale, v.asInt() );
+	// FixedThumbLen96 ( optional; absent = proportional thumb ).
+	v = valCfg[ "FixedThumbLen96" ];
+	if ( v.isInt() && v.asInt() > 0 )
+		cfg.m_nFixedThumbLen = _ScalePx( m_dblScale, v.asInt() );
+	// LayoutScroll ( optional: translate the content layout on scroll ).
+	v = valCfg[ "LayoutScroll" ];
+	if ( v.isBool() )
+		cfg.m_bLayoutScroll = v.asBool() ? TRUE : FALSE;
+	// WheelStep96 ( optional: px per wheel notch, default 60 ).
+	v = valCfg[ "WheelStep96" ];
+	if ( v.isInt() && v.asInt() > 0 )
+		cfg.m_nWheelStep = _ScalePx( m_dblScale, v.asInt() );
+
+	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_scrollview, const hm_wmp_scrollview::SCROLLVIEW_CFG&, hm_uiroot* >(
+		idWMP, cfg, pHMUIRoot );
 };
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_tabheader_loader::hm_wmp_tabheader_loader() {

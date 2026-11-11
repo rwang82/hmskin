@@ -41,8 +41,16 @@ public:
 	bool mapPosition( HWND hWndDest, coordinate_system_hwnd::ENUMCSHTYPE eType, RECT& rcDest );
 	bool screen2LayoutObj( POINT& ptS2L );
 
+	// scroll offset: applied on top of the decoder result inside
+	// calcPosition ( scroll containers shift a whole manifest subtree
+	// without touching any decoder - mapPosition / hit-testing read the
+	// shifted m_rect automatically ).
+	void setScrollOffset( POINT ptScrollOffset ) { m_ptScrollOffset = ptScrollOffset; }
+	POINT getScrollOffset() const { return m_ptScrollOffset; }
+
 public:
 	RECT m_rect;
+	POINT m_ptScrollOffset;
 
 protected:
 	coordinate_system_ptr_type m_pCoordinateSystem;

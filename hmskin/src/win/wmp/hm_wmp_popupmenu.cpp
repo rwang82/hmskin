@@ -106,7 +106,7 @@ void hm_wmp_popupmenu::_createDistrictObjs() {
 //
 void hm_wmp_popupmenu::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
-		case HMKEELOBJEVENT_DRAWSELF:
+		case HM_EVENT_DRAWSELF:
 			{
 				HEDSPARAM* pHEDSParam = NULL;
 				RECT rcCanvas;
@@ -345,8 +345,6 @@ void hm_wmp_popupmenu::_OnRButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 
-		//::MessageBox( pWP->hwnd, _T("RLButtonDown"), _T(""), MB_OK );
-		//::InvalidateRect( pWP->hwnd, NULL, TRUE );
 		return;
 	} 
 }
