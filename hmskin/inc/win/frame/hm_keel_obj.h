@@ -17,8 +17,6 @@ class HMLIB_API hm_keel_obj : public cmn::hm_cmn_subject, public hm_wndmsg_obser
 	// type define
 public:
 	typedef unsigned int layoutobj_sort_type;
-	//typedef unsigned int hm_wmp_id_type;
-	//typedef std::deque< hm_wmp_id_type > wmpid_container_type;
 	typedef std::deque< hm_wndmsgprocessor_i* > wmp_container_type;
 	typedef std::deque< hm_keel_obj* > keelobj_container_type;
 	
@@ -52,9 +50,6 @@ public:
 	
 	// wmdmsg processor
 public: 
-	//void pushbackWMP( hm_wmp_id_type wmpId );
-	//bool hasWMP( hm_wmp_id_type wmpId );
-	//void delWMP( hm_wmp_id_type wmpId );
 	void pushbackWMP( hm_wndmsgprocessor_i* pWndMsgProcessor );
 	bool hasWMP( const hm_wndmsgprocessor_i* pWndMsgProcessor ) const;
 	void delWMP( hm_wndmsgprocessor_i* pWndMsgProcessor );
@@ -110,11 +105,4 @@ protected:
 DECLARE_FACTORY_EXPORTS( hm_keel_obj );
 #pragma warning(pop)
 //
-typedef FACTORY_TYPE( hm_keel_obj ) hm_keel_obj_factory;
-//extern HMLIB_API hm_keel_obj_factory g_factoryKeelObj;
-//#define KEELOBJ_FACTORY (&g_factoryKeelObj)
-
-//EXTERN_C_START
-//HMLIB_API hm_keel_obj* hm_keelobj_create( hm_keel_obj_factory::obj_id_type objId );
-//EXTERN_C_END
-#endif //__HM_KEEL_OBJ_H__
+typedef FACTORY_TYPE( hm_keel_obj ) hm_keel_obj_factory;#endif //__HM_KEEL_OBJ_H__

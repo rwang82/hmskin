@@ -21,12 +21,6 @@ GdiplusStartupInput gdiplusStartupInput;
 ULONG_PTR           gdiplusToken;
 CFuncPack g_fpGdiplusDown( GdiplusShutdown, gdiplusToken );
 hm_hs_apihook g_instanceAPIHook;
-//HMLIB_API msg_sink_factory_type g_factoryMsgSink;
-//HMLIB_API hm_wmark_csid_table_type g_tableWndMark2CSId;
-//HMLIB_API hm_wmark_msid_table_type g_tableWndMark2MSId;
-//HMLIB_API hm_coordsys_factory_type g_factoryCoordSys;
-//HMLIB_API hm_keel_obj_factory g_factoryKeelObj;
-//HMLIB_API hm_wmp_factory g_factoryWndMsgProcessor;
 HMLIB_API hm_uiroot_factory_type g_factoryUIRoot;
 
 

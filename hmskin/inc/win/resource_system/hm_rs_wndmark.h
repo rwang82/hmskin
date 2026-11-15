@@ -48,9 +48,7 @@ private:
 public:
 	propid2hwnd_map_type m_mapPropId2HWND;
 	ctrlid2hwnd_map_type m_mapCtrlId2HWND;
-};
-//#define HWNDDEPOSITORY_INSTANCE (hm_rs_hwnddepository::getInstance())
-//////////////////////////////////////////////////////////////////////////
+};//////////////////////////////////////////////////////////////////////////
 template < typename obj_id_type >
 class TWndMarkTable
 {

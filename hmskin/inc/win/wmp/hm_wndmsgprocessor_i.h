@@ -47,10 +47,7 @@ protected:
 DECLARE_FACTORY_EXPORTS( hm_wndmsgprocessor_i );
 #pragma warning(pop)
 //
-#define hm_wmp_factory FACTORY_TYPE( hm_wndmsgprocessor_i )
-//extern HMLIB_API hm_wmp_factory g_factoryWndMsgProcessor;
-//#define WMPFACTORY_INSTANCE (&g_factoryWndMsgProcessor)
-//
+#define hm_wmp_factory FACTORY_TYPE( hm_wndmsgprocessor_i )//
 #define MSGBIND_BEGIN( class_name ) void class_name::doWndMsg( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) { \
 	if ( !pKeelObj || !pWP || !pParamWndProc ) \
 		return; \

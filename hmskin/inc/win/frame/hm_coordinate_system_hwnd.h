@@ -31,20 +31,13 @@ private:
 };
 
 //
-//DECLARE_FACTORY( coordinate_system_hwnd );
 #pragma warning(push)
 #pragma warning(disable:4251)
 DECLARE_FACTORY_EXPORTS( coordinate_system_hwnd );
 #pragma warning(pop)
 #define hm_coordsys_factory_type FACTORY_TYPE( coordinate_system_hwnd )
-//extern HMLIB_API hm_coordsys_factory_type g_factoryCoordSys;
-//#define COORDSYSOBJFACTORY_INSTANCE (&g_factoryCoordSys)
-
 //
 #define hm_wmark_csid_table_type TWndMarkTable< hm_coordsys_factory_type::obj_id_type >
-//extern HMLIB_API hm_wmark_csid_table_type g_tableWndMark2CSId;
-//#define WNDMARK2CSID_TABLE (&g_tableWndMark2CSId)
-
 //
 bool ConnectHwnd2CoordSys( hm_uiroot* pHMUIRoot, HWND hWnd, const hm_rs_wndmark& wndMark );
 bool DisconnectHwnd2CoordSys( hm_uiroot* pHMUIRoot, HWND hWnd, const hm_rs_wndmark& wndMark );

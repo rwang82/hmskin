@@ -91,11 +91,7 @@ private:
 };
 #define MSGDISPATCHER_INSTANCE (MsgDispatcher::GetInstance())
 //////////////////////////////////////////////////////////////////////////
-//typedef TWndMarkTable< msg_sink_factory_type::obj_id_type > hm_wmark_msid_table_type;
 #define hm_wmark_msid_table_type TWndMarkTable< msg_sink_factory_type::obj_id_type >
-//extern HMLIB_API hm_wmark_msid_table_type g_tableWndMark2MSId;
-//#define WNDMARK2MSID_TABLE (&g_tableWndMark2MSId)
-
 EXTERN_C_START
 
 class hm_uiroot;
