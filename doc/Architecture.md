@@ -9,7 +9,8 @@
 ```
 ┌──────────────────────────── 宿主进程 ────────────────────────────────────┐
 │  hm_lib_startup( manifest 路径, DPI )            hmskin.cpp              │
-│    └─ hm_uiroot（会话聚合根: 8 个工厂/表,单会话守卫）  hm_uiroot.h        │
+│    └─ hm_uiroot（会话聚合根: 7 工厂/表 + hm_uicfg 会话配置               │
+│       + 宿主事件出口 m_pEventListener,单会话守卫）    hm_uiroot.h        │
 │        └─ hm_manifest_loader（10 个 section loader 链,顺序敏感）          │
 │                                                                           │
 │  ┌─ 窗口接管层 ──────────────────────────────────────────────────────┐   │
@@ -55,7 +56,8 @@
 ```
 宿主: hm_lib_startup( &param(实例/监听器/DPI), "demo.hm.manifest", &pRoot )
   ├─ 单会话守卫（第二次 startup 拒绝）
-  ├─ new hm_uiroot → 8 工厂/表就位（含 m_dblLayoutScale 按 DPI 定标）  hm_uiroot.cpp:12
+  ├─ new hm_uiroot → 工厂/表 + hm_uicfg 就位（m_cfg.m_dblLayoutScale 按 DPI 定标；
+  │   m_pEventListener 仅供 WMP 装载期注入,uiroot 自身不调用）  hm_uiroot.cpp:12
   └─ hm_manifest_loader::load → 10 个 loader 顺序执行（顺序敏感!）
        src/win/loader/hm_manifest_loader.cpp:45-52
        wndstyle → popupskin → coordinatesystem → rawpic → font → color
