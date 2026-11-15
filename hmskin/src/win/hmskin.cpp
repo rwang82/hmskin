@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "hmskin_event_listener_base.h"
 #include "win\frame\hm_hook_trackpopupmenu.h"
-#include "hm_layout_scale.h"
 #include <intrin.h>
 #include "hmskin.h"
 #include "tchar.h"
@@ -69,7 +68,7 @@ static bool hm_wndcls_reg( HINSTANCE hInst );
 ///////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////
-// DPI layout scale ( see hm_layout_scale.h )
+// DPI layout scale ( see hmskin.h )
 static double g_dblLayoutScale = 1.0;
 double hm_layout_scale() {
 	return g_dblLayoutScale;

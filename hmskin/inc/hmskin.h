@@ -3,7 +3,6 @@
 #include "tchar.h"
 #include "win\hm_event_defs.h"
 #include "win\hm_export_defs.h"
-#include "hm_layout_scale.h"   // host-facing DPI conversion ( 96-baseline )
 
 //
 EXTERN_C_START
@@ -78,6 +77,11 @@ HMLIB_API unsigned int hm_keelobj_dump_tree( hm_uiroot* pHMUIRoot, HWND hWndMain
 // "DrawTool" names, applied after load.
 enum { HM_DRAWTOL_GDI = 0, HM_DRAWTOL_GDIPLUS = 1, HM_DRAWTOL_D2D = 2 };
 HMLIB_API bool hm_set_drawtool_all( hm_uiroot* pHMUIRoot, int eTool );
+//////////////////////////////////////////////////////////////////////////
+// host-facing DPI conversion ( 96-baseline ): manifests are authored at
+// 96dpi, the loader scales geometry at parse time, runtime APIs speak px.
+HMLIB_API double hm_layout_scale();
+HMLIB_API int hm_layout_scale_px( int nValue96 );
 //////////////////////////////////////////////////////////////////////////
 // host text API: change a WMP's text by the ids the host wrote into its
 // manifest - no engine internals. set_text targets the FIRST text uires in
