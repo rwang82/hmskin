@@ -105,4 +105,5 @@ protected:
 DECLARE_FACTORY_EXPORTS( hm_keel_obj );
 #pragma warning(pop)
 //
-typedef FACTORY_TYPE( hm_keel_obj ) hm_keel_obj_factory;#endif //__HM_KEEL_OBJ_H__
+typedef FACTORY_TYPE( hm_keel_obj ) hm_keel_obj_factory;
+#endif //__HM_KEEL_OBJ_H__
