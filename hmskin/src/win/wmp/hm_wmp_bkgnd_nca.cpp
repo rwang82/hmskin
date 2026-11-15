@@ -123,7 +123,6 @@ void hm_wmp_bkgnd_nca::_doDrawBottom( HDC hDC, HWND hWndDest ) {
 	rcCanvas.bottom = ( rcWnd.bottom - rcWnd.top );
 	//
 	//clrBK = RGB( 200, 200, 100 );
-	//hm_util_draw_rect( hDC, rcCanvas, clrBK );
 	if ( !_getDistrictObj( m_bActive ? EDISTRICTID_BOTTOM_ACTIVE : EDISTRICTID_BOTTOM_INACTIVE, &pDistrictObj ) )
 		return;
 	pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
@@ -151,7 +150,6 @@ void hm_wmp_bkgnd_nca::_doDrawLeft( HDC hDC, HWND hWndDest ) {
 	rcCanvas.bottom = ( rcWnd.bottom - rcWnd.top ) - ( rcWnd.bottom - rcC2W.bottom );
 	//
 	//clrBK = RGB( 100, 100, 200 );
-	//hm_util_draw_rect( hDC, rcCanvas, clrBK );
 	if ( !_getDistrictObj( m_bActive ? EDISTRICTID_LEFT_ACTIVE : EDISTRICTID_LEFT_INACTIVE, &pDistrictObj ) )
 		return;
 	pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );
@@ -178,7 +176,6 @@ void hm_wmp_bkgnd_nca::_doDrawRight( HDC hDC, HWND hWndDest ) {
 	rcCanvas.bottom = ( rcWnd.bottom - rcWnd.top ) - ( rcWnd.bottom - rcC2W.bottom );
 	//
 	//clrBK = RGB( 100, 100, 200 );
-	//hm_util_draw_rect( hDC, rcCanvas, clrBK );
 	if ( !_getDistrictObj( m_bActive ? EDISTRICTID_RIGHT_ACTIVE : EDISTRICTID_RIGHT_INACTIVE, &pDistrictObj ) )
 		return;
 	pDistrictObj->show( hDC, rcCanvas, m_pDrawTool );

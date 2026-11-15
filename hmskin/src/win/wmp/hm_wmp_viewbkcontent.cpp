@@ -75,49 +75,6 @@ void hm_wmp_viewbkcontent::_doDrawSkinRaw( HDC hDC, const RECT& rcCanvas ) {
 	::DeleteObject( hBrush );
 
 
-#if 0
-	COLORREF clrBK = RGB( 120,20,20 );
-	TCHAR szMsg[ 200 ];
-	RECT rcDrawText;
-	RECT rcCV2C;
-	HDC hMemDC;
-	HBITMAP hBitmap, hBitmapOld;
-	HBRUSH hBrush;
-
-	rcDrawText = rcCanvas;
-	hm_util_draw_rect( hDC, rcCanvas, clrBK );
-	_stprintf_s( szMsg, _T("m_uContentHeight: %d, m_uContentWidth: %d\nm_rcContentVisible  left:%d, right:%d, top:%d, bottom:%d\n"), 
-		m_uContentHeight, m_uContentWidth, m_rcContentVisible.left, m_rcContentVisible.right, m_rcContentVisible.top, m_rcContentVisible.bottom );
-	::DrawText( hDC, szMsg, -1, &rcDrawText, DT_CENTER );
-
-	_mapRectContentVisible2Canvas( m_rcContentVisible, rcCanvas, rcCV2C );
-	
-	//
-	hMemDC = ::CreateCompatibleDC( hDC );
-	hBitmap = ::CreateCompatibleBitmap( hDC, (int)m_uContentWidth, (int)m_uContentHeight );
-	hBitmapOld = ( HBITMAP )::SelectObject( hMemDC, hBitmap );
-
-	hBrush = ::CreateSolidBrush( RGB( 120, 130, 140 ) );
-	::FillRect( hMemDC, &m_rcContentVisible, hBrush );
-	::DeleteObject( hBrush );
-	::MoveToEx( hMemDC, 0, 0, NULL );
-	::LineTo( hMemDC, m_uContentWidth, m_uContentHeight );
-	::MoveToEx( hMemDC, m_uContentWidth, 0, NULL );
-	::LineTo( hMemDC, 0, m_uContentHeight );
-	::BitBlt( hDC, rcCV2C.left, rcCV2C.top, RECT_WIDTH( m_rcContentVisible ), RECT_HEIGHT( m_rcContentVisible )
-		, hMemDC, m_rcContentVisible.left, m_rcContentVisible.top, SRCCOPY );
-
-	::SelectObject( hMemDC, hBitmapOld );
-	::DeleteObject( hBitmap );
-	::DeleteDC( hMemDC );
-
-	//
-	::MoveToEx( hDC, rcCV2C.left, rcCV2C.top, NULL );
-	::LineTo( hDC, rcCV2C.left, rcCV2C.bottom - 1 );
-	::LineTo( hDC, rcCV2C.right - 1, rcCV2C.bottom - 1 );
-	::LineTo( hDC, rcCV2C.right - 1, rcCV2C.top );
-	::LineTo( hDC, rcCV2C.left, rcCV2C.top );
-#endif //0
 }
 
 void hm_wmp_viewbkcontent::_mapRectContentVisible2Canvas( const RECT& rcContentVisible, const RECT& rcCanvas, RECT& rcContentV2Canvas ) {

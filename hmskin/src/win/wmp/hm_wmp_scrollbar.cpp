@@ -809,7 +809,6 @@ void scrollbar_state_nondragtrackthumb::_OnDrawSkinRaw( hm_wmp_scrollbar* pScrol
 void scrollbar_state_nondragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {
 	//COLORREF clrScrollBar = RGB( 160, 160, 80 );
 	//
-	//hm_util_draw_rect( hDC, rcCanvas, clrScrollBar );
 	// m_uMouseStatusFlags 
 
 	hm_districtobj* pDistrict = NULL;
@@ -1020,7 +1019,6 @@ void scrollbar_state_dragtrackthumb::_OnDrawSkinRaw( hm_wmp_scrollbar* pScrollBa
 void scrollbar_state_dragtrackthumb::_doDrawSkinRaw( hm_wmp_scrollbar* pScrollBarCtx, HDC hDC, const RECT& rcCanvas, hm_wmp_scrollbar::ENUMCURSORPOS eCursorPos ) {
   	//COLORREF clrScrollBar = RGB( 160, 160, 80 );
 	//
-	//hm_util_draw_rect( hDC, rcCanvas, clrScrollBar );
 	// m_uMouseStatusFlags 
 
 	hm_districtobj* pDistrict = NULL;

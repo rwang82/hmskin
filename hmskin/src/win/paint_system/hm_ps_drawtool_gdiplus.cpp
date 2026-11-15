@@ -173,16 +173,6 @@ bool hm_ps_drawtool_gdiplus::calcRect( HDC hDC, RECT& rcCanvas, const TCHAR* szT
 		}
 	}
 	
-	//
-    RECT rcBoundBox;
-	rcBoundBox.left = ( long )boundingBox.GetLeft();
-	rcBoundBox.right = ( long )boundingBox.GetRight();
-	rcBoundBox.top = ( long )boundingBox.GetTop();
-	rcBoundBox.bottom = ( long )boundingBox.GetBottom();
-	hm_util_draw_rect( hDC, rcBoundBox, RGB(255,0,0) );
-	//
-
-	
 	rcCanvas.left = ( long )rcDraw.GetLeft();
 	rcCanvas.right = ( long )rcDraw.GetRight();
 	rcCanvas.top = ( long )rcDraw.GetTop();

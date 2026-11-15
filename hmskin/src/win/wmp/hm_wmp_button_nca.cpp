@@ -160,7 +160,6 @@ void hm_wmp_button_nca::_doDrawSkin( HDC hDC, const RECT& rcCanvas, ENUMBTNSTATE
 	//static TCHAR s_aryState[][20] ={ _T("Normal"), _T("Hover"), _T("Press"), _T("Disable") };
 	//std::basic_string< TCHAR > strText;
 
-	//hm_util_draw_rect( hDC, rcCanvas );
 
 	//strText = s_aryState[ eBtnState%4 ];
 	//::DrawText( hDC, strText.c_str(), strText.length(), (RECT*)&rcCanvas, DT_CENTER );
