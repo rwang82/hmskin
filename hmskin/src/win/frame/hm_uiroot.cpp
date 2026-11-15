@@ -11,7 +11,6 @@ IMPLEMENT_FACTORY( hm_uiroot )
 //////////////////////////////////////////////////////////////////////////
 hm_uiroot::hm_uiroot( hmskin_event_listener_base* pEventListener )
 : m_pEventListener( pEventListener )
-, m_dblLayoutScale( 1.0 ), m_uPopupPropId( 0 )
 , m_pHWNDDespository( new hm_rs_hwnddepository() )
 , m_pMsgSinkFactory( new msg_sink_factory_type() )
 , m_pWndMark2CSIdTable( new hm_wmark_csid_table_type() )
@@ -19,7 +18,6 @@ hm_uiroot::hm_uiroot( hmskin_event_listener_base* pEventListener )
 , m_pWndMark2MSIdTable( new hm_wmark_msid_table_type() )
 , m_pKeelObjFactory( new hm_keel_obj_factory() )
 , m_pWMPFactory( new hm_wmp_factory() )
-, m_nWndCornerPref( HM_WNDCORNER_NOTSET )
 {
 	_Init();
 }

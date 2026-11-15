@@ -11,7 +11,7 @@
 
 // DPI: scale from the session owner ( uiroot ), see hm_layout_scale.h.
 static int _ScalePx( hm_uiroot* pHMUIRoot, int nValue96 ) {
-	return (int)( nValue96 * pHMUIRoot->m_dblLayoutScale + 0.5 );
+	return (int)( nValue96 * pHMUIRoot->m_cfg.m_dblLayoutScale + 0.5 );
 }
 
 

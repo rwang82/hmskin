@@ -46,7 +46,7 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 		return false;
 	if ( !_EnsurePopupCls() )
 		return false;
-	if ( pRoot->m_uPopupPropId == 0 ) {
+	if ( pRoot->m_cfg.m_uPopupPropId == 0 ) {
 		// manifest has no "PopupSkin" declaration - no engine popup.
 		return false;
 	}
@@ -54,7 +54,7 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 	// the popup slot is exclusive ( one PropId <-> one HWND in the skin ):
 	// release it for BOTH death paths of the previous popup before binding.
 	if ( s_hWndLastPopup ) {
-		hm_wndpropid_disconnect( pRoot, s_hWndLastPopup, pRoot->m_uPopupPropId );
+		hm_wndpropid_disconnect( pRoot, s_hWndLastPopup, pRoot->m_cfg.m_uPopupPropId );
 		if ( ::IsWindow( s_hWndLastPopup ) )
 			::DestroyWindow( s_hWndLastPopup );
 		s_hWndLastPopup = NULL;
@@ -66,7 +66,7 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 		return false;
 	s_hWndLastPopup = hWndPopup;
 	s_pMenuRoot = pRoot;
-	hm_wndpropid_connect( pRoot, hWndPopup, pRoot->m_uPopupPropId );
+	hm_wndpropid_connect( pRoot, hWndPopup, pRoot->m_cfg.m_uPopupPropId );
 	// bind the HMENU + the WM_COMMAND forward target; the popup WMP resizes
 	// the window to fit and draws the items.
 	::SendMessage( hWndPopup, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
@@ -98,7 +98,7 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 		::PostQuitMessage( (int)msg.wParam );
 	}
 	// window dead: drop the binding so the next popup can claim the slot.
-	hm_wndpropid_disconnect( pRoot, hWndPopup, pRoot->m_uPopupPropId );
+	hm_wndpropid_disconnect( pRoot, hWndPopup, pRoot->m_cfg.m_uPopupPropId );
 	if ( s_hWndLastPopup == hWndPopup )
 		s_hWndLastPopup = NULL;
 	return true;
@@ -115,7 +115,7 @@ bool hm_tpm_destroy_live_popup() {
 	BOOL bFoundLive = FALSE;
 	if ( s_hWndLastPopup && ::IsWindow( s_hWndLastPopup ) ) {
 		if ( s_pMenuRoot )
-			hm_wndpropid_disconnect( s_pMenuRoot, s_hWndLastPopup, s_pMenuRoot->m_uPopupPropId );
+			hm_wndpropid_disconnect( s_pMenuRoot, s_hWndLastPopup, s_pMenuRoot->m_cfg.m_uPopupPropId );
 		::DestroyWindow( s_hWndLastPopup );
 		bFoundLive = TRUE;
 	}

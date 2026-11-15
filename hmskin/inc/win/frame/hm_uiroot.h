@@ -3,6 +3,7 @@
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "common\hm_cmn_pattern_factory.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
+#include "win\frame\hm_uicfg.h"
 #include "win\hook_system\hm_hs_wnd_msg_dispatch.h"
 //
 class msg_sink_i_factory;
@@ -29,16 +30,7 @@ public:
 	hm_keel_obj_factory* m_pKeelObjFactory;
 	hm_wmp_factory* m_pWMPFactory;
 	hmskin_event_listener_base* m_pEventListener;
-	// DPI layout scale of this skin session ( set by hm_lib_startup from
-	// hm_startup_param::m_uDpi BEFORE the manifest loads; loaders read it
-	// at parse time. the session owner - hm_layout_scale() mirrors it
-	// process-wide as an app-facing convenience ).
-	double m_dblLayoutScale;
-	// manifest "PopupSkin":{"PropId":N} - 0 = none ( engine popups disabled ).
-	unsigned int m_uPopupPropId;
-
-	// window style adaptation, see hm_loader_wndstyle.h ( -1 = not configured ).
-	int m_nWndCornerPref;
+	hm_uicfg m_cfg;
 
 };
 

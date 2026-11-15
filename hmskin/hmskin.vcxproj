@@ -402,6 +402,8 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\frame\hm_msg_sink.h" />
     <ClInclude Include="inc\win\frame\hm_pos_decoders.h" />
     <ClInclude Include="inc\win\frame\hm_uiroot.h" />
+    <ClInclude Include="inc\win\frame\hm_uicfg.h" />
+
     <ClInclude Include="inc\win\hook_system\hm_hs_apihook.h" />
     <ClInclude Include="inc\win\hook_system\hm_hs_mouse_proc_hook.h" />
     <ClInclude Include="inc\win\hook_system\hm_hs_whellengine.h" />

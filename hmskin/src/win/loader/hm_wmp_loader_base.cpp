@@ -12,7 +12,7 @@ static const char STR_WMPIDWMP[] = "idWMP";
 hm_wndmsgprocessor_i* hm_wmp_loader_base::createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
 	if ( !pHMUIRoot )
 		return NULL;
-	m_dblScale = pHMUIRoot->m_dblLayoutScale;
+	m_dblScale = pHMUIRoot->m_cfg.m_dblLayoutScale;
 	hm_wndmsgprocessor_i* pWMPNew = NULL;
 	unsigned int uWMPId;
 	// create pWMPNew

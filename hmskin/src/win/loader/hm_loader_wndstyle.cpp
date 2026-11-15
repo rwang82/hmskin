@@ -27,13 +27,13 @@ bool hm_loader_wndstyle::load( hm_manifest_json* pManifestData, hm_uiroot* pHMUI
 
 	std::string strCorner = valCorner.asString();
 	if ( strCorner == "DEFAULT" )
-		pHMUIRoot->m_nWndCornerPref = HM_WNDCORNER_DEFAULT;
+		pHMUIRoot->m_cfg.m_nWndCornerPref = HM_WNDCORNER_DEFAULT;
 	else if ( strCorner == "DONOTROUND" )
-		pHMUIRoot->m_nWndCornerPref = HM_WNDCORNER_DONOTROUND;
+		pHMUIRoot->m_cfg.m_nWndCornerPref = HM_WNDCORNER_DONOTROUND;
 	else if ( strCorner == "ROUND" )
-		pHMUIRoot->m_nWndCornerPref = HM_WNDCORNER_ROUND;
+		pHMUIRoot->m_cfg.m_nWndCornerPref = HM_WNDCORNER_ROUND;
 	else if ( strCorner == "ROUNDSMALL" )
-		pHMUIRoot->m_nWndCornerPref = HM_WNDCORNER_ROUNDSMALL;
+		pHMUIRoot->m_cfg.m_nWndCornerPref = HM_WNDCORNER_ROUNDSMALL;
 	else {
 		assert( false ); // unknown WndStyle.Corner value
 		return false;

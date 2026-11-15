@@ -353,6 +353,9 @@
     <ClInclude Include="inc\win\frame\hm_uiroot.h">
       <Filter>frame\inc</Filter>
     </ClInclude>
+    <ClInclude Include="inc\win\frame\hm_uicfg.h">
+      <Filter>frame\inc</Filter>
+    </ClInclude>
     <ClInclude Include="inc\win\hook_system\hm_hs_apihook.h">
       <Filter>hook_system\inc</Filter>
     </ClInclude>

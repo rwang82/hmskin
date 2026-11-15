@@ -139,8 +139,8 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 	// manifests; the runtime works in physical pixels. the session value
 	// lives on the uiroot ( loaders read it ); the global is only the
 	// app-facing mirror ( hm_layout_scale/hm_layout_scale_px ).
-	pHMUIRootNew->m_dblLayoutScale = ( pParam->m_uDpi > 0 ? pParam->m_uDpi : 96 ) / 96.0;
-	g_dblLayoutScale = pHMUIRootNew->m_dblLayoutScale;
+	pHMUIRootNew->m_cfg.m_dblLayoutScale = ( pParam->m_uDpi > 0 ? pParam->m_uDpi : 96 ) / 96.0;
+	g_dblLayoutScale = pHMUIRootNew->m_cfg.m_dblLayoutScale;
 
 	if ( !ParseUIManifest( szResFilePath, pHMUIRootNew ) )
 		return false;
@@ -241,8 +241,8 @@ HMLIB_API bool hm_wndpropid_connect( hm_uiroot* pHMUIRoot, HWND hWnd, unsigned i
 	// window style adaptation ( windows 11+ corner preference etc. ).
 	// on windows 10 and older DwmSetWindowAttribute fails harmlessly for this
 	// attribute id, so no version check is needed.
-	if ( pHMUIRoot->m_nWndCornerPref != HM_WNDCORNER_NOTSET ) {
-		INT nPref = (INT)pHMUIRoot->m_nWndCornerPref;
+	if ( pHMUIRoot->m_cfg.m_nWndCornerPref != HM_WNDCORNER_NOTSET ) {
+		INT nPref = (INT)pHMUIRoot->m_cfg.m_nWndCornerPref;
 		::DwmSetWindowAttribute( hWnd, HM_DWMWA_WINDOW_CORNER_PREFERENCE,
 		                         &nPref, sizeof( nPref ) );
 	}

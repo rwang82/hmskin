@@ -24,7 +24,7 @@ bool hm_loader_popupskin::load( hm_manifest_json* pManifestData, hm_uiroot* pHMU
 		assert( false );
 		return false;
 	}
-	pHMUIRoot->m_uPopupPropId = (unsigned int)valPropId.asInt();
+	pHMUIRoot->m_cfg.m_uPopupPropId = (unsigned int)valPropId.asInt();
 	return true;
 }
 
