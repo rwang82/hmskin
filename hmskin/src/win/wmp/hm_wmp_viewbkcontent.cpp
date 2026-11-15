@@ -36,7 +36,7 @@ void hm_wmp_viewbkcontent::_createDistrictObjs() {
 //
 void hm_wmp_viewbkcontent::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent ) {
-	case cmn::ID_EVENT_POSCHANGED:
+	case HM_EVENT_LAYOUT_POSCHANGED:
 		{
 			int a = 0;					  
 		}

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "win\frame\hm_layout_obj.h"
+#include "win\hm_event_defs.h"
 //////////////////////////////////////////////////////////
 static bool ClientToWnd( HWND hWnd, RECT* prcClt2Wnd );
 static bool WndToClient( HWND hWnd, RECT* prcWnd2Clt );
@@ -30,7 +31,7 @@ void hm_layout_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LP
 {
 	switch( idEvent )
 	{
-	case cmn::ID_EVENT_POSCHANGED:
+	case HM_EVENT_LAYOUT_POSCHANGED:
 		{
 			//the observed subject's position been changed, so the observer need to recalculate himself's position
 			calcPosition();
@@ -57,7 +58,7 @@ void hm_layout_obj::calcPosition()
 	if ( m_ptScrollOffset.x || m_ptScrollOffset.y )
 		::OffsetRect( &m_rect, m_ptScrollOffset.x, m_ptScrollOffset.y );
 	//
-	Notify( cmn::ID_EVENT_POSCHANGED );
+	Notify( HM_EVENT_LAYOUT_POSCHANGED );
 }
 
 bool hm_layout_obj::mapPosition( HWND hWndDest, coordinate_system_hwnd::ENUMCSHTYPE eType, RECT& rcDest )
@@ -162,12 +163,12 @@ void hm_layoutdecoder_i::setLayoutRefObj( const ref_obj_ptr_type pRefObj ) {
 	if ( m_pRefObj == pRefObj ) return;
 	// cancel old reference relationship
 	if ( m_pRefObj ) {
-		m_pRefObj->UnRegister( m_pOutObj, cmn::ID_EVENT_POSCHANGED );
+		m_pRefObj->UnRegister( m_pOutObj, HM_EVENT_LAYOUT_POSCHANGED );
 	}
 	m_pRefObj = pRefObj;
 	// create new reference relationship
 	if ( m_pRefObj ) {
-		m_pRefObj->Register( m_pOutObj, cmn::ID_EVENT_POSCHANGED );
+		m_pRefObj->Register( m_pOutObj, HM_EVENT_LAYOUT_POSCHANGED );
 	}
 }
 //

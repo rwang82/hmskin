@@ -43,7 +43,7 @@
 │  └────────────────────────────────────────────────────────────────────┘   │
 │  ┌─ 事件层 ──────────────────────────────────────────────────────────┐   │
 │  │ cmn::hm_cmn_subject / hm_cmn_observer_i（Register 非幂等!）        │   │
-│  │ hm_event_defs.h（15 个事件,p1/p2 逐条注释）                        │   │
+│  │ hm_event_defs.h（17 个事件,全部 observer 总线 id,p1/p2 逐条注释）                        │   │
 │  │ hmskin_event_listener_base（宿主事件监听面）                       │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
 │  公共 API: hmskin.h 18 函数正门（宿主只说 manifest id,不碰引擎内部）      │
@@ -115,7 +115,7 @@ WM_PAINT → hm_wmp_drawtrigger（根 WMP,自绘接管）
 ```
 宿主 hm_wmp_set_text(root, keelobjId, wmpId, text)      hmskin.cpp
   → 定位 WMP 首个 text uires → setText
-  → hm_rs_uires_text 广播 HM_UIRES_EVENT_CONTENTCHANGED（基类级契约）
+  → hm_rs_uires_text 广播 HM_EVENT_UIRES_CONTENTCHANGED（基类级契约）
   → hm_wmp_display::_uires_observer::update              hm_wmp_display.cpp:17
   → invalidateBuffer()（m_bBufDirty=TRUE）
   → 下一次绘制走重渲而非缓存 blt
@@ -138,8 +138,8 @@ WM_LBUTTONDOWN →（消息流 3.1）→ checkbox WMP MSGBIND → _OnLButtonDown
 窗口尺寸变化（layouttrigger WMP 收 WM_SIZE）
   → 根 layout calcPosition()
   → decoderLayout()（本节点 decoder 求 rect）
-  → Notify(POSCHANGED) → 子 layout 收（观察 ref）→ 级联 calcPosition
-  → 各 keelobj 经 LAYOUTOBJ_CHANGED/POSCHANGED 事件感知
+  → Notify(LAYOUT_POSCHANGED) → 子 layout 收（观察 ref）→ 级联 calcPosition
+  → 宿主 keelobj 桥接为 KEELOBJ_POSCHANGED，WMP 经 RegEvts 感知
 坐标系: coordinate_system_hwnd CSH_CLIENT/CSH_WINDOW 双型
   mapPosition( 目标 HWND, 目标型, &rc ) 跨窗映射（MapWindowPoints NC 感知）
 ```
@@ -200,7 +200,7 @@ WM_LBUTTONDOWN →（消息流 3.1）→ checkbox WMP MSGBIND → _OnLButtonDown
 滚动视口 = 纯 manifest 子树 + 一个挂在**视口 keelobj** 上的编排 WMP:
 
 ```
-viewport keelobj  ( ClipChildren:true, 挂 hm_wmp_scrollview, RegEvts:[10]=POSCHANGED )
+viewport keelobj  ( ClipChildren:true, 挂 hm_wmp_scrollview, RegEvts:[10]=KEELOBJ_POSCHANGED )
   ├─ content keelobj   ( LayoutScroll:true → 滚动 = layout 滚动偏移平移整棵子树 )
   └─ scrollbar keelobj ( hm_wmp_scrollbar 通常 dock 右;bar 条内滚轮走它自己的 ±3 细步 )
 ```

@@ -66,7 +66,7 @@ void hm_wmp_movewnd::_OnPosChanged( void* pSubject, LPARAM pEventParam, LPARAM p
 void hm_wmp_movewnd::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent )
 	{
-	case HM_EVENT_POSCHANGED:
+	case HM_EVENT_KEELOBJ_POSCHANGED:
 		{
 			_OnPosChanged( pSubject, pEventParam, pEventParam2, pbContinue );
 		}

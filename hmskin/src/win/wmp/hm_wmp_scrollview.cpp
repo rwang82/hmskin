@@ -63,7 +63,7 @@ ORDERWNDMSG_END()
 void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPARAM pEventParam2, BOOL* pbContinue ) {
 	switch ( idEvent )
 	{
-	case HM_EVENT_POSCHANGED:
+	case HM_EVENT_KEELOBJ_POSCHANGED:
 		{ // relayed by the viewport keelobj after its layout settled.
 			hm_keel_obj* pKeelObjViewport = (hm_keel_obj*)pSubject;
 			if ( !pKeelObjViewport )

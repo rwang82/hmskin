@@ -81,7 +81,7 @@ private:
 	SCROLLVIEW_CFG m_cfg;              // scaled px
 	hm_uiroot* m_pHMUIRoot;
 	hm_wmp_scrollbar* m_pWMPBar;       // lazy-resolved, non-owning
-	hm_keel_obj* m_pKeelObjViewport;   // cached host keelobj ( first POSCHANGED / wheel )
+	hm_keel_obj* m_pKeelObjViewport;   // cached host keelobj ( first POSCHANGED relay / wheel )
 	RECT m_rcContentVisible;
 	unsigned int m_uContentExtentW;    // seeded from cfg, replaced by CONTENT_EXTENT
 	unsigned int m_uContentExtentH;

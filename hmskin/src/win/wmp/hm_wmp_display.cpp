@@ -12,15 +12,14 @@ hm_wmp_display::hm_wmp_display( hmskin_event_listener_base* pEventListener )
 , m_hBufBmp( NULL )
 , m_bBufDirty( TRUE ){
 	memset( &m_rcBufCanvas, 0, sizeof( RECT ) );
+	m_uiresObserver.m_pOwner = this;
 }
 
 void hm_wmp_display::registerShowObjEvents( hm_showobj* pShowObj ) {
-	// subscribe the adapter to content-change broadcasts at the ABSTRACT
-	// uires level: setText on a text uires then invalidates this WMP's
-	// pixel cache automatically. silent for resource kinds that never
-	// broadcast.
+	// no UnRegister needed: uires die inside this WMP's own districts.
 	if ( !pShowObj || !pShowObj->m_pUIRes )
 		return;
+	pShowObj->m_pUIRes->Register( &m_uiresObserver, HM_EVENT_UIRES_CONTENTCHANGED );
 }
 
 bool hm_wmp_display::pushShowObj( district_id_type idDistrict, hm_showobj* pShowObj ) {

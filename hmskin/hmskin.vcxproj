@@ -415,7 +415,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\paint_system\hm_ps_drawtool_i.h" />
     <ClInclude Include="inc\win\paint_system\hm_ps_paint_layer_i.h" />
     <ClInclude Include="inc\win\paint_system\hm_ps_paint_layer_pic.h" />
-    <ClInclude Include="inc\win\resource_system\hm_rs_global.h" />
     <ClInclude Include="inc\win\resource_system\hm_rs_rawres_base.h" />
     <ClInclude Include="inc\win\resource_system\hm_rs_uires_color.h" />
     <ClInclude Include="inc\win\resource_system\hm_rs_uires_i.h" />

@@ -95,6 +95,21 @@ public:
 	hm_wmp_display( hmskin_event_listener_base* pEventListener = NULL );
 	virtual ~hm_wmp_display();
 
+private:
+	// content-change adapter: dirties the cache, then WMP_STATECHANGED lets
+	// the owning keelobj invalidate its rect ( derived update() never sees it ).
+	class _uires_observer : public cmn::hm_cmn_observer_i {
+	public:
+		hm_wmp_display* m_pOwner;
+		_uires_observer() : m_pOwner( NULL ) {}
+		virtual void update( void* /*pSubject*/, UINT idEvent, LPARAM, LPARAM, BOOL* ) {
+			if ( idEvent == HM_EVENT_UIRES_CONTENTCHANGED && m_pOwner ) {
+				m_pOwner->invalidateBuffer();
+				m_pOwner->Notify( HM_EVENT_WMP_STATECHANGED );
+			}
+		}
+	};
+
 public:
 	void getAllDistrictId( district_id_container_type& containerIds );
 
@@ -167,6 +182,7 @@ protected:
 	HBITMAP m_hBufBmp;    // BUF_CACHE_SIZE backing bitmap
 	RECT m_rcBufCanvas;   // BUF_CACHE_SIZE size key
 	BOOL m_bBufDirty;     // BUF_CACHE_SIZE: TRUE = bitmap stale, re-render on next draw
+	_uires_observer m_uiresObserver;   // CONTENTCHANGED subscriptions target
 #pragma warning(push)
 #pragma warning(disable:4251)
 	map_id2district_type m_mapId2District;

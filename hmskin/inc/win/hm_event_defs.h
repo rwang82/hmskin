@@ -1,7 +1,10 @@
 #ifndef __HM_EVENT_DEFS__
 #define __HM_EVENT_DEFS__
 //////////////////////////////////////////////////////////////////////////
-//hmlib event define
+// ALL observer-bus ids live here - meaning is ( subject class, id ), each
+// entry names its subject. real window messages ( the only queue riders )
+// stay in hm_wndmsg_defs.h.
+//////////////////////////////////////////////////////////////////////////
 #define HM_EVENT_BEGIN ( 1 )
 #define HM_EVENT_WND_MSG ( HM_EVENT_BEGIN + 1 )
 #define HM_EVENT_COORDSYS_CHANGE ( HM_EVENT_BEGIN + 2 )
@@ -54,9 +57,9 @@ struct HETMPARAM {
 // pEventParam2 - NULL.
 #define HM_EVENT_MOUSEWHEEL ( HM_EVENT_BEGIN + 9 )
 //////////////////////////////////////////////////////////////////////////
-// pEventParam - specify the pointer of hm_keel_obj
-// pEventParam2 - NULL.
-#define HM_EVENT_POSCHANGED ( HM_EVENT_BEGIN + 10 )
+// subject hm_keel_obj, relayed from its layout's HM_EVENT_LAYOUT_POSCHANGED.
+// pEventParam - the hm_keel_obj pointer. pEventParam2 - NULL.
+#define HM_EVENT_KEELOBJ_POSCHANGED ( HM_EVENT_BEGIN + 10 )
 //////////////////////////////////////////////////////////////////////////
 // pEventParam - specify bVisible
 // pEventParam2 - NONE.
@@ -95,5 +98,14 @@ struct HECTPARAM {
 // ( hm_wmp_scrollview ) subscribes and rebinds the scrollbar value range.
 // pEventParam - HECTPARAM*   pEventParam2 - NONE.
 #define HM_EVENT_CONTENT_EXTENT ( HM_EVENT_BEGIN + 15 )
+//////////////////////////////////////////////////////////////////////////
+// subject hm_layout_obj, no params: rect recalculated. consumers: ref
+// layouts ( decoder cascade ) and the owning keelobj ( relays to its
+// KEELOBJ_POSCHANGED so WMPs never touch the layout bus ).
+#define HM_EVENT_LAYOUT_POSCHANGED ( HM_EVENT_BEGIN + 16 )
+//////////////////////////////////////////////////////////////////////////
+// subject hm_rs_uires_i, no params: content changed ( e.g. setText ).
+// subscriber: the owning WMP's pixel cache ( pushShowObj auto-subscribes ).
+#define HM_EVENT_UIRES_CONTENTCHANGED ( HM_EVENT_BEGIN + 17 )
 
 #endif //__HM_EVENT_DEFS__

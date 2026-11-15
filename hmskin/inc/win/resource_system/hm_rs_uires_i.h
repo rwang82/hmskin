@@ -2,15 +2,13 @@
 #define __HM_RS_UIRES_I_H__
 #include "WinDef.h"
 #include "common\hm_cmn_pattern_observer.h"
+#include "win\hm_event_defs.h"
 #include "win\hm_export_defs.h"
 //
 class hm_ps_drawtool_i;
 
-// broadcast by a uires when its CONTENT changes ( e.g. text via setText ):
-// subscribers - typically the owning WMP's pixel cache - react by
-// invalidating. declared at the ABSTRACT level: the framework subscribes
-// any uires without knowing the concrete resource class.
-#define HM_UIRES_EVENT_CONTENTCHANGED ( (UINT)0x0000A101 )
+// content change ( e.g. setText ) broadcasts HM_EVENT_UIRES_CONTENTCHANGED;
+// the owning WMP's pixel cache subscribes at this abstract level.
 
 class HMLIB_API hm_rs_uires_i : public cmn::hm_cmn_subject
 {

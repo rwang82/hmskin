@@ -92,18 +92,20 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			hm_layout_obj* pLayoutObjNew = (hm_layout_obj*)pEventParam;
 			hm_layout_obj* pLayoutObjOld = (hm_layout_obj*)pEventParam2;
 
-			// unregister cmn::ID_EVENT_POSCHANGED from pLayoutObjOld
+			// unregister HM_EVENT_LAYOUT_POSCHANGED from pLayoutObjOld
 			if ( pLayoutObjOld )
-				pLayoutObjOld->UnRegister( this, cmn::ID_EVENT_POSCHANGED );
+				pLayoutObjOld->UnRegister( this, HM_EVENT_LAYOUT_POSCHANGED );
 
-			// register cmn::ID_EVENT_POSCHANGED from pLayoutObjNew
+			// register HM_EVENT_LAYOUT_POSCHANGED from pLayoutObjNew
 			if ( pLayoutObjNew )
-				pLayoutObjNew->Register( this, cmn::ID_EVENT_POSCHANGED );
+				pLayoutObjNew->Register( this, HM_EVENT_LAYOUT_POSCHANGED );
 		}
 		break;
-	case cmn::ID_EVENT_POSCHANGED:
+	case HM_EVENT_LAYOUT_POSCHANGED:
 		{
-			Notify( HM_EVENT_POSCHANGED, (LPARAM)this );
+			// layout-bus -> keelobj-bus bridge: WMPs subscribe to the
+			// relayed event via RegEvts and never touch layout subjects.
+			Notify( HM_EVENT_KEELOBJ_POSCHANGED, (LPARAM)this );
 		}
 		break;
 	case HM_EVENT_WMP_STATECHANGED:
@@ -498,7 +500,7 @@ void hm_keel_obj::setLayoutObj( hm_layout_obj* pLayoutObjNew )
 void hm_keel_obj::_delAllLayoutObj()
 {
 	if ( m_pLayoutObj ) {
-		m_pLayoutObj->UnRegister( this, cmn::ID_EVENT_POSCHANGED );
+		m_pLayoutObj->UnRegister( this, HM_EVENT_LAYOUT_POSCHANGED );
 		delete m_pLayoutObj;
 		m_pLayoutObj = NULL;
 	}

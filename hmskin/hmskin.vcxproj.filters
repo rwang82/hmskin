@@ -392,9 +392,6 @@
     <ClInclude Include="inc\win\paint_system\hm_ps_paint_layer_pic.h">
       <Filter>paint_system\inc</Filter>
     </ClInclude>
-    <ClInclude Include="inc\win\resource_system\hm_rs_global.h">
-      <Filter>resource_system\inc</Filter>
-    </ClInclude>
     <ClInclude Include="inc\win\resource_system\hm_rs_rawres_base.h">
       <Filter>resource_system\inc</Filter>
     </ClInclude>
