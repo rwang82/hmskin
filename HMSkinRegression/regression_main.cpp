@@ -8,6 +8,7 @@
 #include <tchar.h>
 #include "hmskin.h"
 #include "hmskin_event_listener_base.h"
+#include "win\hm_wndmsg_defs.h"
 
 static int s_nFail = 0;
 static int s_nPass = 0;
@@ -277,6 +278,55 @@ int main() {
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndScroll, 258 ) == true,
 		       "scrollcase disconnect" );
 		::DestroyWindow( hWndScroll );
+	}
+
+	// ---- popup menu work-area flip ( native TrackPopupMenu parity ) ----
+	// BINDMENU sizes the window from the HMENU; a corner anchor must flip
+	// the menu back into the work area ( anchor becomes right/bottom edge ).
+	// the anchor-edge assertions are menu-size independent, so DPI rounding
+	// of the MenuCfg cannot wobble them.
+	{
+		printf( "popupcase: begin\n" );
+		RECT rcWork;
+		::SystemParametersInfo( SPI_GETWORKAREA, 0, &rcWork, 0 );
+		HWND hWndPop = ::CreateWindowEx( 0, _T("STATIC"), _T("rgpopup"),
+			WS_POPUP, rcWork.right - 10, rcWork.bottom - 10, 40, 40, NULL, NULL,
+			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
+		CHECK( hWndPop != NULL, "popupcase window created" );
+		CHECK( hm_wndpropid_connect( pRoot, hWndPop, 21 ) == true,
+		       "popupcase connect PopupSkin PropId 21" );
+		HMENU hMenu = ::CreatePopupMenu();
+		MENUITEMINFO mii;
+		memset( &mii, 0, sizeof( mii ) );
+		mii.cbSize = sizeof( mii );
+		mii.fMask = MIIM_STRING | MIIM_ID;
+		mii.fType = MFT_STRING;
+		mii.dwTypeData = _T("rg item");
+		mii.wID = 301;
+		::InsertMenuItem( hMenu, 0, TRUE, &mii );
+		::InsertMenuItem( hMenu, 1, TRUE, &mii );
+		::InsertMenuItem( hMenu, 2, TRUE, &mii );
+
+		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, 0 );
+		RECT rcPop;
+		::GetWindowRect( hWndPop, &rcPop );
+		CHECK( rcPop.right == rcWork.right - 10 && rcPop.bottom == rcWork.bottom - 10,
+		       "popupcase corner anchor flips to right/bottom aligned" );
+		CHECK( rcPop.left >= rcWork.left && rcPop.top >= rcWork.top
+		       && rcPop.right <= rcWork.right && rcPop.bottom <= rcWork.bottom,
+		       "popupcase flipped rect inside work area" );
+
+		// mid-work-area anchor: nothing overflows, left/top must stay put.
+		::MoveWindow( hWndPop, rcWork.left + 40, rcWork.top + 40, 40, 40, FALSE );
+		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, 0 );
+		::GetWindowRect( hWndPop, &rcPop );
+		CHECK( rcPop.left == rcWork.left + 40 && rcPop.top == rcWork.top + 40,
+		       "popupcase mid-screen anchor keeps left/top" );
+
+		::DestroyMenu( hMenu );
+		CHECK( hm_wndpropid_disconnect( pRoot, hWndPop, 21 ) == true,
+		       "popupcase disconnect" );
+		::DestroyWindow( hWndPop );
 	}
 
 	// ---- shutdown ( must simply complete ) ----

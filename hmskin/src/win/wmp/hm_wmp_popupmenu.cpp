@@ -210,7 +210,22 @@ void hm_wmp_popupmenu::_OnHMWMBindMenu( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 	m_hWndOwner = (HWND)pWP->lParam;
 	if ( m_pDimensionMenuWndObj && m_pDimensionMenuWndObj->getWndSize( m_hMenu, &sizeMenuWnd ) ) {
 		::GetWindowRect( pWP->hwnd, &rcCurWnd );
-		::MoveWindow( pWP->hwnd, rcCurWnd.left, rcCurWnd.top, sizeMenuWnd.cx, sizeMenuWnd.cy, TRUE );
+		int x = rcCurWnd.left;
+		int y = rcCurWnd.top;
+		// native TrackPopupMenu parity: flip the menu back into the monitor
+		// work area - the anchor point becomes the menu's right/bottom edge.
+		MONITORINFO mi;
+		mi.cbSize = sizeof( mi );
+		HMONITOR hMon = ::MonitorFromWindow( pWP->hwnd, MONITOR_DEFAULTTONEAREST );
+		if ( hMon && ::GetMonitorInfo( hMon, &mi ) ) {
+			if ( x + sizeMenuWnd.cx > mi.rcWork.right )
+				x -= sizeMenuWnd.cx;
+			if ( y + sizeMenuWnd.cy > mi.rcWork.bottom )
+				y -= sizeMenuWnd.cy;
+			if ( x < mi.rcWork.left ) x = mi.rcWork.left;
+			if ( y < mi.rcWork.top ) y = mi.rcWork.top;
+		}
+		::MoveWindow( pWP->hwnd, x, y, sizeMenuWnd.cx, sizeMenuWnd.cy, TRUE );
 	}
 }
 
