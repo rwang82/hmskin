@@ -166,7 +166,7 @@ bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable )
 		if ( s_bTPMHookEnabled )
 			return true;
 		hm_tpm_set_root( pHMUIRoot );
-		if ( !APIHOOK_INSTANCE->hookOnTrackPopupMenu( _T("TrackPopupMenu"), _T("user32.dll") ) )
+		if ( !APIHOOK_INSTANCE->hookOn( _T("TrackPopupMenu"), _T("user32.dll"), &hmTrackPopupMenu ) )
 			return false;
 		s_bTPMHookEnabled = true;
 	} else {

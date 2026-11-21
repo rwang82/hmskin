@@ -37,7 +37,8 @@ public:
 	
 	// operation
 public:
-	bool hookOnTrackPopupMenu( const TCHAR* szAPIName, const TCHAR* szLibFileName );
+	// generic: patch the api prologue with an absolute jump to pfnReplacement.
+	bool hookOn( const TCHAR* szAPIName, const TCHAR* szLibFileName, void* pfnReplacement );
 	bool hookOff( const TCHAR* szAPIName, const TCHAR* szLibFileName );
 
 	// helper
@@ -50,19 +51,11 @@ private:
 	bool _unregHook( const TCHAR* szAPIName, const TCHAR* szLibFileName );
 	bool _isRegHook( const TCHAR* szAPIName, const TCHAR* szLibFileName );
 	//
-	bool _regHookTrackPopupMenu( const TCHAR* szAPIName, const TCHAR* szLibFileName );
-	void _prepareCodeHookTrackPopupMenu( void* pfnOrigin, unsigned char* originCodeBuf, unsigned char* newCodeBuf );
+	bool _regHook( const TCHAR* szAPIName, const TCHAR* szLibFileName, void* pfnReplacement );
+	void _prepareCodeHook( void* pfnOrigin, void* pfnReplacement, unsigned char* originCodeBuf, unsigned char* newCodeBuf );
 
 	//
 private:
-	//static BOOL WINAPI hmTrackPopupMenu(
- //   HMENU hMenu,
- //   UINT uFlags,
- //   int x,
- //   int y,
- //   int nReserved,
- //   HWND hWnd,
- //   CONST RECT *prcRect);
 
 public:
 	hm_hs_apihook();

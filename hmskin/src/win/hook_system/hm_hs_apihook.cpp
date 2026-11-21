@@ -2,12 +2,11 @@
 #include <assert.h>
 #include "win\hook_system\hm_hs_apihook.h"
 #include "AtlConv.h"
-#include "win\frame\hm_hook_trackpopupmenu.h"
 
-bool hm_hs_apihook::hookOnTrackPopupMenu( const TCHAR* szAPIName, const TCHAR* szLibFileName ) {
+bool hm_hs_apihook::hookOn( const TCHAR* szAPIName, const TCHAR* szLibFileName, void* pfnReplacement ) {
 	if ( _isRegHook( szAPIName, szLibFileName ) ) 
 		return false;
-	if ( !_regHookTrackPopupMenu( szAPIName, szLibFileName ) )
+	if ( !_regHook( szAPIName, szLibFileName, pfnReplacement ) )
 		return false;
 	
 	//
@@ -29,7 +28,7 @@ bool hm_hs_apihook::hookOff( const TCHAR* szAPIName, const TCHAR* szLibFileName 
 	return _unregHook( szAPIName, szLibFileName );
 }
 //
-bool hm_hs_apihook::_regHookTrackPopupMenu( const TCHAR* szAPIName, const TCHAR* szLibFileName ) {
+bool hm_hs_apihook::_regHook( const TCHAR* szAPIName, const TCHAR* szLibFileName, void* pfnReplacement ) {
 	if ( _isRegHook( szAPIName, szLibFileName ) ) return false;
 	apiinfo* pAPIInfo = NULL;
 	void* pfnOrigin = NULL;
@@ -46,7 +45,7 @@ bool hm_hs_apihook::_regHookTrackPopupMenu( const TCHAR* szAPIName, const TCHAR*
 	
 	pAPIInfo = new apiinfo();
 	//
-	_prepareCodeHookTrackPopupMenu( pfnOrigin, pAPIInfo->m_originCodeBuf, pAPIInfo->m_newCodeBuf );
+	_prepareCodeHook( pfnOrigin, pfnReplacement, pAPIInfo->m_originCodeBuf, pAPIInfo->m_newCodeBuf );
 	pAPIInfo->m_strAPIName = szAPIName;
 	pAPIInfo->m_strLibFileName = szLibFileName;
 	pAPIInfo->m_bHooked = false;
@@ -97,7 +96,7 @@ bool hm_hs_apihook::_isRegHook( const TCHAR* szAPIName, const TCHAR* szLibFileNa
 	return false;
 }
 
-void hm_hs_apihook::_prepareCodeHookTrackPopupMenu( void* pfnOrigin, unsigned char* originCodeBuf, unsigned char* newCodeBuf ) {
+void hm_hs_apihook::_prepareCodeHook( void* pfnOrigin, void* pfnReplacement, unsigned char* originCodeBuf, unsigned char* newCodeBuf ) {
 	// snapshot the original prologue we are about to overwrite.
 	// note: the hook fully replaces the API ( no call-through to the original ),
 	// so no instruction-boundary trampoline is needed - the snapshot is only
@@ -108,7 +107,7 @@ void hm_hs_apihook::_prepareCodeHookTrackPopupMenu( void* pfnOrigin, unsigned ch
 	// ( x17/IP1 is the linker veneer scratch register - safe to clobber;
 	//   AArch64 instructions are fixed 4 bytes, so any 4-instruction
 	//   prologue slot can host the patch without boundary decoding )
-	UINT_PTR uTarget = (UINT_PTR)&hmTrackPopupMenu;
+	UINT_PTR uTarget = (UINT_PTR)pfnReplacement;
 	newCodeBuf[0] = 0x51; // LDR X17,[PC,#8] = 0x58000051 ( little-endian )
 	newCodeBuf[1] = 0x00;
 	newCodeBuf[2] = 0x00;
@@ -119,18 +118,18 @@ void hm_hs_apihook::_prepareCodeHookTrackPopupMenu( void* pfnOrigin, unsigned ch
 	newCodeBuf[7] = 0xD6;
 	memcpy( newCodeBuf + 8, &uTarget, sizeof( uTarget ) );
 #elif defined(_WIN64)
-	// 12-byte absolute jump: mov rax, hmTrackPopupMenu ; jmp rax
+	// 12-byte absolute jump: mov rax, <target> ; jmp rax
 	// ( rax is volatile per the x64 ABI; the stub never returns,
 	//   so clobbering it before the original prologue runs is safe )
-	UINT_PTR uTarget = (UINT_PTR)&hmTrackPopupMenu;
+	UINT_PTR uTarget = (UINT_PTR)pfnReplacement;
 	newCodeBuf[0] = 0x48;
 	newCodeBuf[1] = 0xB8;
 	memcpy( newCodeBuf + 2, &uTarget, sizeof( uTarget ) );
 	newCodeBuf[10] = 0xFF;
 	newCodeBuf[11] = 0xE0;
 #else
-	// 5-byte relative jump: jmp hmTrackPopupMenu
-	INT_PTR nRel32 = (INT_PTR)&hmTrackPopupMenu - ( (INT_PTR)pfnOrigin + 5 );
+	// 5-byte relative jump: jmp <target>
+	INT_PTR nRel32 = (INT_PTR)pfnReplacement - ( (INT_PTR)pfnOrigin + 5 );
 	newCodeBuf[0] = 0xE9;
 	memcpy( newCodeBuf + 1, &nRel32, 4 );
 #endif
@@ -227,13 +226,3 @@ bool hm_hs_apihook::_isHookStarted( const TCHAR* szAPIName, const TCHAR* szLibFi
 	return false;
 }
 
-//BOOL WINAPI hm_hs_apihook::hmTrackPopupMenu(
-//    HMENU hMenu,
-//    UINT uFlags,
-//    int x,
-//    int y,
-//    int nReserved,
-//    HWND hWnd,
-//	CONST RECT *prcRect) {
-//		return ::hmTrackPopupMenu( hMenu, uFlags, x, y, nReserved, hWnd, prcRect );
-//}
