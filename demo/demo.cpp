@@ -790,12 +790,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			
 			::GetCursorPos( &ptCursor );
 			hPopMenu = ::CreatePopupMenu();
+			memset( &menuInfo, 0, sizeof( MENUITEMINFO ) );
 			menuInfo.cbSize = sizeof( MENUITEMINFO );
 			menuInfo.fMask = MIIM_STRING | MIIM_ID;   // without MIIM_ID InsertMenuItem ignores wID ( item id stays 0 = silent close )
 			menuInfo.fType = MFT_STRING;
 			menuInfo.dwTypeData = _T("rom sub menu1");
 			menuInfo.wID = 208;   // transparent-hook specimen: id arrives via native WM_COMMAND
 			::InsertMenuItem( hPopMenu, 0, TRUE, &menuInfo );
+			menuInfo.dwTypeData = _T("rom sub menu2");
+			menuInfo.wID = 210;
+			::InsertMenuItem( hPopMenu, 1, TRUE, &menuInfo );
+			menuInfo.dwTypeData = _T("rom sub menu3");
+			menuInfo.wID = 211;
+			::InsertMenuItem( hPopMenu, 2, TRUE, &menuInfo );
+			menuInfo.fMask = MIIM_FTYPE;   // separator: no id, engine draws background only
+			menuInfo.fType = MFT_SEPARATOR;
+			menuInfo.dwTypeData = NULL;
+			::InsertMenuItem( hPopMenu, 3, TRUE, &menuInfo );
+			menuInfo.fMask = MIIM_STRING | MIIM_ID;
+			menuInfo.fType = MFT_STRING;
+			menuInfo.dwTypeData = _T("toggle win2");
+			menuInfo.wID = IDM_WIN2;   // native handler reuse: existing case IDM_WIN2 fires
+			::InsertMenuItem( hPopMenu, 4, TRUE, &menuInfo );
 			::TrackPopupMenu( hPopMenu, TPM_LEFTALIGN|TPM_TOPALIGN, ptCursor.x, ptCursor.y, 0, hWnd, NULL );
 		}
 		break;
@@ -806,9 +822,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case 208:
-			// right-click popup item ( transparent TrackPopupMenu hook ):
+			// right-click popup items ( transparent TrackPopupMenu hook ):
 			// proof the engine delivers selections as native WM_COMMAND.
 			AppendEventLog( _T("CTX-MENU 208 via WM_COMMAND") );
+			break;
+		case 210:
+			AppendEventLog( _T("CTX-MENU 210 via WM_COMMAND") );
+			break;
+		case 211:
+			AppendEventLog( _T("CTX-MENU 211 via WM_COMMAND") );
 			break;
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
