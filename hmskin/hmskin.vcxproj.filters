@@ -225,6 +225,9 @@
     <ClCompile Include="src\win\wmp\hm_wmp_tab.cpp">
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\win\wmp\hm_wmp_viewbkcontent.cpp">
+      <Filter>wndmsgprocessor\src</Filter>
+    </ClCompile>
     <ClCompile Include="src\win\wmp\hm_wndmsgprocessor_i.cpp">
       <Filter>wndmsgprocessor\src</Filter>
     </ClCompile>
@@ -444,6 +447,9 @@
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\wmp\hm_wmp_tab.h">
+      <Filter>wndmsgprocessor\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\wmp\hm_wmp_viewbkcontent.h">
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\wmp\hm_wndmsgprocessor_i.h">

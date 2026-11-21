@@ -51,6 +51,7 @@ void hm_wmp_loader_depot::_init() {
 	ADD_WMP_LOADER( hm_wmp_scrollbar );
 	ADD_WMP_LOADER( hm_wmp_scrollview );
 	ADD_WMP_LOADER( hm_wmp_tabheader );
+	ADD_WMP_LOADER( hm_wmp_viewbkcontent );
 	ADD_WMP_LOADER( hm_wmp_checkbox );
 	ADD_WMP_LOADER( hm_wmp_radio );
 }
