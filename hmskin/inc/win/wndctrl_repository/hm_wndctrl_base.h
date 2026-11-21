@@ -36,6 +36,12 @@ protected:
 		HMENU hMenu,
 		HINSTANCE hInstance
 		);
+protected:
+	// class-name provider: derived windowed controls register a flavored
+	// class via _regWndCls and return its name here for CreateWnd.
+	virtual LPCTSTR _wndClsName() const { return s_szClassName; }
+	static ATOM _regWndCls( HINSTANCE hInstance, LPCTSTR szClsName, UINT nStyle, HBRUSH hbrBackground );
+
 private:
 	static LRESULT CALLBACK WindowProcCallBack( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	static map_hwnd2cls_type s_mapHwnd2Obj;

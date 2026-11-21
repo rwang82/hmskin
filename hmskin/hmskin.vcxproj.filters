@@ -234,6 +234,9 @@
     <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_base.cpp">
       <Filter>wndctrl_repository\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_popup.cpp">
+      <Filter>wndctrl_repository\src</Filter>
+    </ClCompile>
     <ClCompile Include="src\common\hm_cmn_pattern_observer.cpp">
       <Filter>common\src</Filter>
     </ClCompile>
@@ -456,6 +459,9 @@
       <Filter>wndmsgprocessor\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_base.h">
+      <Filter>wndctrl_repository\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_popup.h">
       <Filter>wndctrl_repository\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\hm_export_defs.h">

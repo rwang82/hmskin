@@ -32,7 +32,7 @@ BOOL hm_wndctrl_base::CreateWnd(
 	HWND hWnd;
 
 	//hWnd = ::CreateWindowEx( dwExStyle, s_szClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, this );
-	hWnd = ::CreateWindowEx( dwExStyle, s_szClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, NULL, hMenu, hInstance, this );
+	hWnd = ::CreateWindowEx( dwExStyle, this->_wndClsName(), lpWindowName, dwStyle, x, y, nWidth, nHeight, NULL, hMenu, hInstance, this );
 	
 	if ( !hWnd ) {
 		DWORD dwErr = ::GetLastError();
@@ -53,28 +53,33 @@ LRESULT hm_wndctrl_base::WndProc( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL*
 	return 0;
 }
 
-ATOM hm_wndctrl_base::RegWndClass( HINSTANCE hInstance )
+// shared registrar: one callback for every wndctrl-flavored class; the
+// HWND->object map in WindowProcCallBack routes per-window dispatch.
+ATOM hm_wndctrl_base::_regWndCls( HINSTANCE hInstance, LPCTSTR szClsName, UINT nStyle, HBRUSH hbrBackground )
 {
-	if ( s_bRegisted )
-		return s_clsAtom;
 	WNDCLASSEX wcex;
-	ATOM atom;
 	wcex.cbSize = sizeof(WNDCLASSEX); 
 
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.style			= nStyle;
 	wcex.lpfnWndProc	= (WNDPROC)WindowProcCallBack;
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
 	wcex.hIcon			= NULL;
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+	wcex.hbrBackground	= hbrBackground;
 	wcex.lpszMenuName	= (LPCTSTR)NULL;
-	wcex.lpszClassName	= s_szClassName;
+	wcex.lpszClassName	= szClsName;
 	wcex.hIconSm		= NULL;
 	
-	atom = RegisterClassEx( &wcex );
-	s_clsAtom = atom;
+	return RegisterClassEx( &wcex );
+}
+
+ATOM hm_wndctrl_base::RegWndClass( HINSTANCE hInstance )
+{
+	if ( s_bRegisted )
+		return s_clsAtom;
+	s_clsAtom = _regWndCls( hInstance, s_szClassName, CS_HREDRAW | CS_VREDRAW, (HBRUSH)(COLOR_WINDOW+1) );
 	s_bRegisted = TRUE;
 	return s_clsAtom;
 }

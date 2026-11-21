@@ -3,6 +3,7 @@
 #include "win\frame\hm_uiroot.h"
 #include "hmskin.h"   // hm_wndpropid_connect / hm_lib_popupmenu_show
 #include "win\hm_wndmsg_defs.h"
+#include "win\wndctrl_repository\hm_wndctrl_popup.h"
 
 // engine-driven popup menus: hm_lib_popupmenu_show creates a borderless
 // popup window bound to the manifest's PopupSkin slot, binds the HMENU and
@@ -14,37 +15,10 @@
 // written by BOTH entry paths - the transparent hook handoff and every
 // popupmenu_show - so direct calls work without the hook being enabled.
 static hm_uiroot* s_pMenuRoot = NULL;
-static ATOM s_atomPopupCls = 0;
 static HWND s_hWndLastPopup = NULL;   // slot lifecycle: one PropId <-> one HWND
-
-static LRESULT CALLBACK HMPopupWndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam ) {
-	return ::DefWindowProc( hWnd, message, wParam, lParam );
-}
-
-static bool _EnsurePopupCls() {
-	if ( s_atomPopupCls )
-		return true;
-	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof( WNDCLASSEX );
-	wcex.style = CS_SAVEBITS;
-	wcex.lpfnWndProc = HMPopupWndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = (HINSTANCE)::GetModuleHandle( NULL );
-	wcex.hIcon = NULL;
-	wcex.hCursor = ::LoadCursor( NULL, IDC_ARROW );
-	wcex.hbrBackground = NULL;
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = _T( "hmskinPopupMenuCls" );
-	wcex.hIconSm = NULL;
-	s_atomPopupCls = ::RegisterClassEx( &wcex );
-	return s_atomPopupCls != 0;
-}
 
 bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hWndOwner ) {
 	if ( !pRoot || !hMenu )
-		return false;
-	if ( !_EnsurePopupCls() )
 		return false;
 	if ( pRoot->m_cfg.m_uPopupPropId == 0 ) {
 		// manifest has no "PopupSkin" declaration - no engine popup.
@@ -59,11 +33,11 @@ bool hm_lib_popupmenu_show( hm_uiroot* pRoot, HMENU hMenu, int x, int y, HWND hW
 			::DestroyWindow( s_hWndLastPopup );
 		s_hWndLastPopup = NULL;
 	}
-	//
-	HWND hWndPopup = ::CreateWindowEx( WS_EX_TOOLWINDOW | WS_EX_TOPMOST, _T( "hmskinPopupMenuCls" ),
-		NULL, WS_POPUP, x, y, 160, 100, NULL, NULL, (HINSTANCE)::GetModuleHandle( NULL ), NULL );
-	if ( !hWndPopup )
+	// the wndctrl object owns the window for the whole modal pump below.
+	hm_wndctrl_popup wndPopup;
+	if ( !wndPopup.create( x, y ) )
 		return false;
+	HWND hWndPopup = wndPopup.m_hWnd;
 	s_hWndLastPopup = hWndPopup;
 	s_pMenuRoot = pRoot;
 	hm_wndpropid_connect( pRoot, hWndPopup, pRoot->m_cfg.m_uPopupPropId );

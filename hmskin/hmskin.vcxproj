@@ -359,6 +359,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\wmp\hm_wmp_viewbkcontent.cpp" />
     <ClCompile Include="src\win\wmp\hm_wndmsgprocessor_i.cpp" />
     <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_base.cpp" />
+    <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_popup.cpp" />
     <ClCompile Include="src\common\hm_cmn_pattern_observer.cpp" />
     <ClCompile Include="src\common\hm_cmn_refcnt.cpp" />
     <ClCompile Include="src\common\hm_wndmsg_publisher.cpp" />
@@ -438,6 +439,7 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\wmp\hm_wmp_viewbkcontent.h" />
     <ClInclude Include="inc\win\wmp\hm_wndmsgprocessor_i.h" />
     <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_base.h" />
+    <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_popup.h" />
     <ClInclude Include="inc\hm_export_defs.h" />
     <ClInclude Include="inc\hmskin.h" />
     <ClInclude Include="inc\hmskin_cpp.h" />
