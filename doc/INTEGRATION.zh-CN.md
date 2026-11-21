@@ -115,7 +115,7 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 | `hm_wmp_tabheader` | Tab 条 | `←/→` 键循环切换（wrap）；雪碧图三态+SEL |
 | `hm_wmp_scrollbar` | 滚动条 | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`；滚轮悬停父容器内自动步进 |
 | `hm_wmp_rootmenu` | 皮肤菜单栏 | 标签直接读 HMENU（GetMenuItemInfo） |
-| `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目 |
+| `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目；屏幕边缘翻回工作区（原生对齐） |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | 非客户区三件套 | 标题栏按钮/边框；NC 跟踪用 `TME_LEAVE\|TME_NONCLIENT` |
 | `hm_wmp_drawtrigger` | WM_PAINT 承接 | 整树离屏合成一次 blit；配 `layouttrigger` 处理 WM_SIZE 重排 |
 | `hm_wmp_movewnd` | **布局驱动原生窗口位置** | 见 §6 坑 5 |
@@ -219,6 +219,8 @@ InvalidateRect。
   送回属主窗口——宿主零配合、现有 WM_COMMAND 处理器无感工作。manifest 需声明
   `"PopupSkin": {"PropId": N}`（引擎弹窗连接的皮肤槽位）。主动式弹窗走
   `hm_lib_popupmenu_show(root, hMenu, x, y, hWndOwner)`（同一引擎路径）。
+  引擎弹窗按 HMENU 自适尺寸，贴近屏幕边缘时自动翻回监视器工作区内
+  （原生 TrackPopupMenu 行为）。
 - **渲染后端三选一**：WMP 级声明 `"DrawTool": "Gdiplus"（默认）| "Gdi" | "D2D"`。
   D2D 为混合形态（M1）：文字走 DirectWrite，位图/纯色/`calcRect` 转发 GDI+
   （文本测量保持 GDI+ 度量，跨后端切换布局零位移）。宿主亦可在启动参数整体覆盖

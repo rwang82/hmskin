@@ -16,7 +16,8 @@
 │  ┌─ 窗口接管层 ──────────────────────────────────────────────────────┐   │
 │  │ hm_rs_hwnddepository（PropId ↔ HWND 窗口登记簿）                  │   │
 │  │ msg_sink_i / MsgDispatcher（消息汇 + 派发器,观察者序派发）         │   │
-│  │ hm_hs_apihook: user32!TrackPopupMenu 补丁 → 引擎弹窗               │   │
+│  │ hm_wndctrl_popup: 引擎弹窗 HWND（hm_wndctrl_base 派生:注册类+创建）│   │
+│  │ hm_hs_apihook: 通用 API 补丁工具（现用于 user32!TrackPopupMenu）   │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
 │  ┌─ 绘制树层 ────────────────────────────────────────────────────────┐   │
 │  │ hm_keel_obj（树节点: doDrawAll 递归/dirty 剔除/clipChildren）      │   │
@@ -149,9 +150,13 @@ WM_LBUTTONDOWN →（消息流 3.1）→ checkbox WMP MSGBIND → _OnLButtonDown
 ### 3.6 弹窗接管（可选）
 
 ```
-宿主 TrackPopupMenu( ... ) → hm_hs_apihook 补丁拦截
-  → hm_lib_popupmenu_show（引擎弹窗: PopupSkin 槽位的 manifest 子树）
-  → 选中项以原生 WM_COMMAND 回投宿主 → 宿主零弹窗代码
+宿主 TrackPopupMenu( ... ) → hm_hs_apihook（通用补丁工具）拦截
+  → hm_lib_popupmenu_show
+     ├─ hm_wndctrl_popup 建无框弹窗（wndctrl_base 派生:注册类+创建,
+     │  hook 层只管 API 语义）
+     ├─ HMWM_BINDMENU 绑 HMENU+属主 → popupmenu WMP 自适尺寸自绘条目
+     │  （越出监视器工作区时锚点翻转为右/下对齐,原生行为）
+     └─ 模态泵至弹窗关闭 → 选中项以原生 WM_COMMAND 回投宿主 → 宿主零弹窗代码
 ```
 
 ## 4. 核心基类虚函数契约（扩展点）
