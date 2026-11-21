@@ -202,26 +202,6 @@ public:
 //		|			|									|
 //		-------------------------------------------------
 //
-class HMLIB_API hm_posdecoder_stack : public hm_pos_decoder_i {
-public:
-	typedef enum _ENUMDIRECTIONTYPE {
-		STACK_T2B = 0,
-		STACK_B2T,
-		STACK_L2R,
-		STACK_R2L
-	} ENUMDIRECTIONTYPE;
-public:
-	hm_posdecoder_stack( ENUMDIRECTIONTYPE eStackType, int* pctxStartPos, int space1 = 1, int space2 = 1, int nThickness = 20 );
-	virtual ~hm_posdecoder_stack();
-	virtual bool getPosition( const RECT& rcRefObj, RECT& rcDestObj );
-
-public:
-	ENUMDIRECTIONTYPE m_eStackType;
-	int* m_pctxStartPos;
-	int m_space1;
-	int m_space2;
-	int m_nThickness;
-};
 /////////////////////////////////////////////////////////////////////////
 //		---------------------------------------------
 //		|rcRefObj			|						|

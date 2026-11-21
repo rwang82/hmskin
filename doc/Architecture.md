@@ -25,7 +25,7 @@
 │  │ hm_layout_obj（位置容器,subject+observer 双角色）                  │   │
 │  │ hm_layoutdecoder_i + 5 派生（clientarea/wndarea/corner/dock/offset）│  │
 │  │ coordinate_system_hwnd（client/window 双型坐标系）                 │   │
-│  │ hm_pos_decoder_i + dock/slider/stack（WMP 内部微布局）             │   │
+│  │ hm_pos_decoder_i + dock/slider/offset（WMP 内部微布局）            │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
 │  ┌─ WMP 层（消息处理器 = 控件行为）───────────────────────────────────┐  │
 │  │ hm_wndmsgprocessor_i（基类 + MSGBIND 宏族）                        │   │
@@ -249,7 +249,7 @@ virtual bool getPosition( const RECT& rcRefObj, RECT& rcDestObj ) = 0;
 // 由 district 的画布矩形求 showobj 的显示矩形
 ```
 
-派生：dock（贴边定厚）、slider（值域→位置,滚动条滑块）、stack。district 的 showobj  
+派生：dock（贴边定厚）、slider（值域→位置,滚动条滑块）、offset（内缩）。district 的 showobj  
 经 `PosDecoder` 字段配置。
 
 ### 4.7 hm_rs_uires_i —— 抽象资源（inc/win/resource_system/hm_rs_uires_i.h:15）

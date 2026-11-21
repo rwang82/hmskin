@@ -241,8 +241,6 @@ bool hm_wmp_display_loader::_createPosDecoder( const Json::Value& valPDC, hm_pos
 		return true;
 	} else if ( _createPosDecoder_Slider( valPDC, ppPDC ) ) {
 		return true;
-	} else if ( _createPosDecoder_Stack( valPDC, ppPDC ) ) {
-		return true;
 	} else if ( _createPosDecoder_Offset( valPDC, ppPDC ) ) {
 		return true;
 	}
@@ -381,79 +379,6 @@ bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC,
 	pPDCSlider->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
 
 	*ppPDC = pPDCSlider;
-
-	return true;
-}
-
-bool hm_wmp_display_loader::_createPosDecoder_Stack( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC ) {
-	if ( !ppPDC ) {
-		assert( false );
-		return false;
-	}
-	Json::Value valTmp;
-	hm_posdecoder_stack::ENUMDIRECTIONTYPE eStackType;
-	std::string strTmp;
-	int* pctxStartPos;
-
-	valTmp = valPDC[ "PDCName" ];
-	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
-	}
-	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_posdecoder_stack" ) )
-		return false;
-	valTmp = valPDC[ "eStackType" ];
-	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
-	}
-	strTmp = valTmp.asString().c_str();
-	if ( 0 == strcmp( strTmp.c_str(), "STACK_T2B" ) ) {
-		eStackType = hm_posdecoder_stack::STACK_T2B;
-	} else if ( 0 == strcmp( strTmp.c_str(), "STACK_B2T" ) ) {
-		eStackType = hm_posdecoder_stack::STACK_B2T;
-	} else if ( 0 == strcmp( strTmp.c_str(), "STACK_L2R" ) ) {
-		eStackType = hm_posdecoder_stack::STACK_L2R;
-	} else if ( 0 == strcmp( strTmp.c_str(), "STACK_R2L" ) ) {
-		eStackType = hm_posdecoder_stack::STACK_R2L;
-	} else {
-		assert( false );
-		return false;
-	}
-	//
-	valTmp = valPDC[ "m_pctxStartPos" ];
-	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
-	}
-	// dormant 2016 path: manifest stores a raw start position; keep
-	// the historical int-to-pointer handoff explicit for 64-bit.
-	pctxStartPos = (int*)(INT_PTR)valTmp.asInt();
-	//
-	hm_posdecoder_stack* pPDCStack = new hm_posdecoder_stack( eStackType, pctxStartPos );
-	//
-	valTmp = valPDC[ "m_space1" ];
-	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
-	}
-	pPDCStack->m_space1 = _ScalePx( m_dblScale, valTmp.asInt() );
-	//
-	valTmp = valPDC[ "m_space2" ];
-	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
-	}
-	pPDCStack->m_space2 = _ScalePx( m_dblScale, valTmp.asInt() );
-	//
-	valTmp = valPDC[ "m_nThickness" ];
-	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
-	}
-	pPDCStack->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
-
-	*ppPDC = pPDCStack;
 
 	return true;
 }

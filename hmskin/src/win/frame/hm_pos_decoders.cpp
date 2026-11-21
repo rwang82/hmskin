@@ -91,66 +91,6 @@ bool hm_posdecoder_slider::getPosition( const RECT& rcRefObj, RECT& rcDestObj ) 
 
 	return true;
 }
-//
-hm_posdecoder_stack::hm_posdecoder_stack( ENUMDIRECTIONTYPE eStackType, int* pctxStartPos, int space1, int space2, int nThickness )
-: m_eStackType( eStackType )
-, m_pctxStartPos( pctxStartPos )
-, m_space1( space1 )
-, m_space2( space2 )
-, m_nThickness( nThickness ) {}
-//
-hm_posdecoder_stack::~hm_posdecoder_stack() {}
-//
-bool hm_posdecoder_stack::getPosition( const RECT& rcRefObj, RECT& rcDestObj ) {
-	if ( !m_pctxStartPos ) return false;
-	switch ( m_eStackType )
-	{
-	case STACK_T2B:
-		{
-			rcDestObj.left = rcRefObj.left + m_space1;
-			rcDestObj.right = rcRefObj.right - m_space2;
-			rcDestObj.top = rcRefObj.top + *m_pctxStartPos;
-			rcDestObj.bottom = rcDestObj.top + m_nThickness;
-			//
-			*m_pctxStartPos += m_nThickness;
-		}
-		break;
-	case STACK_B2T:
-		{
-			rcDestObj.left = rcRefObj.left + m_space1;
-			rcDestObj.right = rcRefObj.right - m_space2;
-			rcDestObj.bottom = rcRefObj.bottom - *m_pctxStartPos;
-			rcDestObj.top = rcDestObj.bottom - m_nThickness;
-			//
-			*m_pctxStartPos += m_nThickness;
-		}
-		break;
-	case STACK_L2R:
-		{
-			rcDestObj.left = rcRefObj.left + *m_pctxStartPos;
-			rcDestObj.right = rcDestObj.left + m_nThickness;
-			rcDestObj.top = rcRefObj.top + m_space1;
-			rcDestObj.bottom = rcRefObj.bottom - m_space2;
-			//
-			*m_pctxStartPos += m_nThickness;
-		}
-		break;
-	case STACK_R2L:
-		{
-			rcDestObj.right = rcRefObj.right - *m_pctxStartPos;
-			rcDestObj.left = rcDestObj.right - m_nThickness;
-			rcDestObj.top = rcRefObj.top + m_space1;
-			rcDestObj.bottom = rcRefObj.bottom - m_space2;
-			//
-			*m_pctxStartPos += m_nThickness;
-		}
-		break;
-	default:
-		return false;
-		break;
-	}
-	return true;
-}
 ////////////////////////////////////////////////////////////////////////////////////
 hm_posdecoder_offset::hm_posdecoder_offset( int nOffsetL, int nOffsetT, int nOffsetR, int nOffsetB )
 : m_nOffsetL( nOffsetL )

@@ -30,7 +30,6 @@ private:
 	bool _createPosDecoder( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC );
 	bool _createPosDecoder_Dock( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC );
 	bool _createPosDecoder_Slider( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC );
-	bool _createPosDecoder_Stack( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC );
 	bool _createPosDecoder_Offset( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC );
 };
 //
