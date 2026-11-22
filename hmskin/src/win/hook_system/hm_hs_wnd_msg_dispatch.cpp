@@ -50,16 +50,19 @@ BOOL MsgDispatcher::RegMsgSink( HWND hWndDest, msg_sink_i* pMsgSink )
 	
 	return TRUE;
 }
-//
+// dtor-path deregistration: deliberately does NOT call OnStopSink - the only
+// caller is ~msg_sink_i, and a virtual call during base destruction would
+// dispatch into an already-destroyed derived class.
+// one sink may be registered on SEVERAL hwnds ( shared wndmark ), so every
+// container is scanned - stopping at the first match left dangling pointers
+// in the others ( use-after-free on their next message ).
 void MsgDispatcher::UnRegMsgSink( msg_sink_i* pMsgSink )
 {
 	if ( m_mapHwnd2MSC.size() == 0 )
 		return;
 	map_hwnd2msc_type::iterator itContainer, iendContainer;
 	msg_sink_container_type::iterator itSink, iendSink;
-	bool bMatch = false;
-	
-	bMatch = false;
+
 	iendContainer = m_mapHwnd2MSC.end();
 	for ( itContainer = m_mapHwnd2MSC.begin(); itContainer!=iendContainer; ++itContainer )
 	{
@@ -71,7 +74,6 @@ void MsgDispatcher::UnRegMsgSink( msg_sink_i* pMsgSink )
 			if ( (*itSink) == pMsgSink )
 			{
 				itContainer->second.erase( itSink );
-				bMatch = true;
 				break;
 			}
 		}
@@ -80,9 +82,6 @@ void MsgDispatcher::UnRegMsgSink( msg_sink_i* pMsgSink )
 		{
 			StartMsgSink( itContainer->first, FALSE );
 		}
-		//
-		if ( bMatch )
-			break;
 	}
 }
 //
