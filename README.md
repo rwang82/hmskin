@@ -118,7 +118,7 @@ them ( see `tools/hmskin_mcp.py --selftest` ).
 | Scrollbar | `hm_wmp_scrollbar` | value-range API; drag/arrow/wheel input paths; auto-step inside containers |
 | Scroll view | `hm_wmp_scrollview` | orchestrator WMP: manifest-declared subtree + ClipChildren viewport; drag/wheel/clamp/invalidation fully engine-side, zero host glue |
 | Root menu bar | `hm_wmp_rootmenu` | labels read directly from HMENU (`GetMenuItemInfo`) |
-| Popup menu | `hm_wmp_popupmenu` | engine-created window, auto-sized, self-drawn items, work-area edge flip; takeover or direct call |
+| Popup menu | `hm_wmp_popupmenu` | engine-created window, auto-sized, self-drawn items, work-area edge flip, keyboard navigation, disabled items, hairline separators; label font/colors manifest-configurable; takeover or direct call |
 | Static / text | `hm_wmp_bkgnd` | text refreshes live via `hm_wmp_set_text()` / `hm_wmp_set_text_at()` — pixel cache invalidates itself |
 | Non-client area | `button_nca` / `bkgnd_nca` / `drawtrigger_nca` | skins the title bar, borders, min/max/close buttons |
 | Progress bar | pure manifest assembly | track + docked fill thickness = percentage, zero engine changes |

@@ -133,7 +133,7 @@ rects; fixed ).
 | `hm_wmp_tabheader` | tab strip | `left/right` arrow cycling ( wrap ); sprite tri-state + SEL |
 | `hm_wmp_scrollbar` | scrollbar | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`; wheel auto-steps while hovering the parent container |
 | `hm_wmp_rootmenu` | skin menu bar | labels read straight from the HMENU ( GetMenuItemInfo ) |
-| `hm_wmp_popupmenu` | skin popup menu | `HMWM_BINDMENU` binds an HMENU; self-sizing, self-drawn items; work-area edge flip ( native parity ) |
+| `hm_wmp_popupmenu` | skin popup menu | `HMWM_BINDMENU` binds an HMENU; self-sizing, self-drawn items; work-area edge flip, keyboard navigation (arrows/Enter/Esc), disabled items and hairline separators ( native parity ); label font/colors configurable via MenuCfg `FontId` / `TextColor` / `TextColorDisabled` / `SeparatorColor` |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | the non-client trio | title-bar buttons / borders; NC tracking uses `TME_LEAVE\|TME_NONCLIENT` |
 | `hm_wmp_drawtrigger` | WM_PAINT taker | composites the tree offscreen, one blit; pair with `layouttrigger` for WM_SIZE relayout |
 | `hm_wmp_movewnd` | **layout drives a native window's position** | see section 6, pit 5 |

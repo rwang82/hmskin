@@ -115,7 +115,7 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 | `hm_wmp_tabheader` | Tab 条 | `←/→` 键循环切换（wrap）；雪碧图三态+SEL |
 | `hm_wmp_scrollbar` | 滚动条 | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`；滚轮悬停父容器内自动步进 |
 | `hm_wmp_rootmenu` | 皮肤菜单栏 | 标签直接读 HMENU（GetMenuItemInfo） |
-| `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目；屏幕边缘翻回工作区（原生对齐） |
+| `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目；边缘翻转、键盘导航（方向键/Enter/Esc）、禁用项与发丝分隔线（原生对齐）；字体/颜色经 MenuCfg `FontId` / `TextColor` / `TextColorDisabled` / `SeparatorColor` 配置 |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | 非客户区三件套 | 标题栏按钮/边框；NC 跟踪用 `TME_LEAVE\|TME_NONCLIENT` |
 | `hm_wmp_drawtrigger` | WM_PAINT 承接 | 整树离屏合成一次 blit；配 `layouttrigger` 处理 WM_SIZE 重排 |
 | `hm_wmp_movewnd` | **布局驱动原生窗口位置** | 见 §6 坑 5 |
