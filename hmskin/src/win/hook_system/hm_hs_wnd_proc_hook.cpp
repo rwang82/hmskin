@@ -57,32 +57,14 @@ LRESULT CALLBACK HMLibHookWndProc( int nCode, WPARAM wParam, LPARAM lParam )
 	CWPSTRUCT* pWP = NULL;
 		
 	pWP = ( CWPSTRUCT* )lParam;
-	switch( pWP->message ) 
+	switch( pWP->message )
 	{
 	case WM_CREATE:
 		{
-			TCHAR szClsName[260];
-			TCHAR szCtrlId[50];
-			int nSize;
-			int nCtrlId;
-			
-			nSize = ::GetClassName( pWP->hwnd, szClsName, 260 );
-			nCtrlId = ::GetDlgCtrlID( pWP->hwnd );
-
-			::OutputDebugString( _T("WM_CREATE.") );
-			_stprintf_s( szCtrlId, _T("0x%016zx"), (size_t)pWP->hwnd );
-			::OutputDebugString( szCtrlId );
-			::OutputDebugString( _T(" ClassName:") );
-			::OutputDebugString( szClsName );
-			::OutputDebugString( _T(" CtrlId:") );
-			_stprintf_s( szCtrlId, _T("%d"), nCtrlId );
-			::OutputDebugString( szCtrlId );
-			::OutputDebugString( _T("\n") );
-
 			hm_rs_wndmark wndMark;
 			//before window be created, we can't set prop id to window.
 
-			//	
+			//
 			if ( GetWndCtrlId( pWP->hwnd, &wndMark.m_uCtrlID ) ) {
 				wndMark.m_eflag = hm_rs_wndmark::WNDMARK_CTRLID;
 			} else {
@@ -90,12 +72,7 @@ LRESULT CALLBACK HMLibHookWndProc( int nCode, WPARAM wParam, LPARAM lParam )
 			}
 
 			BindHWND2WndMark( pWP->hwnd, wndMark );
-			
-		}
-		break;
-	case WM_DESTROY:
-		{ //program will not call this. because, unhook function will be called before window destory.
-			printf( "%s.\n", "WM_DESTROY" );
+
 		}
 		break;
 	default:
@@ -131,7 +108,10 @@ void EnumHMUIRootProc( hm_uiroot* pHMUIRoot, void* pParam ) {
 	//
 	ConnectHwnd2CoordSys( pHMUIRoot, pEHMUIRPParam->m_hWnd, pEHMUIRPParam->m_wndMark );
 }
-//
+// dormant reference implementation: reads the UUID window-property binding
+// scheme ( no SetProp writer exists - superseded by the GetWndCtrlId path ).
+// deliberately kept in case a property-based binding is ever needed; the
+// UUID_TSTR_WNDPROP_ID macro stays exported in hmskin.h for the same reason.
 bool GetWndPropId( HWND hWnd, unsigned int* pidWndProp )
 {
 	if ( !hWnd || !pidWndProp )
@@ -150,7 +130,7 @@ bool GetWndPropId( HWND hWnd, unsigned int* pidWndProp )
 	*pidWndProp = _ttoi( pszWndPropId );
 	//
 	::GlobalUnlock( hMem );
-	
+
 	return true;
 }
 //
