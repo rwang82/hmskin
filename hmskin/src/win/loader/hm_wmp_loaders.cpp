@@ -21,6 +21,7 @@
 #include "win\wmp\hm_wmp_movewnd.h"
 #include "win\resource_system\hm_rs_uires_pic.h"
 #include "win\resource_system\hm_rs_uires_color.h"
+#include "win\resource_system\hm_rs_rawres_base.h"
 #include "win\paint_system\hm_ps_drawtool_gdi.h"
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
 #include "win\paint_system\hm_ps_drawtool_d2d.h"
@@ -859,16 +860,31 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 	unsigned int uSpace = 6;
 	// ( defaults scaled too - they are geometry )
 	valTmp = valWMP[ "MenuCfg" ];
+	hm_rs_rawres_font* pRawFontMenu = NULL;
 	if ( valTmp.isObject() ) {
 		Json::Value valCfgItem;
 		valCfgItem = valTmp[ "m_uMIHeight" ]; if ( valCfgItem.isInt() ) uMIHeight = valCfgItem.asInt();
 		valCfgItem = valTmp[ "m_uMIWidth" ]; if ( valCfgItem.isInt() ) uMIWidth = valCfgItem.asInt();
 		valCfgItem = valTmp[ "m_uSpace" ]; if ( valCfgItem.isInt() ) uSpace = valCfgItem.asInt();
+		// optional Font section reference for the menu labels ( default:
+		// the built-in shared menu font ).
+		valCfgItem = valTmp[ "FontId" ];
+		if ( valCfgItem.isInt() ) {
+			pRawFontMenu = RAWFONTFACTORY_INSTANCE->getObj(
+				(hm_rawres_font_factory::obj_id_type)valCfgItem.asInt() );
+			if ( !pRawFontMenu ) {
+				assert( false );   // FontId names a font the manifest never declared
+				return NULL;
+			}
+		}
 	}
 	dimension_menuwnd_default* pDimensionMenuWnd = new dimension_menuwnd_default(
 		_ScalePx( m_dblScale, (int)uMIHeight ), _ScalePx( m_dblScale, (int)uMIWidth ), _ScalePx( m_dblScale, (int)uSpace ) );
-	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_popupmenu, dimension_menuwnd_i*, hmskin_event_listener_base* >(
+	hm_wmp_popupmenu* pWMPPopup = pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_popupmenu, dimension_menuwnd_i*, hmskin_event_listener_base* >(
 		idWMP, ( dimension_menuwnd_i* )pDimensionMenuWnd, pHMUIRoot->m_pEventListener );
+	if ( pRawFontMenu )
+		pWMPPopup->setLabelFont( pRawFontMenu );
+	return pWMPPopup;
 }
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_rootmenu_loader::hm_wmp_rootmenu_loader() {
@@ -921,6 +937,18 @@ bool hm_wmp_rootmenu_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproce
 	rmCfg.m_uSpaceV = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	pWMPRootMenu->setConfigure( rmCfg );
+	// optional Font section reference for the menu labels ( default: the
+	// built-in shared menu font ).
+	valTmp = valRMCfg[ "FontId" ];
+	if ( valTmp.isInt() ) {
+		hm_rs_rawres_font* pRawFontMenu = RAWFONTFACTORY_INSTANCE->getObj(
+			(hm_rawres_font_factory::obj_id_type)valTmp.asInt() );
+		if ( !pRawFontMenu ) {
+			assert( false );   // FontId names a font the manifest never declared
+			return false;
+		}
+		pWMPRootMenu->setLabelFont( pRawFontMenu );
+	}
 	return true;
 }
 //////////////////////////////////////////////////////////////////////////

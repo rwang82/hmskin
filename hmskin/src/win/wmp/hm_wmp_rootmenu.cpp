@@ -16,6 +16,7 @@ hm_wmp_rootmenu::hm_wmp_rootmenu( hmskin_event_listener_base* pEventListener )
 , m_uLenMenuItem( 60 )
 , m_nCurMIIndex( -1 )
 , m_pMemCanvas( new hm_ps_canvas() )
+, m_hFontLabel( NULL )
 {
 	_createDistrictObjs();
 }
@@ -52,6 +53,13 @@ void hm_wmp_rootmenu::setConfigure( const RootMenuCfg& rmCfg ) {
 	m_uSpaceH = rmCfg.m_uSpaceH;
 	m_uSpaceV = rmCfg.m_uSpaceV;
 	m_uLenMenuItem = rmCfg.m_uLenMenuItem;
+}
+
+// borrowed for the WMP lifetime ( same contract as the popup menu ):
+// the raw-font factory owns fonts process-wide; popup-slot WMPs can
+// outlive hm_lib_shutdown, so no ref is taken or released here.
+void hm_wmp_rootmenu::setLabelFont( hm_rs_rawres_font* pRawFont ) {
+	m_hFontLabel = pRawFont ? pRawFont->getHFont() : NULL;
 }
 //
 void hm_wmp_rootmenu::_createDistrictObjs() {
@@ -547,9 +555,10 @@ void hm_wmp_rootmenu::_doDrawMenuItem( HDC hDC, const RECT& rcDMICanvas, unsigne
 	if ( rmiinfo.m_strText.length() ) {
 		nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
 		COLORREF clrTextOld = ::SetTextColor( hDC, RGB( 216, 224, 231 ) );   // label #D8E0E7
-		// explicit CJK font: the DC default ( bitmap System font ) has no
-		// Chinese glyphs - localized labels would render as tofu.
-		HFONT hFontOld = (HFONT)::SelectObject( hDC, GetMenuLabelFont() );
+		// explicit CJK font ( manifest "FontId" or the built-in shared one ):
+		// the DC default ( bitmap System font ) has no Chinese glyphs.
+		HFONT hFontOld = (HFONT)::SelectObject( hDC,
+			m_hFontLabel ? m_hFontLabel : GetMenuLabelFont() );
 		::DrawText( hDC, rmiinfo.m_strText.c_str(), (int)rmiinfo.m_strText.length(), (RECT*)&rcDMICanvas, DT_CENTER|DT_VCENTER|DT_SINGLELINE );
 		::SelectObject( hDC, hFontOld );
 		::SetTextColor( hDC, clrTextOld );

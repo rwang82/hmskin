@@ -79,12 +79,21 @@ hm_wmp_popupmenu::hm_wmp_popupmenu( dimension_menuwnd_i* pCalcMenuWndRectObj, hm
 : hm_wmp_display( pEventListener )
 , m_hMenu( NULL )
 , m_pDimensionMenuWndObj( pCalcMenuWndRectObj )
-, m_nHoverMIIndex( -1 ) {
+, m_nHoverMIIndex( -1 )
+, m_hFontLabel( NULL ) {
 	_createDistrictObjs();
 }
 //
 hm_wmp_popupmenu::~hm_wmp_popupmenu() {
 	delete m_pDimensionMenuWndObj;
+}
+
+// borrowed for the WMP lifetime: the raw-font factory owns fonts for the
+// whole process and force-finalizes them at its own teardown - popup-slot
+// WMPs OUTLIVE hm_lib_shutdown, so releasing a ref here would touch an
+// already-freed object ( teardown-order crash, trace 2026-11-22 ).
+void hm_wmp_popupmenu::setLabelFont( hm_rs_rawres_font* pRawFont ) {
+	m_hFontLabel = pRawFont ? pRawFont->getHFont() : NULL;
 }
 //
 
@@ -296,9 +305,10 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 		// disabled text #5B636E ( DESIGN.md ), normal #E8ECF1.
 		COLORREF clrTextOld = ::SetTextColor( hDC,
 			bDisabled ? RGB( 91, 99, 110 ) : RGB( 232, 236, 241 ) );
-		// explicit CJK font ( same as the root menu bar ): the DC default
-		// bitmap font has no Chinese glyphs.
-		HFONT hFontOld = (HFONT)::SelectObject( hDC, GetMenuLabelFont() );
+		// explicit CJK font ( manifest "FontId" or the built-in shared one ):
+		// the DC default bitmap font has no Chinese glyphs.
+		HFONT hFontOld = (HFONT)::SelectObject( hDC,
+			m_hFontLabel ? m_hFontLabel : GetMenuLabelFont() );
 		::DrawText( hDC, strMIText.c_str(), -1, &rcText, DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS );
 		::SelectObject( hDC, hFontOld );
 		::SetTextColor( hDC, clrTextOld );

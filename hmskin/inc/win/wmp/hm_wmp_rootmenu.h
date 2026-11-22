@@ -6,6 +6,7 @@
 #include "tchar.h"
 #include <deque>
 #include "win\wmp\hm_wmp_display.h"
+#include "win\resource_system\hm_rs_rawres_base.h"
 #include "win\hm_export_defs.h"
 //
 class hm_ps_canvas;
@@ -65,6 +66,9 @@ public:
 
 public:
 	void setConfigure( const RootMenuCfg& rmCfg );
+	// manifest font override ( RootMenuCfg "FontId" ): NULL resets to the
+	// built-in shared menu font.
+	void setLabelFont( hm_rs_rawres_font* pRawFont );
 
 private:
 	void _OnNCLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
@@ -89,6 +93,7 @@ private:
 	unsigned int m_uRootMenuFlags;
 	int m_nCurMIIndex;
 	hm_ps_canvas* m_pMemCanvas;
+	HFONT m_hFontLabel;   // borrowed from the raw-font factory ( see setLabelFont )
 };
 
 #endif //__HM_WMP_ROOTMENU_H__

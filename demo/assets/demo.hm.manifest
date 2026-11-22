@@ -385,6 +385,13 @@
       "Style": "REGULAR",
       "SizeUnit": "POINT",
       "Size": 11
+    },
+    {
+      "id": 6,
+      "FaceName": "Microsoft YaHei UI",
+      "Style": "REGULAR",
+      "SizeUnit": "POINT",
+      "Size": 9
     }
   ],
   "Color": [
@@ -1346,7 +1353,8 @@
       "RootMenuCfg": {
         "m_uLenMenuItem": 60,
         "m_uSpaceH": 5,
-        "m_uSpaceV": 2
+        "m_uSpaceV": 2,
+        "FontId": 6
       },
       "DrawTool": "Gdiplus",
       "DistrictObjs": [
@@ -2813,7 +2821,8 @@
       "MenuCfg": {
         "m_uMIHeight": 25,
         "m_uMIWidth": 160,
-        "m_uSpace": 6
+        "m_uSpace": 6,
+        "FontId": 6
       },
       "DrawTool": "Gdiplus",
       "DistrictObjs": [

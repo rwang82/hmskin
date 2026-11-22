@@ -4,6 +4,7 @@
 #include <string>
 #include "tchar.h"
 #include "win\wmp\hm_wmp_display.h"
+#include "win\resource_system\hm_rs_rawres_base.h"
 #include "win\hm_export_defs.h"
 //
 class HMLIB_API dimension_menuwnd_i {
@@ -63,11 +64,17 @@ private:
 	void _activateItem( int nMIIndex, hm_keel_obj* pKeelObj );
 	bool _isSelectableItem( int nMIIndex ) const;
 
+public:
+	// manifest font override ( MenuCfg "FontId" ): NULL resets to the
+	// built-in shared menu font.
+	void setLabelFont( hm_rs_rawres_font* pRawFont );
+
 private:
 	HMENU m_hMenu;
 	HWND m_hWndOwner;   // set by HMWM_BINDMENU ( lParam ): WM_COMMAND forward target
 	dimension_menuwnd_i* m_pDimensionMenuWndObj;
 	int m_nHoverMIIndex;
+	HFONT m_hFontLabel;   // borrowed from the raw-font factory ( see setLabelFont )
 };
 //
 class HMLIB_API dimension_menuwnd_default: public dimension_menuwnd_i {
