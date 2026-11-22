@@ -810,6 +810,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			menuInfo.dwTypeData = _T("rom sub menu3");
 			menuInfo.wID = 211;
 			::InsertMenuItem( hPopMenu, 2, TRUE, &menuInfo );
+			menuInfo.fMask |= MIIM_STATE;   // disabled specimen: gray text, no hover/command
+			menuInfo.dwTypeData = _T("rom disabled");
+			menuInfo.wID = 212;
+			menuInfo.fState = MF_DISABLED | MF_GRAYED;
+			::InsertMenuItem( hPopMenu, 3, TRUE, &menuInfo );
+			menuInfo.fMask = MIIM_STRING | MIIM_ID;
+			menuInfo.fState = 0;
 			menuInfo.fMask = MIIM_FTYPE;   // separator: no id, engine draws background only
 			menuInfo.fType = MFT_SEPARATOR;
 			menuInfo.dwTypeData = NULL;

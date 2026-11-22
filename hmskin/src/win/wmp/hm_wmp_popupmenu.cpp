@@ -149,6 +149,8 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 
 		// resolve the clicked item and notify the app before closing.
+		// native behavior: a click on a DISABLED item does nothing at all -
+		// no command, the menu stays open.
 		if ( m_pDimensionMenuWndObj && m_hMenu ) {
 			int nMICount = ::GetMenuItemCount( m_hMenu );
 			for ( int nMIIndex = 0; nMIIndex < nMICount; ++nMIIndex ) {
@@ -156,6 +158,8 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 				if ( !m_pDimensionMenuWndObj->getMIRect( m_hMenu, (unsigned int)nMIIndex, &rcMI ) )
 					continue;
 				if ( ::PtInRect( &rcMI, ptClient ) ) {
+					if ( !_isSelectableItem( nMIIndex ) )
+						return;
 					_activateItem( nMIIndex, pKeelObj );
 					break;
 				}
@@ -237,8 +241,11 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 	for ( int nMIIndex = 0; nMIIndex<nMICount; ++nMIIndex ) {
 		if ( !m_pDimensionMenuWndObj->getMIRect( m_hMenu, (unsigned int)nMIIndex, &rcMI ) )
 			continue;
-		// item background: hover item gets the HOV district, others NOR.
-		if ( _getDistrictObj( ( nMIIndex == m_nHoverMIIndex ) ? EDISTRICTID_MENUITEM_HOV : EDISTRICTID_MENUITEM_NOR, &pDistrictObj ) )
+		// item background: disabled items render DIS, hover gets HOV, others NOR.
+		bool bDisabled = !_isSelectableItem( nMIIndex );
+		if ( _getDistrictObj( bDisabled ? EDISTRICTID_MENUITEM_DIS
+				: ( ( nMIIndex == m_nHoverMIIndex ) ? EDISTRICTID_MENUITEM_HOV : EDISTRICTID_MENUITEM_NOR ),
+				&pDistrictObj ) )
 			pDistrictObj->show( hDC, rcMI, m_pDrawTool );
 		// draw menu item text here.
 		// get menu item text length.
@@ -266,7 +273,9 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 		rcText.left += 12;
 		rcText.right -= 8;
 		int nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
-		COLORREF clrTextOld = ::SetTextColor( hDC, RGB( 232, 236, 241 ) );   // text #E8ECF1
+		// disabled text #5B636E ( DESIGN.md ), normal #E8ECF1.
+		COLORREF clrTextOld = ::SetTextColor( hDC,
+			bDisabled ? RGB( 91, 99, 110 ) : RGB( 232, 236, 241 ) );
 		// explicit CJK font ( same as the root menu bar ): the DC default
 		// bitmap font has no Chinese glyphs.
 		HFONT hFontOld = (HFONT)::SelectObject( hDC, _GetMenuLabelFont() );
@@ -297,7 +306,9 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 		if ( !m_pDimensionMenuWndObj->getMIRect( m_hMenu, (unsigned int)nMIIndex, &rcMI ) )
 			continue;
 		if ( ::PtInRect( &rcMI, ptClient ) ) {
-			nHoverNew = nMIIndex;
+			// separators/disabled items never take the hover highlight.
+			if ( _isSelectableItem( nMIIndex ) )
+				nHoverNew = nMIIndex;
 			break;
 		}
 	}
@@ -362,6 +373,8 @@ void hm_wmp_popupmenu::_setHoverIndex( int nMIIndex, HWND hWnd ) {
 }
 
 void hm_wmp_popupmenu::_activateItem( int nMIIndex, hm_keel_obj* pKeelObj ) {
+	if ( !_isSelectableItem( nMIIndex ) )
+		return;
 	MENUITEMINFO miinfo;
 	memset( &miinfo, 0, sizeof( miinfo ) );
 	miinfo.cbSize = sizeof( miinfo );

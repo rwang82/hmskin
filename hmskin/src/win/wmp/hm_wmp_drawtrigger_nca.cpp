@@ -100,25 +100,14 @@ void hm_wmp_drawtrigger_nca::_OnNCActivate( hm_keel_obj* pKeelObj, CWPSTRUCT* pW
 	if ( !pKeelObj || !pWP || !pParamWndProc )
 		return;
 	HDC hDC;
-	
+
 	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC; // | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 1;
 	//
 	hDC = ::GetWindowDC( pWP->hwnd );
 
-	DWORD dwTimeLast;
-	DWORD dwTimeCur;
-	TCHAR szMsg[100];
-
-	dwTimeLast = ::GetTickCount();
-
 	_doTrigger( pKeelObj, hDC, pWP->hwnd );
-
-	dwTimeCur = ::GetTickCount();
-	_stprintf_s( szMsg, _T("_doTrigger time:%d\n"), dwTimeCur - dwTimeLast );
-	::OutputDebugString( szMsg );
-
 
     ReleaseDC( pWP->hwnd, hDC );
 }

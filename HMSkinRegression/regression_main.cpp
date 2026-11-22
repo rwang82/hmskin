@@ -313,6 +313,14 @@ int main() {
 		mii.wID = 301;
 		::InsertMenuItem( hMenu, 0, TRUE, &mii );
 		::InsertMenuItem( hMenu, 1, TRUE, &mii );
+		// item 1 disabled, item 2 distinct id: keyboard DOWN must SKIP the
+		// disabled middle item and land on 2.
+		mii.fMask |= MIIM_STATE;
+		mii.fState = MF_DISABLED | MF_GRAYED;
+		::InsertMenuItem( hMenu, 1, TRUE, &mii );
+		mii.fMask = MIIM_STRING | MIIM_ID;
+		mii.fState = 0;
+		mii.wID = 302;
 		::InsertMenuItem( hMenu, 2, TRUE, &mii );
 
 		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, 0 );
@@ -352,14 +360,15 @@ int main() {
 		       "popupcase key window connect" );
 		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
 		::SendMessage( hWndPop, WM_KEYDOWN, VK_DOWN, 0 );
+		::SendMessage( hWndPop, WM_KEYDOWN, VK_DOWN, 0 );   // skips the disabled middle item
 		::SendMessage( hWndPop, WM_KEYDOWN, VK_RETURN, 0 );
 		MSG msgK;
 		BOOL bGotCmd = FALSE;
 		while ( ::PeekMessage( &msgK, NULL, 0, 0, PM_REMOVE ) ) {
-			if ( msgK.message == WM_COMMAND && LOWORD( msgK.wParam ) == 301 )
+			if ( msgK.message == WM_COMMAND && LOWORD( msgK.wParam ) == 302 )
 				bGotCmd = TRUE;
 		}
-		CHECK( bGotCmd, "popupcase key down+return -> owner WM_COMMAND" );
+		CHECK( bGotCmd, "popupcase key down skips disabled, return -> WM_COMMAND 302" );
 		CHECK( !::IsWindow( hWndPop ), "popupcase return closes the popup" );
 
 		::DestroyMenu( hMenu );
