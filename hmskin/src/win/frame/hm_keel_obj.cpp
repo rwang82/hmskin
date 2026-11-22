@@ -67,9 +67,7 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			// Notify
 			notifyWndMsg( pWP->hwnd, pWP->message, pWP->wParam, pWP->lParam, pParamWndProc );
 
-			if ( pParamWndProc ) {
-				_doWndMsg( pWP, pParamWndProc );
-			}
+			_doWndMsg( pWP, pParamWndProc );
 
 			// check if need disable other msg ob
 			if ( pParamWndProc
