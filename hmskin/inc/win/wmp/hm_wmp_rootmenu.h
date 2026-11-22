@@ -69,13 +69,16 @@ public:
 	// manifest font override ( RootMenuCfg "FontId" ): NULL resets to the
 	// built-in shared menu font.
 	void setLabelFont( hm_rs_rawres_font* pRawFont );
+	// manifest color overrides ( RootMenuCfg "TextColor" /
+	// "TextColorDisabled", Color section ids ): defaults follow DESIGN.md
+	// ( text #E8ECF1, disabled #5B636E ).
+	void setLabelColors( COLORREF clrText, COLORREF clrTextDisabled );
 
 private:
 	void _OnNCLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnNCLButtonDblClk( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnNCMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
-	void _OnNCMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 		
@@ -94,6 +97,8 @@ private:
 	int m_nCurMIIndex;
 	hm_ps_canvas* m_pMemCanvas;
 	HFONT m_hFontLabel;   // borrowed from the raw-font factory ( see setLabelFont )
+	COLORREF m_clrLabelText;
+	COLORREF m_clrLabelTextDisabled;
 };
 
 #endif //__HM_WMP_ROOTMENU_H__

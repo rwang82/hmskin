@@ -6,6 +6,7 @@
 #include "hmskin_cpp.h"
 #include "hmskin_event_listener_demo.h"
 #include "win\hm_wndmsg_defs.h"
+#include "win\hm_ui_defaults.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
 #include "win\wmp\hm_wmp_checkbox.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
@@ -638,10 +639,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hInstance		= hInstance;
 	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DEMO));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	// skin bg token #0F1216 ( DESIGN.md ): the first visible frame of a
-	// freshly shown window fills with the class brush - a white brush
+	// engine fallback bg ( DESIGN.md bg token ): the first visible frame of
+	// a freshly shown window fills with the class brush - a white brush
 	// flashed before the skin's first paint covered it.
-	wcex.hbrBackground	= ::CreateSolidBrush( RGB( 0x0F, 0x12, 0x16 ) );
+	wcex.hbrBackground	= ::CreateSolidBrush( HM_UIDEF_BG_COLOR );
 	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_DEMO);
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));

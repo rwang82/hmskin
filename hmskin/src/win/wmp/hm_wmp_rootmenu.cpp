@@ -6,6 +6,7 @@
 #include "win\paint_system\hm_ps_canvas.h"
 #include "win\hm_event_defs.h"
 #include "win\hm_win_misc.h"
+#include "win\hm_ui_defaults.h"
 #include "hmskin_event_defs.h"
 
 hm_wmp_rootmenu::hm_wmp_rootmenu( hmskin_event_listener_base* pEventListener )
@@ -17,7 +18,8 @@ hm_wmp_rootmenu::hm_wmp_rootmenu( hmskin_event_listener_base* pEventListener )
 , m_nCurMIIndex( -1 )
 , m_pMemCanvas( new hm_ps_canvas() )
 , m_hFontLabel( NULL )
-{
+, m_clrLabelText( HM_UIDEF_TEXT_COLOR )
+, m_clrLabelTextDisabled( HM_UIDEF_TEXT_DISABLED_COLOR ) {
 	_createDistrictObjs();
 }
 //
@@ -34,7 +36,6 @@ MSGBIND_BEGIN( hm_wmp_rootmenu )
 	MSGBIND( WM_NCLBUTTONDBLCLK, _OnNCLButtonDblClk )
 	MSGBIND( WM_NCLBUTTONUP, _OnNCLButtonUp )
 	MSGBIND( WM_NCMOUSEMOVE, _OnNCMouseMove )
-	MSGBIND( WM_NCMOUSELEAVE, _OnNCMouseLeave )
 	MSGBIND( WM_NCHITTEST, _OnNCHitTest )
 	MSGBIND( WM_MOUSEMOVE, _OnMouseMove )
 MSGBIND_END()
@@ -44,7 +45,6 @@ ORDERWNDMSG_BEGIN( hm_wmp_rootmenu )
 	ORDERWNDMSG( WM_NCLBUTTONDBLCLK )
 	ORDERWNDMSG( WM_NCLBUTTONUP )
 	ORDERWNDMSG( WM_NCMOUSEMOVE )
-	ORDERWNDMSG( WM_NCMOUSELEAVE )
 	ORDERWNDMSG( WM_NCHITTEST )
 	ORDERWNDMSG( WM_MOUSEMOVE )
 ORDERWNDMSG_END()
@@ -60,6 +60,11 @@ void hm_wmp_rootmenu::setConfigure( const RootMenuCfg& rmCfg ) {
 // outlive hm_lib_shutdown, so no ref is taken or released here.
 void hm_wmp_rootmenu::setLabelFont( hm_rs_rawres_font* pRawFont ) {
 	m_hFontLabel = pRawFont ? pRawFont->getHFont() : NULL;
+}
+
+void hm_wmp_rootmenu::setLabelColors( COLORREF clrText, COLORREF clrTextDisabled ) {
+	m_clrLabelText = clrText;
+	m_clrLabelTextDisabled = clrTextDisabled;
 }
 //
 void hm_wmp_rootmenu::_createDistrictObjs() {
@@ -287,10 +292,8 @@ void hm_wmp_rootmenu::_OnNCMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 
 }
 //
-void hm_wmp_rootmenu::_OnNCMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
-	
-}
-//
+// HTCAPTION by design: the skinned menu bar doubles as a drag surface
+// ( move window; double-click maximizes ) - standard custom-chrome practice.
 void hm_wmp_rootmenu::_OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
 	if ( !pKeelObj || !pWP || !pParamWndProc )
 		return;
@@ -428,95 +431,6 @@ void hm_wmp_rootmenu::_doDrawSkinRaw( HDC hDC, const RECT& rcCanvas, POINT ptInC
 	}
 }
 
-////
-//void hm_wmp_rootmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas, HWND hWnd, const POINT& ptScreen ) {
-//	HMENU hRootMenu;
-//	int nItemIndex, nItemCount;
-//	MENUITEMINFO mii;
-//	ENUMROOTMENUITEMSTATE eRMIState = ERMIS_NORMAL;
-//	rmiteminfo rmiinfo;
-//	RECT rcDMICanvas;
-//	bool bLBtnDown = false;
-//	POINT ptWnd;
-//	RECT rcWnd;
-//	HDC hMemDC;
-//	HBITMAP hBitmap, hBitmapOld;
-//	RECT rcMemCanvas;
-//	RECT rcMemDMICanvas;
-//
-//	//
-//	rcMemCanvas.left = 0;
-//	rcMemCanvas.top = 0;
-//	rcMemCanvas.right = (rcCanvas.right - rcCanvas.left);
-//	rcMemCanvas.bottom = (rcCanvas.bottom - rcCanvas.top);
-//	hMemDC = ::CreateCompatibleDC( hDC );
-//	hBitmap = ::CreateCompatibleBitmap( hDC, (rcCanvas.right - rcCanvas.left), (rcCanvas.bottom - rcCanvas.top) );
-//	hBitmapOld = (HBITMAP)::SelectObject( hMemDC, hBitmap );
-//	
-//	// draw background
-//	_doDrawBackground( hMemDC, rcMemCanvas );
-//	//
-//	::GetWindowRect( hWnd, &rcWnd );
-//	ptWnd.x = ptScreen.x - rcWnd.left;
-//	ptWnd.y = ptScreen.y - rcWnd.top;
-//	//
-//	bLBtnDown = GetKeyState(VK_LBUTTON) & 0x8000;
-//	//::OutputDebugString( bLBtnDown ? _T("bLBtnDown\n") : _T("no bLBtnDown\n") );
-//	rcDMICanvas = rcCanvas;
-//	rcDMICanvas.top += m_uSpaceV;
-//	rcDMICanvas.bottom -= m_uSpaceV;
-//	// draw root menu items.
-//	hRootMenu = ::GetMenu( hWnd );
-//	if ( !hRootMenu ) goto exit;
-//	nItemCount = GetMenuItemCount( hRootMenu );
-//	for ( nItemIndex = 0; nItemIndex!=nItemCount; ++nItemIndex ) {
-//		//
-//		rcDMICanvas.left = rcCanvas.left + m_uSpaceH + nItemIndex*m_uLenMenuItem;
-//		rcDMICanvas.right = rcDMICanvas.left + m_uLenMenuItem;
-//		// get string size.
-//		mii.cbSize = sizeof( MENUITEMINFO );
-//		mii.fMask = MIIM_STRING|MIIM_STATE;
-//		mii.dwTypeData = NULL; 
-//		mii.cch = 0;
-//		::GetMenuItemInfo( hRootMenu, nItemIndex, true, &mii );
-//		// get mii.dwTypeData
-//		mii.dwTypeData = new TCHAR[ mii.cch + 1 ];
-//		mii.cch = mii.cch + 1;
-//		::GetMenuItemInfo( hRootMenu, nItemIndex, true, &mii );
-//		rmiinfo.m_strText = mii.dwTypeData;
-//		delete [](mii.dwTypeData);
-//		mii.dwTypeData = NULL;
-//		//
-//		if ( mii.fState & MFS_DISABLED ) {
-//			eRMIState = hm_wmp_rootmenu::ERMIS_DISABLE;
-//		} else if ( ::PtInRect( &rcDMICanvas, ptWnd ) ) {
-//			if ( bLBtnDown )
-//				eRMIState =	hm_wmp_rootmenu::ERMIS_PRESS;
-//			else 
-//				eRMIState =	hm_wmp_rootmenu::ERMIS_HOVER;
-//		} else {
-//			eRMIState =	hm_wmp_rootmenu::ERMIS_NORMAL;
-//		}
-//		
-//		// draw menu item
-//		rmiinfo.m_eRMIState = eRMIState;
-//		rcMemDMICanvas.left = rcDMICanvas.left - rcCanvas.left;
-//		rcMemDMICanvas.top = rcDMICanvas.top - rcCanvas.top;
-//		rcMemDMICanvas.right = rcDMICanvas.right - rcCanvas.left;
-//		rcMemDMICanvas.bottom = rcDMICanvas.bottom - rcCanvas.top;
-//		_doDrawMenuItem( hMemDC, rcMemDMICanvas, nItemIndex, rmiinfo );
-//	}
-//
-//	//
-//	::BitBlt( hDC, rcCanvas.left, rcCanvas.top, ( rcCanvas.right - rcCanvas.left ), ( rcCanvas.bottom - rcCanvas.top ), hMemDC, 0, 0, SRCCOPY );
-//	
-//exit:
-//	::SelectObject( hMemDC, hBitmapOld );
-//	::DeleteObject( hBitmap );
-//	::DeleteDC( hMemDC );
-//
-//}
-//
 void hm_wmp_rootmenu::_doDrawBackground( HDC hDC, const RECT& rcCanvas ) {
 	hm_districtobj* pDistrictObj = NULL;
 
@@ -554,7 +468,9 @@ void hm_wmp_rootmenu::_doDrawMenuItem( HDC hDC, const RECT& rcDMICanvas, unsigne
 	// draw text
 	if ( rmiinfo.m_strText.length() ) {
 		nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
-		COLORREF clrTextOld = ::SetTextColor( hDC, RGB( 216, 224, 231 ) );   // label #D8E0E7
+		// disabled items render text-faint ( DESIGN.md ), others text.
+		COLORREF clrTextOld = ::SetTextColor( hDC,
+			( rmiinfo.m_eRMIState == ERMIS_DISABLE ) ? m_clrLabelTextDisabled : m_clrLabelText );
 		// explicit CJK font ( manifest "FontId" or the built-in shared one ):
 		// the DC default ( bitmap System font ) has no Chinese glyphs.
 		HFONT hFontOld = (HFONT)::SelectObject( hDC,

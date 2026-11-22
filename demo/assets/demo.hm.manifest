@@ -1354,7 +1354,9 @@
         "m_uLenMenuItem": 60,
         "m_uSpaceH": 5,
         "m_uSpaceV": 2,
-        "FontId": 6
+        "FontId": 6,
+        "TextColor": 1,
+        "TextColorDisabled": 5
       },
       "DrawTool": "Gdiplus",
       "DistrictObjs": [
@@ -2822,7 +2824,10 @@
         "m_uMIHeight": 25,
         "m_uMIWidth": 160,
         "m_uSpace": 6,
-        "FontId": 6
+        "FontId": 6,
+        "TextColor": 1,
+        "TextColorDisabled": 5,
+        "SeparatorColor": 9
       },
       "DrawTool": "Gdiplus",
       "DistrictObjs": [

@@ -68,6 +68,11 @@ public:
 	// manifest font override ( MenuCfg "FontId" ): NULL resets to the
 	// built-in shared menu font.
 	void setLabelFont( hm_rs_rawres_font* pRawFont );
+	// manifest color overrides ( MenuCfg "TextColor" / "TextColorDisabled" /
+	// "SeparatorColor", Color section ids ): defaults follow DESIGN.md
+	// ( text #E8ECF1, disabled #5B636E, hairline #262C34 ).
+	void setLabelColors( COLORREF clrText, COLORREF clrTextDisabled );
+	void setSeparatorColor( COLORREF clrSeparator );
 
 private:
 	HMENU m_hMenu;
@@ -75,6 +80,9 @@ private:
 	dimension_menuwnd_i* m_pDimensionMenuWndObj;
 	int m_nHoverMIIndex;
 	HFONT m_hFontLabel;   // borrowed from the raw-font factory ( see setLabelFont )
+	COLORREF m_clrLabelText;
+	COLORREF m_clrLabelTextDisabled;
+	COLORREF m_clrSeparator;
 };
 //
 class HMLIB_API dimension_menuwnd_default: public dimension_menuwnd_i {

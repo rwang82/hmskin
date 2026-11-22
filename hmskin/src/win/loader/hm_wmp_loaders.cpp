@@ -40,6 +40,23 @@ static int _ScalePx( double dblScale, int nValue96 ) {
 	return (int)( nValue96 * dblScale + 0.5 );
 }
 
+// menu Cfg color lookup: returns false when the key is absent; sets *pbBad
+// when it names an id the manifest Color section never declared.
+static bool _MenuCfgColor( const Json::Value& valCfg, const char* szKey, bool& bBad, COLORREF* pClr ) {
+	Json::Value valKey = valCfg[ szKey ];
+	if ( !valKey.isInt() )
+		return false;
+	hm_rs_rawres_color* pRawColor = RAWCOLORFACTORY_INSTANCE->getObj(
+		(hm_rawres_color_factory::obj_id_type)valKey.asInt() );
+	if ( !pRawColor ) {
+		assert( false );
+		bBad = true;
+		return false;
+	}
+	*pClr = pRawColor->getCOLORREF();
+	return true;
+}
+
 const char STR_DRAWTOOL[] = "DrawTool";
 const char STR_BUFSTRATEGY[] = "BufStrategy";
 const char STR_DISTRICTOBJS[] = "DistrictObjs";
@@ -861,6 +878,9 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 	// ( defaults scaled too - they are geometry )
 	valTmp = valWMP[ "MenuCfg" ];
 	hm_rs_rawres_font* pRawFontMenu = NULL;
+	bool bBadColor = false;
+	bool bHasText = false, bHasTextDis = false, bHasSep = false;
+	COLORREF clrText = 0, clrTextDis = 0, clrSep = 0;
 	if ( valTmp.isObject() ) {
 		Json::Value valCfgItem;
 		valCfgItem = valTmp[ "m_uMIHeight" ]; if ( valCfgItem.isInt() ) uMIHeight = valCfgItem.asInt();
@@ -877,6 +897,12 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 				return NULL;
 			}
 		}
+		// optional Color section references ( defaults: hm_ui_defaults.h ).
+		bHasText = _MenuCfgColor( valTmp, "TextColor", bBadColor, &clrText );
+		bHasTextDis = _MenuCfgColor( valTmp, "TextColorDisabled", bBadColor, &clrTextDis );
+		bHasSep = _MenuCfgColor( valTmp, "SeparatorColor", bBadColor, &clrSep );
+		if ( bBadColor )
+			return NULL;
 	}
 	dimension_menuwnd_default* pDimensionMenuWnd = new dimension_menuwnd_default(
 		_ScalePx( m_dblScale, (int)uMIHeight ), _ScalePx( m_dblScale, (int)uMIWidth ), _ScalePx( m_dblScale, (int)uSpace ) );
@@ -884,6 +910,10 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 		idWMP, ( dimension_menuwnd_i* )pDimensionMenuWnd, pHMUIRoot->m_pEventListener );
 	if ( pRawFontMenu )
 		pWMPPopup->setLabelFont( pRawFontMenu );
+	if ( bHasText && bHasTextDis )
+		pWMPPopup->setLabelColors( clrText, clrTextDis );
+	if ( bHasSep )
+		pWMPPopup->setSeparatorColor( clrSep );
 	return pWMPPopup;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -948,6 +978,19 @@ bool hm_wmp_rootmenu_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproce
 			return false;
 		}
 		pWMPRootMenu->setLabelFont( pRawFontMenu );
+	}
+	// optional Color section references ( defaults: hm_ui_defaults.h ).
+	{
+		bool bBadColor = false;
+		COLORREF clrText = 0, clrTextDis = 0;
+		bool bHasText = _MenuCfgColor( valRMCfg, "TextColor", bBadColor, &clrText );
+		bool bHasTextDis = _MenuCfgColor( valRMCfg, "TextColorDisabled", bBadColor, &clrTextDis );
+		if ( bBadColor ) {
+			assert( false );
+			return false;
+		}
+		if ( bHasText && bHasTextDis )
+			pWMPRootMenu->setLabelColors( clrText, clrTextDis );
 	}
 	return true;
 }

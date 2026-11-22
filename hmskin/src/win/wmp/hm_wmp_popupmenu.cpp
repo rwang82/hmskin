@@ -6,6 +6,7 @@
 #include "win\hm_event_defs.h"
 #include "win\hm_wndmsg_defs.h"
 #include "win\hm_win_misc.h"
+#include "win\hm_ui_defaults.h"
 #include "hmskin_event_defs.h"
 
 //
@@ -80,7 +81,10 @@ hm_wmp_popupmenu::hm_wmp_popupmenu( dimension_menuwnd_i* pCalcMenuWndRectObj, hm
 , m_hMenu( NULL )
 , m_pDimensionMenuWndObj( pCalcMenuWndRectObj )
 , m_nHoverMIIndex( -1 )
-, m_hFontLabel( NULL ) {
+, m_hFontLabel( NULL )
+, m_clrLabelText( HM_UIDEF_TEXT_COLOR )
+, m_clrLabelTextDisabled( HM_UIDEF_TEXT_DISABLED_COLOR )
+, m_clrSeparator( HM_UIDEF_LINE_COLOR ) {
 	_createDistrictObjs();
 }
 //
@@ -94,6 +98,15 @@ hm_wmp_popupmenu::~hm_wmp_popupmenu() {
 // already-freed object ( teardown-order crash, trace 2026-11-22 ).
 void hm_wmp_popupmenu::setLabelFont( hm_rs_rawres_font* pRawFont ) {
 	m_hFontLabel = pRawFont ? pRawFont->getHFont() : NULL;
+}
+
+void hm_wmp_popupmenu::setLabelColors( COLORREF clrText, COLORREF clrTextDisabled ) {
+	m_clrLabelText = clrText;
+	m_clrLabelTextDisabled = clrTextDisabled;
+}
+
+void hm_wmp_popupmenu::setSeparatorColor( COLORREF clrSeparator ) {
+	m_clrSeparator = clrSeparator;
 }
 //
 
@@ -279,10 +292,10 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 		if ( !::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) )
 			continue;
 		if ( miinfo.fType & MFT_SEPARATOR ) {
-			// hairline #262C34 ( DESIGN.md ), insets match the label margins.
+			// hairline ( DESIGN.md line token ), insets match the label margins.
 			RECT rcLine = { rcMI.left + 12, ( rcMI.top + rcMI.bottom ) / 2,
 			                rcMI.right - 8, ( rcMI.top + rcMI.bottom ) / 2 + 1 };
-			HBRUSH hbrLine = ::CreateSolidBrush( RGB( 0x26, 0x2C, 0x34 ) );
+			HBRUSH hbrLine = ::CreateSolidBrush( m_clrSeparator );
 			::FillRect( hDC, &rcLine, hbrLine );
 			::DeleteObject( hbrLine );
 			continue;
@@ -302,9 +315,9 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 		rcText.left += 12;
 		rcText.right -= 8;
 		int nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
-		// disabled text #5B636E ( DESIGN.md ), normal #E8ECF1.
+		// disabled items render text-faint ( DESIGN.md ), others text.
 		COLORREF clrTextOld = ::SetTextColor( hDC,
-			bDisabled ? RGB( 91, 99, 110 ) : RGB( 232, 236, 241 ) );
+			bDisabled ? m_clrLabelTextDisabled : m_clrLabelText );
 		// explicit CJK font ( manifest "FontId" or the built-in shared one ):
 		// the DC default bitmap font has no Chinese glyphs.
 		HFONT hFontOld = (HFONT)::SelectObject( hDC,
