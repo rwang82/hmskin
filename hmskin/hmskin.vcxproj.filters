@@ -114,9 +114,6 @@
     <ClCompile Include="src\win\frame\hm_debug_utils.cpp">
       <Filter>frame\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\win\frame\hm_hook_trackpopupmenu.cpp">
-      <Filter>frame\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\win\frame\hm_keel_obj.cpp">
       <Filter>frame\src</Filter>
     </ClCompile>
@@ -327,9 +324,6 @@
       <Filter>frame\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\frame\hm_debug_utils.h">
-      <Filter>frame\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\win\frame\hm_hook_trackpopupmenu.h">
       <Filter>frame\inc</Filter>
     </ClInclude>
     <ClInclude Include="inc\win\frame\hm_perf_stats.h">

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "hmskin_event_listener_base.h"
-#include "win\frame\hm_hook_trackpopupmenu.h"
+#include "win\wndctrl_repository\hm_wndctrl_popup.h"
 #include <intrin.h>
 #include "hmskin.h"
 #include "tchar.h"
@@ -157,7 +157,23 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 	return true;
 }
 
+// transparent TrackPopupMenu takeover: the session root handoff for the
+// hook shim below ( file-local - the popup subsystem itself never needs it ).
+static hm_uiroot* s_pMenuRootTPM = NULL;
 static bool s_bTPMHookEnabled = false;
+
+// intercepted native call: show the ENGINE popup ( transparent skinning,
+// selection is delivered to the owner as native WM_COMMAND ).
+static BOOL WINAPI hmTrackPopupMenu( HMENU hMenu, UINT uFlags, int x, int y,
+    int nReserved, HWND hWnd, CONST RECT* prcRect ) {
+	UNREFERENCED_PARAMETER( uFlags );
+	UNREFERENCED_PARAMETER( nReserved );
+	UNREFERENCED_PARAMETER( prcRect );
+	if ( s_pMenuRootTPM && hm_lib_popupmenu_show( s_pMenuRootTPM, hMenu, x, y, hWnd ) )
+		return TRUE;
+	return FALSE;
+}
+
 bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable )
 {
 	if ( !pHMUIRoot )
@@ -165,7 +181,7 @@ bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable )
 	if ( bEnable ) {
 		if ( s_bTPMHookEnabled )
 			return true;
-		hm_tpm_set_root( pHMUIRoot );
+		s_pMenuRootTPM = pHMUIRoot;
 		if ( !APIHOOK_INSTANCE->hookOn( _T("TrackPopupMenu"), _T("user32.dll"), &hmTrackPopupMenu ) )
 			return false;
 		s_bTPMHookEnabled = true;
@@ -173,7 +189,7 @@ bool hm_lib_enable_trackpopupmenu_hook( hm_uiroot* pHMUIRoot, BOOL bEnable )
 		if ( !s_bTPMHookEnabled )
 			return true;
 		APIHOOK_INSTANCE->hookOff( _T("TrackPopupMenu"), _T("user32.dll") );
-		hm_tpm_set_root( NULL );
+		s_pMenuRootTPM = NULL;
 		s_bTPMHookEnabled = false;
 	}
 	return true;
@@ -186,14 +202,14 @@ void hm_lib_shutdown( hm_uiroot* pHMUIRoot )
 	hm_perf_dump();
 
 	// a popup that outlived its modal pump must not outlive the engine.
-	if ( hm_tpm_destroy_live_popup() )
+	if ( hm_tpm_destroy_live_popup( pHMUIRoot ) )
 		::OutputDebugString( _T("hmskin: live popup destroyed at shutdown ( host closed mid-menu ).\n") );
 
 	// restore patched user32 bytes BEFORE anything tears down - a patched
 	// API pointing into a dying DLL would crash the host at next menu call.
 	if ( s_bTPMHookEnabled ) {
 		APIHOOK_INSTANCE->hookOff( _T("TrackPopupMenu"), _T("user32.dll") );
-		hm_tpm_set_root( NULL );
+		s_pMenuRootTPM = NULL;
 		s_bTPMHookEnabled = false;
 	}
 	//

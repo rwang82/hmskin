@@ -23,4 +23,10 @@ private:
 	static ATOM s_atomPopupCls;
 };
 
+class hm_uiroot;
+
+// engine-internal ( hmskin.cpp shutdown ): destroy a popup that outlived
+// its modal pump. returns true = a live popup was found.
+bool hm_tpm_destroy_live_popup( hm_uiroot* pRoot );
+
 #endif //__HM_WNDCTRL_POPUP_H__

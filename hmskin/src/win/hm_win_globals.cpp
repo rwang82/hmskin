@@ -5,7 +5,6 @@
 #include "win\frame\hm_keel_obj.h"
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
-#include "win\frame\hm_hook_trackpopupmenu.h"
 #include "win\frame\hm_uiroot.h"
 #include "common\FuncPack.h"
 #include "win\hm_export_defs.h"
