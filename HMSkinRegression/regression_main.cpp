@@ -369,13 +369,16 @@ int main() {
 		CHECK( hm_wndpropid_connect( pRoot, hWndPop, 21 ) == true,
 		       "popupcase key window connect" );
 		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
-		// separator click closes the menu ( native behavior ).
+		// separator click: absorbed like a disabled item - the menu stays
+		// open ( native, verified on Win11 ); ESC then dismisses it.
 		{
 			const int s6 = hm_layout_scale_px( 6 ), h25 = hm_layout_scale_px( 25 );
 			::SendMessage( hWndPop, WM_LBUTTONDOWN, MK_LBUTTON,
 			               MAKELPARAM( s6 + 10, 4 * s6 + 3 * h25 ) );
 		}
-		CHECK( !::IsWindow( hWndPop ), "popupcase separator click closes the popup" );
+		CHECK( ::IsWindow( hWndPop ), "popupcase separator click keeps the popup" );
+		::SendMessage( hWndPop, WM_KEYDOWN, VK_ESCAPE, 0 );
+		CHECK( !::IsWindow( hWndPop ), "popupcase separator window dismissed by ESC" );
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndPop, 21 ) == true,
 		       "popupcase separator-click slot released" );
 

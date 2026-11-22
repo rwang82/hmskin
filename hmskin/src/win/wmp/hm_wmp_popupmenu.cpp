@@ -171,9 +171,8 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 
 		// resolve the clicked item and notify the app before closing.
-		// native behavior: a click on a DISABLED item does nothing at all -
-		// no command, the menu stays open; a SEPARATOR click closes the
-		// menu like the background does.
+		// clicks on separators and disabled items are absorbed - no command,
+		// the menu stays open ( native, verified on Win11 ).
 		if ( m_pDimensionMenuWndObj && m_hMenu ) {
 			int nMICount = ::GetMenuItemCount( m_hMenu );
 			for ( int nMIIndex = 0; nMIIndex < nMICount; ++nMIIndex ) {
@@ -181,11 +180,8 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 				if ( !m_pDimensionMenuWndObj->getMIRect( m_hMenu, (unsigned int)nMIIndex, &rcMI ) )
 					continue;
 				if ( ::PtInRect( &rcMI, ptClient ) ) {
-					if ( !_isSelectableItem( nMIIndex ) ) {
-						if ( !_IsMenuSeparator( m_hMenu, (unsigned int)nMIIndex ) )
-							return;   // disabled: no-op, stays open
-						break;          // separator: close without a command
-					}
+					if ( !_isSelectableItem( nMIIndex ) )
+						return;   // separator/disabled: no-op, stays open
 					_activateItem( nMIIndex, pKeelObj );
 					break;
 				}
