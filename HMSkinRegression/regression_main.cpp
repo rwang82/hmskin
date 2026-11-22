@@ -190,6 +190,14 @@ int main() {
 		CHECK( bGot8 && abs( rcK8.left - rcWant8.left ) <= 1 && abs( rcK8.top - rcWant8.top ) <= 1
 		       && abs( rcK8.right - rcWant8.right ) <= 1 && abs( rcK8.bottom - rcWant8.bottom ) <= 1,
 		       "map K8 rootmenu == K6 + dock geometry ( off-origin invariant )" );
+		// warm_render: offscreen first-render pass ( startup-flash fix ) -
+		// contract checks only, the visual effect is demo/e2e territory.
+		CHECK( hm_lib_warm_render( pRoot, hWndMap ) == true,
+		       "warm_render valid args" );
+		CHECK( hm_lib_warm_render( NULL, hWndMap ) == false,
+		       "warm_render null root -> false" );
+		CHECK( hm_lib_warm_render( pRoot, NULL ) == false,
+		       "warm_render null hwnd -> false" );
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndMap, 258 ) == true,
 		       "mapcase disconnect" );
 		::DestroyWindow( hWndMap );

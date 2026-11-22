@@ -54,7 +54,7 @@ hm_lib_shutdown( pRoot );
 | 窗口绑定 | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
 | keelobj 控制 | `hm_get_keelobj`（取高级面指针）/ `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree`（JSON 树转储，agent/调试） |
 | 文字 | `hm_wmp_set_text` / `hm_wmp_set_text_at`（多文字定位）/ `hm_wmp_get_text`（两段式读） |
-| 渲染 | `hm_set_drawtool_all`（`HM_DRAWTOL_GDI/GDIPLUS/D2D` 全量换后端）/ `hm_layout_scale`、`hm_layout_scale_px`（96 基准换算） |
+| 渲染 | `hm_set_drawtool_all`（`HM_DRAWTOL_GDI/GDIPLUS/D2D` 全量换后端）/ `hm_lib_warm_render`（connect 与 ShowWindow 之间的离屏首绘预热，消启动白闪）/ `hm_layout_scale`、`hm_layout_scale_px`（96 基准换算） |
 | 菜单 | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
 
 常用操作（章节切换/滚动容器/文字/失效矩形）**全程不需要引擎指针**——id 进、结果出；

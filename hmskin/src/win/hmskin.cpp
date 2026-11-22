@@ -434,6 +434,50 @@ HMLIB_API unsigned int hm_keelobj_dump_tree( hm_uiroot* pHMUIRoot, HWND hWndMain
 	return ctx.nCount;
 }
 //////////////////////////////////////////////////////////////////////////
+// startup flash elimination ( see hmskin.h ): every tree root that maps
+// against hWnd is drawn once, fully ( no dirty cull ), into a throwaway
+// memory DC - the cold-path costs burn offscreen.
+struct hm_warm_ctx {
+	HWND hWnd;
+	HDC hDCMem;
+};
+
+static void __cdecl hm_warm_one( hm_keel_obj* pKeelObj, void* pParam ) {
+	hm_warm_ctx* p = ( hm_warm_ctx* )pParam;
+	hm_layout_obj* pLayout = pKeelObj->getLayoutObj();
+	RECT rc;
+	if ( pKeelObj->getParent() || !pLayout || !pLayout->hasCoordinateSystem() )
+		return;
+	if ( !pLayout->mapPosition( p->hWnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rc ) )
+		return;
+	if ( rc.left >= rc.right || rc.top >= rc.bottom )
+		return;
+	pKeelObj->doDrawAll( p->hDCMem, p->hWnd );
+}
+
+HMLIB_API bool hm_lib_warm_render( hm_uiroot* pHMUIRoot, HWND hWnd ) {
+	if ( !pHMUIRoot || !pHMUIRoot->m_pKeelObjFactory || !hWnd )
+		return false;
+	RECT rcWnd;
+	::GetWindowRect( hWnd, &rcWnd );
+	int cx = rcWnd.right - rcWnd.left, cy = rcWnd.bottom - rcWnd.top;
+	if ( cx <= 0 || cy <= 0 )
+		return false;
+	HDC hDCWnd = ::GetDC( hWnd );
+	HDC hDCMem = ::CreateCompatibleDC( hDCWnd );
+	HBITMAP hBmp = ::CreateCompatibleBitmap( hDCWnd, cx, cy );
+	HGDIOBJ hBmpOld = ::SelectObject( hDCMem, hBmp );
+	hm_warm_ctx ctx;
+	ctx.hWnd = hWnd;
+	ctx.hDCMem = hDCMem;
+	pHMUIRoot->m_pKeelObjFactory->enumObjs( hm_warm_one, &ctx );
+	::SelectObject( hDCMem, hBmpOld );
+	::DeleteObject( hBmp );
+	::DeleteDC( hDCMem );
+	::ReleaseDC( hWnd, hDCWnd );
+	return true;
+}
+//////////////////////////////////////////////////////////////////////////
 struct hm_settool_ctx {
 	hm_ps_drawtool_i* pTool;
 };

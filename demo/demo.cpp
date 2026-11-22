@@ -665,33 +665,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-// burn the first-render costs ( GDI+ init, DWrite font loads, 9-patch first
-// draws ) while the window is still hidden: hidden windows never receive
-// WM_PAINT ( RedrawWindow RDW_UPDATENOW is a no-op on them ), so the client
-// tree ( K1 ) and the NC tree ( K6 ) are walked once into a plain memory DC.
-// the first VISIBLE frame then rides the warm path and the startup white
-// flash ( uninitialized redirection surface, ~93ms per trace ) collapses.
-static void warm_first_render() {
-	RECT rcClient, rcWnd;
-	::GetClientRect( g_hWnd, &rcClient );
-	::GetWindowRect( g_hWnd, &rcWnd );
-	int nWndW = rcWnd.right - rcWnd.left, nWndH = rcWnd.bottom - rcWnd.top;
-	HDC hDCScreen = ::GetDC( g_hWnd );
-	HDC hDCMem = ::CreateCompatibleDC( hDCScreen );
-	HBITMAP hBmp = ::CreateCompatibleBitmap( hDCScreen, nWndW, nWndH );
-	HGDIOBJ hBmpOld = ::SelectObject( hDCMem, hBmp );
-	hm_keel_obj* pKeelObj = NULL;
-	if ( hm_get_keelobj( g_pHMRoot, 1, &pKeelObj ) && pKeelObj )
-		pKeelObj->doDrawAll( hDCMem, g_hWnd, &rcClient );
-	RECT rcDirty = { 0, 0, nWndW, nWndH };
-	if ( hm_get_keelobj( g_pHMRoot, 6, &pKeelObj ) && pKeelObj )
-		pKeelObj->doDrawAll( hDCMem, g_hWnd, &rcDirty );
-	::SelectObject( hDCMem, hBmpOld );
-	::DeleteObject( hBmp );
-	::DeleteDC( hDCMem );
-	::ReleaseDC( g_hWnd, hDCScreen );
-}
-
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
@@ -764,7 +737,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   hm_wmp_set_text( g_pHMRoot, 16, 37, szRail );
    }
 
-   warm_first_render();
+   // startup flash elimination: burn the first-render costs offscreen
+   // while still hidden ( see hm_lib_warm_render ).
+   hm_lib_warm_render( g_pHMRoot, g_hWnd );
 
    ShowWindow( g_hWnd, nCmdShow );
    UpdateWindow( g_hWnd );

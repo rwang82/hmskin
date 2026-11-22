@@ -72,6 +72,14 @@ HMLIB_API bool hm_keelobj_get_layout_rect( hm_uiroot* pHMUIRoot, unsigned int uK
 // returns the node count written, or 0 on failure.
 HMLIB_API unsigned int hm_keelobj_dump_tree( hm_uiroot* pHMUIRoot, HWND hWndMain, const TCHAR* szJsonPath );
 //////////////////////////////////////////////////////////////////////////
+// startup flash elimination: render every tree root once into a throwaway
+// memory DC, burning the first-run costs ( GDI+ init, DWrite font loads,
+// 9-patch first draws ). hidden windows never receive WM_PAINT, so hosts
+// call this between hm_wndpropid_connect and ShowWindow - the first VISIBLE
+// frame then rides the warm path instead of exposing the empty redirection
+// surface for the cold-path duration.
+HMLIB_API bool hm_lib_warm_render( hm_uiroot* pHMUIRoot, HWND hWnd );
+//////////////////////////////////////////////////////////////////////////
 // runtime renderer override for EVERY display WMP ( A/B perf runs,
 // environment adaptation ) - the engine-side equivalent of the manifest
 // "DrawTool" names, applied after load.

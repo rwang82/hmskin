@@ -63,7 +63,7 @@ manifest + the skin bitmap directory sit next to the exe.
 | Window binding | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
 | keelobj control | `hm_get_keelobj` ( advanced-face pointer ) / `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree` ( JSON tree dump, agent/debug ) |
 | Text | `hm_wmp_set_text` / `hm_wmp_set_text_at` ( multi-text targeting ) / `hm_wmp_get_text` ( two-call read ) |
-| Rendering | `hm_set_drawtool_all` ( `HM_DRAWTOL_GDI/GDIPLUS/D2D` backend swap for every WMP ) / `hm_layout_scale`, `hm_layout_scale_px` ( 96-baseline conversion ) |
+| Rendering | `hm_set_drawtool_all` ( `HM_DRAWTOL_GDI/GDIPLUS/D2D` backend swap for every WMP ) / `hm_lib_warm_render` ( offscreen first-render warm-up between connect and ShowWindow - kills the startup flash ) / `hm_layout_scale`, `hm_layout_scale_px` ( 96-baseline conversion ) |
 | Menus | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
 
 Common operations ( chapter switching, scroll containers, text, invalidation
