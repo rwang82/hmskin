@@ -331,10 +331,41 @@ int main() {
 		CHECK( rcPop.left == rcWork.left + 40 && rcPop.top == rcWork.top + 40,
 		       "popupcase mid-screen anchor keeps left/top" );
 
+		// keyboard path ( native parity ): ESC dismisses; on a fresh window
+		// DOWN selects item 0 and RETURN activates - WM_COMMAND must land in
+		// the queue of the still-alive owner window.
+		::SendMessage( hWndPop, WM_KEYDOWN, VK_ESCAPE, 0 );
+		CHECK( !::IsWindow( hWndPop ), "popupcase ESC dismisses the popup" );
+		// release the slot like popupmenu_show does after its modal pump,
+		// or the next connect on PropId 21 hits the exclusive-slot guard.
+		CHECK( hm_wndpropid_disconnect( pRoot, hWndPop, 21 ) == true,
+		       "popupcase ESC slot released" );
+
+		HWND hWndOwner = ::CreateWindowEx( 0, _T("STATIC"), _T("rgpopowner"),
+			WS_POPUP, 0, 0, 10, 10, NULL, NULL,
+			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
+		hWndPop = ::CreateWindowEx( 0, _T("STATIC"), _T("rgpopup2"),
+			WS_POPUP, rcWork.left + 40, rcWork.top + 40, 40, 40, NULL, NULL,
+			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
+		CHECK( hWndPop != NULL && hWndOwner != NULL, "popupcase key window created" );
+		CHECK( hm_wndpropid_connect( pRoot, hWndPop, 21 ) == true,
+		       "popupcase key window connect" );
+		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
+		::SendMessage( hWndPop, WM_KEYDOWN, VK_DOWN, 0 );
+		::SendMessage( hWndPop, WM_KEYDOWN, VK_RETURN, 0 );
+		MSG msgK;
+		BOOL bGotCmd = FALSE;
+		while ( ::PeekMessage( &msgK, NULL, 0, 0, PM_REMOVE ) ) {
+			if ( msgK.message == WM_COMMAND && LOWORD( msgK.wParam ) == 301 )
+				bGotCmd = TRUE;
+		}
+		CHECK( bGotCmd, "popupcase key down+return -> owner WM_COMMAND" );
+		CHECK( !::IsWindow( hWndPop ), "popupcase return closes the popup" );
+
 		::DestroyMenu( hMenu );
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndPop, 21 ) == true,
 		       "popupcase disconnect" );
-		::DestroyWindow( hWndPop );
+		::DestroyWindow( hWndOwner );
 	}
 
 	// ---- shutdown ( must simply complete ) ----

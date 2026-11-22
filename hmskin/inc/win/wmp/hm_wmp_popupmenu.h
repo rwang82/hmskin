@@ -49,12 +49,19 @@ private:
 
 private:
 	void _OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
+	void _OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnRButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnDestroy( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnHMWMBindMenu( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 	void _OnKillFocus( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
+
+	// shared mouse/keyboard paths: hover/selection change + buffered redraw,
+	// and item activation ( WM_COMMAND to owner + listener event ).
+	void _setHoverIndex( int nMIIndex, HWND hWnd );
+	void _activateItem( int nMIIndex, hm_keel_obj* pKeelObj );
+	bool _isSelectableItem( int nMIIndex ) const;
 
 private:
 	HMENU m_hMenu;

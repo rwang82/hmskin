@@ -77,6 +77,7 @@ hm_wmp_popupmenu::~hm_wmp_popupmenu() {
 
 MSGBIND_BEGIN( hm_wmp_popupmenu )
 	MSGBIND( WM_LBUTTONDOWN, _OnLButtonDown )
+	MSGBIND( WM_KEYDOWN, _OnKeyDown )
 	MSGBIND( WM_NCHITTEST, _OnNCHitTest )
 	MSGBIND( WM_RBUTTONDOWN, _OnRButtonDown )
 	MSGBIND( WM_MOUSEMOVE, _OnMouseMove )
@@ -87,6 +88,7 @@ MSGBIND_END()
 
 ORDERWNDMSG_BEGIN( hm_wmp_popupmenu )
 	ORDERWNDMSG( WM_LBUTTONDOWN )
+	ORDERWNDMSG( WM_KEYDOWN )
 	ORDERWNDMSG( WM_NCHITTEST )
 	ORDERWNDMSG( WM_RBUTTONDOWN )
 	ORDERWNDMSG( WM_MOUSEMOVE )
@@ -154,20 +156,7 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 				if ( !m_pDimensionMenuWndObj->getMIRect( m_hMenu, (unsigned int)nMIIndex, &rcMI ) )
 					continue;
 				if ( ::PtInRect( &rcMI, ptClient ) ) {
-					MENUITEMINFO miinfo;
-					memset( &miinfo, 0, sizeof( miinfo ) );
-					miinfo.cbSize = sizeof( miinfo );
-					miinfo.fMask = MIIM_ID;
-					if ( ::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) && miinfo.wID ) {
-						// native semantics: WM_COMMAND to the owner ( engine-driven
-						// popups ) - host menu handlers work unchanged. the listener
-						// event stays as well.
-						if ( m_hWndOwner )
-							::PostMessage( m_hWndOwner, WM_COMMAND, MAKEWPARAM( miinfo.wID, 0 ), 0 );
-						if ( m_pEventListener )
-							m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_POPUPMENU_CLICK,
-								( void* )pKeelObj, ( void* )( UINT_PTR )miinfo.wID );
-					}
+					_activateItem( nMIIndex, pKeelObj );
 					break;
 				}
 			}
@@ -314,11 +303,92 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	}
 	if ( nHoverNew == m_nHoverMIIndex )
 		return; // hover item unchanged.
-	m_nHoverMIIndex = nHoverNew;
+	_setHoverIndex( nHoverNew, pWP->hwnd );
+}
+
+// native TrackPopupMenu keyboard parity: arrows move the selection ( wrapping,
+// separators and disabled items skipped; first press selects the first/last
+// item ), RETURN/SPACE activate, ESC dismisses.
+void hm_wmp_popupmenu::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
+	if ( !pKeelObj || !pWP || !pParamWndProc )
+		return;
+	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+	pParamWndProc->m_bValidRes = true;
+	pParamWndProc->m_lResult = 0;
+	if ( !m_pDimensionMenuWndObj || !m_hMenu )
+		return;
+
+	switch ( (UINT)pWP->wParam ) {
+	case VK_UP:
+	case VK_DOWN: {
+		int nMICount = ::GetMenuItemCount( m_hMenu );
+		if ( nMICount <= 0 )
+			return;
+		int nDir = ( pWP->wParam == VK_DOWN ) ? 1 : -1;
+		// first press from unselected: DOWN starts before item 0,
+		// UP starts after the last item.
+		int nNew = ( m_nHoverMIIndex < 0 ) ? ( ( nDir > 0 ) ? -1 : nMICount ) : m_nHoverMIIndex;
+		for ( int i = 0; i < nMICount; ++i ) {
+			nNew += nDir;
+			if ( nNew < 0 ) nNew = nMICount - 1;   // wrap around
+			if ( nNew >= nMICount ) nNew = 0;
+			if ( _isSelectableItem( nNew ) ) {
+				_setHoverIndex( nNew, pWP->hwnd );
+				return;
+			}
+		}
+		break;   // nothing selectable - keep the current state
+	}
+	case VK_RETURN:
+	case VK_SPACE:
+		if ( m_nHoverMIIndex >= 0 && _isSelectableItem( m_nHoverMIIndex ) )
+			_activateItem( m_nHoverMIIndex, pKeelObj );
+		::DestroyWindow( pWP->hwnd );
+		break;
+	case VK_ESCAPE:
+		::DestroyWindow( pWP->hwnd );
+		break;
+	}
+}
+
+void hm_wmp_popupmenu::_setHoverIndex( int nMIIndex, HWND hWnd ) {
+	if ( nMIIndex == m_nHoverMIIndex )
+		return;
+	m_nHoverMIIndex = nMIIndex;
 	// full redraw through the buffered WM_PAINT cycle ( drawtrigger WMP ):
 	// a direct GetDC repaint showed intermediate states on screen -
 	// background 9-patch flashing while sweeping across items.
-	::InvalidateRect( pWP->hwnd, NULL, FALSE );
+	::InvalidateRect( hWnd, NULL, FALSE );
+}
+
+void hm_wmp_popupmenu::_activateItem( int nMIIndex, hm_keel_obj* pKeelObj ) {
+	MENUITEMINFO miinfo;
+	memset( &miinfo, 0, sizeof( miinfo ) );
+	miinfo.cbSize = sizeof( miinfo );
+	miinfo.fMask = MIIM_ID;
+	if ( !::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) || !miinfo.wID )
+		return;
+	// native semantics: WM_COMMAND to the owner ( engine-driven popups ) -
+	// host menu handlers work unchanged. the listener event stays as well.
+	if ( m_hWndOwner )
+		::PostMessage( m_hWndOwner, WM_COMMAND, MAKEWPARAM( miinfo.wID, 0 ), 0 );
+	if ( m_pEventListener )
+		m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_POPUPMENU_CLICK,
+			( void* )pKeelObj, ( void* )( UINT_PTR )miinfo.wID );
+}
+
+bool hm_wmp_popupmenu::_isSelectableItem( int nMIIndex ) const {
+	MENUITEMINFO miinfo;
+	memset( &miinfo, 0, sizeof( miinfo ) );
+	miinfo.cbSize = sizeof( miinfo );
+	miinfo.fMask = MIIM_FTYPE | MIIM_STATE;
+	if ( !::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) )
+		return false;
+	if ( miinfo.fType & MFT_SEPARATOR )
+		return false;
+	if ( miinfo.fState & ( MF_DISABLED | MF_GRAYED ) )
+		return false;
+	return true;
 }
 
 void hm_wmp_popupmenu::_OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
