@@ -6,6 +6,7 @@
 #include "win\hook_system\hm_hs_whellengine.h"
 #include "win\hm_win_globals.h"
 #include "win\hm_wndmsg_defs.h"
+#include "win\hm_ui_defaults.h"
 #include "win\hm_event_defs.h"
 
 hm_wmp_viewbkcontent::hm_wmp_viewbkcontent( hmskin_event_listener_base* pEventListener )
@@ -68,7 +69,7 @@ void hm_wmp_viewbkcontent::update( void* pSubject, UINT idEvent, LPARAM pEventPa
 }
 
 void hm_wmp_viewbkcontent::_doDrawSkinRaw( HDC hDC, const RECT& rcCanvas ) {
-	COLORREF clrBK = RGB( 120,20,20 );
+	COLORREF clrBK = HM_UIDEF_BG_COLOR;   // 2016 debug-red placeholder retired
 
 	HBRUSH hBrush = ::CreateSolidBrush( clrBK );
 	::FillRect( hDC, &rcCanvas, hBrush );
