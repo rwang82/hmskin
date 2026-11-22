@@ -76,6 +76,18 @@
 销毁: hm_lib_shutdown —— keelobj 工厂先死(析构解 WMP 订阅) → WMP 工厂后死
 ```
 
+**装载契约**（hm_manifest_loader）：
+
+- **顺序依赖**：rawpic/font/color → WMP——WMP 的 DistrictObjs 装载期即解析 RawPicId，
+  `FontId`/颜色键要查字体/颜色表；WMP + MsgSink → keelobj——keelobj 装载按 id 从工厂
+  `getObj` 取 WMP 并绑 WndMsgSource
+- **section 必选语义**：除 `PopupSkin`（可选，缺失 = 引擎弹窗禁用）外全部必须声明；
+  数组允许为空，节缺失即整装载失败
+- **失败行为**：混合体制——资源节（rawpic/font/color 等）逐项 fail-fast；WMP 节逐项
+  容错（坏条目跳过、装载继续）。所有失败点经 `HM_LOADER_FAIL`/`HM_LOADER_SKIP` 输出
+  file:line 面包屑（Release 亦留痕，OutputDebugString）
+
+
 ## 3. 运行时核心流程
 
 ### 3.1 消息流
