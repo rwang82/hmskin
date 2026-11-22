@@ -14,6 +14,7 @@ colors:
   text: "#E8ECF1"           # body text  
   text-muted: "#8B939E"     # secondary text  
   text-faint: "#5B636E"     # weak text / disabled  
+  text-title: "#D8E0E7"      # title text ( title bar / panel headers, slightly dimmer than body )  
   accent: "#FF5C1F"         # same source as primary; hover #FF7A47 / press #CC4817  
   success: "#3DDC97"        # status green: only "state is true" ( checks, active marks )  
   error: "#E5484D"          # close-button hover and destructive items only  
@@ -63,6 +64,7 @@ components:
   title-bar:  
     height: 44px  
     backgroundColor: "{colors.surface}"  
+    textColor: "{colors.text-title}"  
     innerHighlight: "{colors.inner-highlight}"  
   caption-close-hover:  
     backgroundColor: "{colors.error}"  

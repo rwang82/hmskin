@@ -14,6 +14,7 @@ colors:
   text: "#E8ECF1"           # 正文  
   text-muted: "#8B939E"     # 次级文字  
   text-faint: "#5B636E"     # 弱文字/禁用  
+  text-title: "#D8E0E7"      # 标题文字（标题栏/面板标题，略暗于正文）  
   accent: "#FF5C1F"         # 与 primary 同源；hover #FF7A47 / press #CC4817  
   success: "#3DDC97"        # 状态绿：只表示"状态为真"（勾选/激活标记）  
   error: "#E5484D"          # 只用于关闭钮悬停与破坏性菜单项  
@@ -63,6 +64,7 @@ components:
   title-bar:  
     height: 44px  
     backgroundColor: "{colors.surface}"  
+    textColor: "{colors.text-title}"  
     innerHighlight: "{colors.inner-highlight}"  
   caption-close-hover:  
     backgroundColor: "{colors.error}"  

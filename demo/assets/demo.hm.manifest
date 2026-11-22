@@ -2228,7 +2228,7 @@
               "UIRes": {
                 "UIResName": "hm_rs_uires_text",
                 "Font": 2,
-                "Color": 2,
+                "Color": 1,
                 "text": "Body 13 — 按钮、复选框、菜单项与滚动视图中的正文",
                 "Alignment": 1
               },
