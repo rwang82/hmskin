@@ -1,6 +1,7 @@
 #ifndef __HM_WMP_LOADER_BASE_H__
 #define __HM_WMP_LOADER_BASE_H__
 #include <string>
+#include "win\loader\hm_loader_base.h"   // HM_LOADER_FAIL / HM_LOADER_SKIP
 //
 namespace Json {
 	class Value;

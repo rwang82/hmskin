@@ -49,9 +49,8 @@ static bool _MenuCfgColor( const Json::Value& valCfg, const char* szKey, bool& b
 	hm_rs_rawres_color* pRawColor = RAWCOLORFACTORY_INSTANCE->getObj(
 		(hm_rawres_color_factory::obj_id_type)valKey.asInt() );
 	if ( !pRawColor ) {
-		assert( false );
-		bBad = true;
-		return false;
+		bBad = true;   // the id names a color the manifest never declared
+		HM_LOADER_FAIL( false );
 	}
 	*pClr = pRawColor->getCOLORREF();
 	return true;
@@ -68,7 +67,7 @@ const char STR_CTRLID[] = "CtrlId";
 const char STR_PROPID[] = "PropId";
 //
 #define HM_WMP_X_LOADER_IMPL( hm_wmp_cls_name ) \
-	if ( !pHMUIRoot ) { assert( false ); return NULL; } \
+	if ( !pHMUIRoot ) { HM_LOADER_FAIL( NULL ); } \
 	Json::Value valTmp; \
 	hm_wmp_factory::obj_id_type idWMP = 0; \
 	std::string strWMPClsName; \
@@ -76,7 +75,7 @@ const char STR_PROPID[] = "PropId";
 	assert( _getWMPName( valWMP, strWMPClsName ) ); \
 	assert( strWMPClsName == #hm_wmp_cls_name ); \
 	valTmp = valWMP[ "idWMP" ]; \
-	if ( !valTmp.isInt() ) { assert( false ); return NULL; }\
+	if ( !valTmp.isInt() ) { HM_LOADER_FAIL( NULL ); }\
 	idWMP = valTmp.asInt(); \
 	pWMPNew = pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_cls_name, hmskin_event_listener_base* >( idWMP, pHMUIRoot->m_pEventListener ); \
 	return pWMPNew;
@@ -87,8 +86,7 @@ bool hm_wmp_display_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproces
 	// get pWMPDisplay
 	pWMPDisplay = dynamic_cast< hm_wmp_display* >( pWMPLoading );
 	if ( !pWMPDisplay ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	// fill district objects to pWMPDisplay FIRST: _fillDrawTool's setDrawTool
 	// loads every district's resources - with the old order ( tool first )
@@ -98,18 +96,15 @@ bool hm_wmp_display_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproces
 	// resources nobody loaded -> refcount underflow. districts must be
 	// populated before the tool loads them.
 	if ( !_fillDistrictObjs( valWMP, pWMPDisplay ) ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	// fill drawtool to pWMPDisplay.
 	if ( !_fillDrawTool( valWMP, pWMPDisplay ) ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	// optional buffering strategy ( pixel cache ) for this WMP
 	if ( !_fillBufStrategy( valWMP, pWMPDisplay ) ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 
 	return true;
@@ -122,8 +117,7 @@ bool hm_wmp_display_loader::_fillDrawTool( const Json::Value& valWMP, hm_wmp_dis
 
 	valDrawTool = valWMP[ STR_DRAWTOOL ];
 	if ( !valDrawTool.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	strDrawTool = valDrawTool.asString();
 	if ( 0 == strcmp( strDrawTool.c_str(), "Gdiplus" ) ) {
@@ -134,8 +128,7 @@ bool hm_wmp_display_loader::_fillDrawTool( const Json::Value& valWMP, hm_wmp_dis
 		// hybrid M1 backend: text via D2D/DirectWrite, rest forwarded to gdiplus
 		pDrawTool = hm_ps_drawtool_d2d::getInstance();
 	} else {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 
 	pWMPDest->setDrawTool( pDrawTool );
@@ -152,8 +145,7 @@ bool hm_wmp_display_loader::_fillBufStrategy( const Json::Value& valWMP, hm_wmp_
 	if ( valBuf.isNull() )
 		return true;   // not declared: keep default
 	if ( !valBuf.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	std::string strBuf = valBuf.asString();
 	if ( 0 == strcmp( strBuf.c_str(), "NONE" ) ) {
@@ -163,8 +155,7 @@ bool hm_wmp_display_loader::_fillBufStrategy( const Json::Value& valWMP, hm_wmp_
 	} else if ( 0 == strcmp( strBuf.c_str(), "CACHE_SIZE" ) ) {
 		pWMPDest->setBufStrategy( hm_wmp_display::BUF_CACHE_SIZE );
 	} else {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	return true;
 }
@@ -178,29 +169,25 @@ bool hm_wmp_display_loader::_fillDistrictObjs( const Json::Value& valWMP, hm_wmp
 
 	aryDistrictObjs = valWMP[ STR_DISTRICTOBJS ];
 	if ( !aryDistrictObjs.isArray() || !pWMPDest ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	uCountDistrictObj = aryDistrictObjs.size();
 	for ( uIndexDistrictObj = 0; uIndexDistrictObj < uCountDistrictObj; ++uIndexDistrictObj ) {
 		valDistrict = aryDistrictObjs[ uIndexDistrictObj ];
 		if ( !valDistrict.isObject() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		//
 		valTmp = valDistrict[ "id" ];
 		if ( !valTmp.isInt() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		idDistrict = valTmp.asInt();
 		//
 		// fill showobj through the WMP proxy: store + uires subscriptions.
 		valTmp = valDistrict[ "ShowObjs" ];
 		if ( !_fillShowObjs( valTmp, pWMPDest, idDistrict ) ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 	}
 
@@ -209,8 +196,7 @@ bool hm_wmp_display_loader::_fillDistrictObjs( const Json::Value& valWMP, hm_wmp
 
 bool hm_wmp_display_loader::_fillShowObjs( const Json::Value& aryShowObjs, hm_wmp_display* pWMPDest, hm_wmp_display::district_id_type idDistrict ) {
 	if ( !aryShowObjs.isArray() || !pWMPDest ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	unsigned int uIndexShowObj, uCountShowObj;
 	Json::Value valShowObj;
@@ -226,27 +212,23 @@ bool hm_wmp_display_loader::_fillShowObjs( const Json::Value& aryShowObjs, hm_wm
 		hm_pos_decoder_i* pPDC = NULL;
 		valShowObj = aryShowObjs[ uIndexShowObj ];
 		if ( !valShowObj.isObject() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		valTmp = valShowObj[ "UIRes" ];
 		if ( !_createUIRes( valTmp, &pUIRes ) ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		// may be need more code here, to create hm_pos_decoder_i.
 		valTmp = valShowObj[ "PosDecoder" ];
 		if ( !valTmp.isNull() ) {
 			if ( !_createPosDecoder( valTmp, &pPDC ) ) {
-				assert( false );
-				return false;
+				HM_LOADER_FAIL( false );
 			}
 		}
 		//
 		pShowObj = new hm_showobj( pUIRes, pPDC );
 		if ( !pWMPDest->pushShowObj( idDistrict, pShowObj ) ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 	}
 	//
@@ -262,14 +244,12 @@ bool hm_wmp_display_loader::_createPosDecoder( const Json::Value& valPDC, hm_pos
 	} else if ( _createPosDecoder_Offset( valPDC, ppPDC ) ) {
 		return true;
 	}
-	assert( false );
-	return false;
+	HM_LOADER_FAIL( false );
 }
 
 bool hm_wmp_display_loader::_createPosDecoder_Dock( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC ) {
 	if ( !ppPDC ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	Json::Value valTmp;
 	hm_posdecoder_dock::ENUMDOCKTYPE eDockType;
@@ -277,15 +257,13 @@ bool hm_wmp_display_loader::_createPosDecoder_Dock( const Json::Value& valPDC, h
 
 	valTmp = valPDC[ "PDCName" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_posdecoder_dock" ) )
 		return false;
 	valTmp = valPDC[ "eDockType" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	strTmp = valTmp.asString().c_str();
 	if ( 0 == strcmp( strTmp.c_str(), "DOCK_TOP" ) ) {
@@ -297,37 +275,32 @@ bool hm_wmp_display_loader::_createPosDecoder_Dock( const Json::Value& valPDC, h
 	} else if ( 0 == strcmp( strTmp.c_str(), "DOCK_BOTTOM" ) ) {
 		eDockType = hm_posdecoder_dock::DOCK_BOTTOM;
 	} else {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	//
 	hm_posdecoder_dock* pPDCDock = new hm_posdecoder_dock( eDockType );
 	//
 	valTmp = valPDC[ "m_space1" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCDock->m_space1 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space2" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCDock->m_space2 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space3" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCDock->m_space3 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nThickness" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCDock->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
 
@@ -337,8 +310,7 @@ bool hm_wmp_display_loader::_createPosDecoder_Dock( const Json::Value& valPDC, h
 
 bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC ) {
 	if ( !ppPDC ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	Json::Value valTmp;
 	hm_posdecoder_slider::ENUMSLIDERTYPE eSliderType;
@@ -346,15 +318,13 @@ bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC,
 
 	valTmp = valPDC[ "PDCName" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_posdecoder_slider" ) )
 		return false;
 	valTmp = valPDC[ "eSliderType" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	strTmp = valTmp.asString().c_str();
 	if ( 0 == strcmp( strTmp.c_str(), "SLIDER_T2B" ) ) {
@@ -362,37 +332,32 @@ bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC,
 	} else if ( 0 == strcmp( strTmp.c_str(), "SLIDER_L2R" ) ) {
 		eSliderType = hm_posdecoder_slider::SLIDER_L2R;
 	} else {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	//
 	hm_posdecoder_slider* pPDCSlider = new hm_posdecoder_slider( eSliderType );
 	//
 	valTmp = valPDC[ "m_space1" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCSlider->m_space1 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_space2" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCSlider->m_space2 = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_distance" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCSlider->m_distance = valTmp.asInt();
 	//
 	valTmp = valPDC[ "m_nThickness" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCSlider->m_nThickness = _ScalePx( m_dblScale, valTmp.asInt() );
 
@@ -403,15 +368,13 @@ bool hm_wmp_display_loader::_createPosDecoder_Slider( const Json::Value& valPDC,
 
 bool hm_wmp_display_loader::_createPosDecoder_Offset( const Json::Value& valPDC, hm_pos_decoder_i** ppPDC ) {
 	if ( !ppPDC ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	Json::Value valTmp;
 
 	valTmp = valPDC[ "PDCName" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_posdecoder_offset" ) )
 		return false;
@@ -419,29 +382,25 @@ bool hm_wmp_display_loader::_createPosDecoder_Offset( const Json::Value& valPDC,
 	hm_posdecoder_offset* pPDCOffset = new hm_posdecoder_offset();
 	valTmp = valPDC[ "m_nOffsetL" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCOffset->m_nOffsetL = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nOffsetT" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCOffset->m_nOffsetT = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nOffsetR" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCOffset->m_nOffsetR = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valPDC[ "m_nOffsetB" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pPDCOffset->m_nOffsetB = _ScalePx( m_dblScale, valTmp.asInt() );
 
@@ -459,20 +418,19 @@ bool hm_wmp_display_loader::_createUIRes( const Json::Value& valUIRes, hm_rs_uir
 		return true;
 	}
 
-	assert( false );
-	return true;
+	// unknown uires type: returning TRUE here passed an unwritten out-param
+	// ( a NULL uires ) downstream as a success - a latent null deref.
+	HM_LOADER_FAIL( false );
 }
 
 bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs_uires_i** ppUIRes ) {
 	if ( !ppUIRes ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	Json::Value valTmp;
 	valTmp = valUIRes[ "UIResName" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_rs_uires_pic" ) )
 		return false;
@@ -482,8 +440,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 
 	valTmp = valUIRes[ "RawPicId" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	idRawPic = valTmp.asInt();
 	pUIResPic = new hm_rs_uires_pic( idRawPic );
@@ -493,8 +450,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 	valTmp = valUIRes[ "m_rcSelect" ];
 	if ( !valTmp.isNull() ) {
 		if ( !_fillRect( valTmp, pUIResPic->m_rcSelect ) ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 	}
 
@@ -502,8 +458,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 	valTmp = valUIRes[ "m_ufixL" ];
 	if ( !valTmp.isNull() ) {
 		if ( !valTmp.isInt() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		pUIResPic->m_ufixL = valTmp.asInt();
 	}
@@ -511,8 +466,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 	valTmp = valUIRes[ "m_ufixR" ];
 	if ( !valTmp.isNull() ) {
 		if ( !valTmp.isInt() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		pUIResPic->m_ufixR = valTmp.asInt();
 	}
@@ -520,8 +474,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 	valTmp = valUIRes[ "m_ufixT" ];
 	if ( !valTmp.isNull() ) {
 		if ( !valTmp.isInt() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		pUIResPic->m_ufixT = valTmp.asInt();
 	}
@@ -529,8 +482,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 	valTmp = valUIRes[ "m_ufixB" ];
 	if ( !valTmp.isNull() ) {
 		if ( !valTmp.isInt() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		pUIResPic->m_ufixB = valTmp.asInt();
 	}
@@ -543,8 +495,7 @@ bool hm_wmp_display_loader::_createUIRes_Pic( const Json::Value& valUIRes, hm_rs
 
 bool hm_wmp_display_loader::_createUIRes_Color( const Json::Value& valUIRes, hm_rs_uires_i** ppUIRes ) {
 	if ( !ppUIRes ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	Json::Value valTmp;
 	hm_rs_uires_color* pUIResColor = NULL;
@@ -552,16 +503,14 @@ bool hm_wmp_display_loader::_createUIRes_Color( const Json::Value& valUIRes, hm_
 
 	valTmp = valUIRes[ "UIResName" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_rs_uires_color" ) )
 		return false;
 	//
 	valTmp = valUIRes[ "RawColorId" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	idRawColor = valTmp.asInt();
 	//
@@ -572,8 +521,7 @@ bool hm_wmp_display_loader::_createUIRes_Color( const Json::Value& valUIRes, hm_
 
 bool hm_wmp_display_loader::_createUIRes_Text( const Json::Value& valUIRes, hm_rs_uires_i** ppUIRes ) {
 	if ( !ppUIRes ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 
 	Json::Value valTmp;
@@ -584,38 +532,33 @@ bool hm_wmp_display_loader::_createUIRes_Text( const Json::Value& valUIRes, hm_r
 
 	valTmp = valUIRes[ "UIResName" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	if ( 0 != strcmp( valTmp.asString().c_str(), "hm_rs_uires_text" ) )
 		return false;
 	//
 	valTmp = valUIRes[ "Font" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	idRawFont = valTmp.asInt();
 	//
 	valTmp = valUIRes[ "Color" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	idRawColor = valTmp.asInt();
 	//
 	valTmp = valUIRes[ "text" ];
 	if ( !valTmp.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	//
 	MultiByteToTChar( valTmp.asString(), textData.m_tstrData );
 	//
 	valTmp = valUIRes[ "Alignment" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	textData.setAlignment( valTmp.asInt() );
 	//
@@ -628,37 +571,32 @@ bool hm_wmp_display_loader::_createUIRes_Text( const Json::Value& valUIRes, hm_r
 
 bool hm_wmp_display_loader::_fillRect( const Json::Value& valRect, RECT& rect ) {
 	if ( !valRect.isObject() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	Json::Value valTmp;
 
 	//
 	valTmp = valRect[ "L" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rect.left = valTmp.asInt();
 	//
 	valTmp = valRect[ "R" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rect.right = valTmp.asInt();
 	//
 	valTmp = valRect[ "T" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rect.top = valTmp.asInt();
 	//
 	valTmp = valRect[ "B" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rect.bottom = valTmp.asInt();
 
@@ -697,13 +635,11 @@ bool hm_wmp_bkgnd_nca_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproc
 
 	pWMPBkgndNCA = dynamic_cast< hm_wmp_bkgnd_nca* >( pWMPLoading );
 	if ( !pWMPBkgndNCA ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	valThick = valWMP[ STR_THICK ];
 	if ( !valThick.isObject() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	//
 	valTmp = valThick[ "L" ];
@@ -807,8 +743,7 @@ bool hm_wmp_movewnd_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproces
 
 	pWMPMoveWnd = dynamic_cast< hm_wmp_movewnd* >( pWMPLoading );
 	if ( !pWMPMoveWnd ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	//
 	if ( !_fillWndMark( valWMP, pWMPMoveWnd ) ) {
@@ -827,8 +762,7 @@ bool hm_wmp_movewnd_loader::_fillWndMark( const Json::Value& valWMP, hm_wmp_move
 
 	valWndMark = valWMP[ STR_WNDMARK ];
 	if ( !valWndMark.isObject() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	// CtrlId
 	valTmp = valWndMark[ STR_CTRLID ];
@@ -847,8 +781,7 @@ bool hm_wmp_movewnd_loader::_fillWndMark( const Json::Value& valWMP, hm_wmp_move
 		return true;
 	} 
 
-	assert( false );
-	return false;
+	HM_LOADER_FAIL( false );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -861,7 +794,7 @@ hm_wmp_popupmenu_loader::~hm_wmp_popupmenu_loader() {
 }
 
 hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	if ( !pHMUIRoot ) { assert( false ); return NULL; }
+	if ( !pHMUIRoot ) { HM_LOADER_FAIL( NULL ); }
 	Json::Value valTmp;
 	hm_wmp_factory::obj_id_type idWMP = 0;
 	std::string strWMPClsName;
@@ -869,7 +802,7 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 	assert( _getWMPName( valWMP, strWMPClsName ) );
 	assert( strWMPClsName == "hm_wmp_popupmenu" );
 	valTmp = valWMP[ "idWMP" ];
-	if ( !valTmp.isInt() ) { assert( false ); return NULL; }
+	if ( !valTmp.isInt() ) { HM_LOADER_FAIL( NULL ); }
 	idWMP = valTmp.asInt();
 	// MenuCfg: item size + spacing ( defaults 25 x 160, space 6 ).
 	unsigned int uMIHeight = 25;
@@ -892,9 +825,8 @@ hm_wndmsgprocessor_i* hm_wmp_popupmenu_loader::_createWMP( const Json::Value& va
 		if ( valCfgItem.isInt() ) {
 			pRawFontMenu = RAWFONTFACTORY_INSTANCE->getObj(
 				(hm_rawres_font_factory::obj_id_type)valCfgItem.asInt() );
-			if ( !pRawFontMenu ) {
-				assert( false );   // FontId names a font the manifest never declared
-				return NULL;
+			if ( !pRawFontMenu ) {   // FontId names a font the manifest never declared
+				HM_LOADER_FAIL( NULL );
 			}
 		}
 		// optional Color section references ( defaults: hm_ui_defaults.h ).
@@ -940,29 +872,25 @@ bool hm_wmp_rootmenu_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproce
 
 	pWMPRootMenu = dynamic_cast< hm_wmp_rootmenu* >(pWMPLoading);
 	if ( !pWMPRootMenu ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	valRMCfg = valWMP[ STR_ROOTMENUCFG ];
 	//
 	valTmp = valRMCfg[ "m_uLenMenuItem" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rmCfg.m_uLenMenuItem = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valRMCfg[ "m_uSpaceH" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rmCfg.m_uSpaceH = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
 	valTmp = valRMCfg[ "m_uSpaceV" ];
 	if ( !valTmp.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	rmCfg.m_uSpaceV = _ScalePx( m_dblScale, valTmp.asInt() );
 	//
@@ -973,9 +901,8 @@ bool hm_wmp_rootmenu_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproce
 	if ( valTmp.isInt() ) {
 		hm_rs_rawres_font* pRawFontMenu = RAWFONTFACTORY_INSTANCE->getObj(
 			(hm_rawres_font_factory::obj_id_type)valTmp.asInt() );
-		if ( !pRawFontMenu ) {
-			assert( false );   // FontId names a font the manifest never declared
-			return false;
+		if ( !pRawFontMenu ) {   // FontId names a font the manifest never declared
+			HM_LOADER_FAIL( false );
 		}
 		pWMPRootMenu->setLabelFont( pRawFontMenu );
 	}
@@ -986,8 +913,7 @@ bool hm_wmp_rootmenu_loader::_fillWMP( const Json::Value& valWMP, hm_wndmsgproce
 		bool bHasText = _MenuCfgColor( valRMCfg, "TextColor", bBadColor, &clrText );
 		bool bHasTextDis = _MenuCfgColor( valRMCfg, "TextColorDisabled", bBadColor, &clrTextDis );
 		if ( bBadColor ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		if ( bHasText && bHasTextDis )
 			pWMPRootMenu->setLabelColors( clrText, clrTextDis );
@@ -1004,7 +930,7 @@ hm_wmp_scrollbar_loader::~hm_wmp_scrollbar_loader() {
 }
 
 hm_wndmsgprocessor_i* hm_wmp_scrollbar_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	if ( !pHMUIRoot ) { assert( false ); return NULL; }
+	if ( !pHMUIRoot ) { HM_LOADER_FAIL( NULL ); }
 	Json::Value valTmp;
 	hm_wmp_factory::obj_id_type idWMP = 0;
 	std::string strWMPClsName;
@@ -1012,7 +938,7 @@ hm_wndmsgprocessor_i* hm_wmp_scrollbar_loader::_createWMP( const Json::Value& va
 	assert( _getWMPName( valWMP, strWMPClsName ) );
 	assert( strWMPClsName == "hm_wmp_scrollbar" );
 	valTmp = valWMP[ "idWMP" ];
-	if ( !valTmp.isInt() ) { assert( false ); return NULL; }
+	if ( !valTmp.isInt() ) { HM_LOADER_FAIL( NULL ); }
 	idWMP = valTmp.asInt();
 	// ScrollBarCfg: direction ( "T2B" default | "L2R" ).
 	hm_wmp_scrollbar::ENUMDIRECTIONTYPE eDirection = hm_wmp_scrollbar::T2B_TYPE;
@@ -1035,7 +961,7 @@ hm_wmp_scrollview_loader::~hm_wmp_scrollview_loader() {
 }
 
 hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	if ( !pHMUIRoot ) { assert( false ); return NULL; }
+	if ( !pHMUIRoot ) { HM_LOADER_FAIL( NULL ); }
 	Json::Value valTmp;
 	hm_wmp_factory::obj_id_type idWMP = 0;
 	std::string strWMPClsName;
@@ -1043,24 +969,24 @@ hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& v
 	assert( _getWMPName( valWMP, strWMPClsName ) );
 	assert( strWMPClsName == "hm_wmp_scrollview" );
 	valTmp = valWMP[ "idWMP" ];
-	if ( !valTmp.isInt() ) { assert( false ); return NULL; }
+	if ( !valTmp.isInt() ) { HM_LOADER_FAIL( NULL ); }
 	idWMP = valTmp.asInt();
 
 	// ScrollViewCfg: binds this orchestrator to a manifest-declared subtree.
 	hm_wmp_scrollview::SCROLLVIEW_CFG cfg;
 	valTmp = valWMP[ "ScrollViewCfg" ];
-	if ( !valTmp.isObject() ) { assert( false ); return NULL; }
+	if ( !valTmp.isObject() ) { HM_LOADER_FAIL( NULL ); }
 	Json::Value valCfg = valTmp;
 	Json::Value v;
 	// ScrollBarWMPId ( required ) - shutdown contract: referenced WMP ids
 	// must be SMALLER than ours ( factory destroys by ascending id ).
 	v = valCfg[ "ScrollBarWMPId" ];
-	if ( !v.isInt() ) { assert( false ); return NULL; }
+	if ( !v.isInt() ) { HM_LOADER_FAIL( NULL ); }
 	cfg.m_idWMPSearchBar = v.asInt();
 	assert( cfg.m_idWMPSearchBar < idWMP );
 	// ContentKeelObjId ( required ).
 	v = valCfg[ "ContentKeelObjId" ];
-	if ( !v.isInt() ) { assert( false ); return NULL; }
+	if ( !v.isInt() ) { HM_LOADER_FAIL( NULL ); }
 	cfg.m_idKeelObjContent = v.asInt();
 	// BarKeelObjId ( optional: wheel hit-test exclusion + track measure ).
 	v = valCfg[ "BarKeelObjId" ];
@@ -1141,21 +1067,18 @@ bool hm_wmp_tabheader_loader::_fillBtns( const Json::Value& valWMP, hm_wmp_tabhe
 
 	aryTabBtns = valWMP[ STR_TABBTNS ];
 	if ( !aryTabBtns.isArray() || !pWMPLoading ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	//
 	nCountTabBtn = aryTabBtns.size();
 	for ( nIndexTabBtn = 0; nIndexTabBtn<nCountTabBtn; ++nIndexTabBtn ) {
 		valTabBtn = aryTabBtns[ nIndexTabBtn ];
 		if ( !valTabBtn.isObject() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		valTitle = valTabBtn["Title"];
 		if ( !valTitle.isString() ) {
-			assert( false );
-			return false;
+			HM_LOADER_FAIL( false );
 		}
 		//
 		pTabBtnInfo = new tabbtninfo();
@@ -1165,8 +1088,7 @@ bool hm_wmp_tabheader_loader::_fillBtns( const Json::Value& valWMP, hm_wmp_tabhe
 
 	valDefaultBtn = valWMP[ "DefaultBtn" ];
 	if ( !valDefaultBtn.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	nIndexTabBtnDown = valDefaultBtn.asInt();
 	pWMPLoading->pushDown( nIndexTabBtnDown );

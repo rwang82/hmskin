@@ -43,13 +43,13 @@ bool hm_loader_wmp::load( hm_manifest_json* pManifestData, hm_uiroot* pHMUIRoot 
 		// get pWMPLoader.
 		pWMPLoader = m_pWMPLoaderDepot->getWMPLoader( wmpVal );
 		if ( !pWMPLoader ) {
-			assert( false );
+			HM_LOADER_SKIP();
 			continue;
 		}
 		// create pWMPNew.
 		pWMPNew = pWMPLoader->createWMP( wmpVal, pHMUIRoot );
 		if ( !pWMPNew ) {
-			assert( false );
+			HM_LOADER_SKIP();
 			continue;
 		}
 	}

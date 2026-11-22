@@ -22,8 +22,7 @@ hm_wmp_loader_base* hm_wmp_loader_depot::getWMPLoader( const Json::Value& valWMP
 	std::string strWMPName;
 
 	if ( !_getWMPName( valWMP, strWMPName ) ) {
-		assert( false );
-		return NULL;
+		HM_LOADER_FAIL( NULL );
 	}
 	iendN2L = m_mapName2WMPLoader.end();
 	for ( itN2L = m_mapName2WMPLoader.begin(); itN2L != iendN2L; ++itN2L ) {
@@ -32,8 +31,7 @@ hm_wmp_loader_base* hm_wmp_loader_depot::getWMPLoader( const Json::Value& valWMP
 		}
 	}
 
-	assert( false );
-	return NULL;
+	HM_LOADER_FAIL( NULL );
 }
 
 void hm_wmp_loader_depot::_init() {
@@ -76,8 +74,7 @@ bool hm_wmp_loader_depot::_getWMPName( const Json::Value& valWMP, std::string& s
 
 	valWMPName = valWMP[ STR_WMPCLSNAME ];
 	if ( !valWMPName.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	strWMPName = valWMPName.asString();
 	return true;

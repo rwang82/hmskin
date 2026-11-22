@@ -21,8 +21,7 @@ bool hm_loader_popupskin::load( hm_manifest_json* pManifestData, hm_uiroot* pHMU
 
 	valPropId = valPopupSkin[ "PropId" ];
 	if ( !valPropId.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	pHMUIRoot->m_cfg.m_uPopupPropId = (unsigned int)valPropId.asInt();
 	return true;

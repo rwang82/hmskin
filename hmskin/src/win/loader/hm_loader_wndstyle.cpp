@@ -35,8 +35,8 @@ bool hm_loader_wndstyle::load( hm_manifest_json* pManifestData, hm_uiroot* pHMUI
 	else if ( strCorner == "ROUNDSMALL" )
 		pHMUIRoot->m_cfg.m_nWndCornerPref = HM_WNDCORNER_ROUNDSMALL;
 	else {
-		assert( false ); // unknown WndStyle.Corner value
-		return false;
+		// unknown WndStyle.Corner value
+		HM_LOADER_FAIL( false );
 	}
 	return true;
 }

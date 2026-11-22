@@ -38,8 +38,7 @@ bool hm_wmp_loader_base::_getWMPName( const Json::Value& valWMP, std::string& st
 
 	valWMPName = valWMP[ STR_WMPCLSNAME ];
 	if ( !valWMPName.isString() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	strWMPName = valWMPName.asString();
 	return true;
@@ -50,8 +49,7 @@ bool hm_wmp_loader_base::_getWMPId( const Json::Value& valWMP, unsigned int& uWM
 
 	valWMPId = valWMP[ STR_WMPIDWMP ];
 	if ( !valWMPId.isInt() ) {
-		assert( false );
-		return false;
+		HM_LOADER_FAIL( false );
 	}
 	uWMPId = ( unsigned int )valWMPId.asInt();
 	return true;

@@ -2,6 +2,7 @@
 #define __HM_WMP_LOADER_DEPOT_H__
 #include <map>
 #include <string>
+#include "win\loader\hm_loader_base.h"   // HM_LOADER_FAIL
 //
 namespace Json {
 	class Value;
