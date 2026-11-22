@@ -296,18 +296,12 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	if ( !m_pDimensionMenuWndObj || !m_hMenu )
 		return;
 	POINT ptClient;
-	RECT rcCanvas;
-	hm_layout_obj* pLayOutObj = NULL;
 	int nMICount;
 	int nHoverNew = -1;
 
 	//
 	ptClient.x = LOWORD( pWP->lParam );
 	ptClient.y = HIWORD( pWP->lParam );
-	pLayOutObj = pKeelObj->getLayoutObj();
-	if ( !pLayOutObj ) return;
-	if ( !pLayOutObj->mapPosition( pWP->hwnd, coordinate_system_hwnd::CSH_CLIENT_TYPE, rcCanvas ) )
-		return;
 	nMICount = ::GetMenuItemCount( m_hMenu );
 	for ( int nMIIndex = 0; nMIIndex < nMICount; ++nMIIndex ) {
 		RECT rcMI;
@@ -321,10 +315,10 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	if ( nHoverNew == m_nHoverMIIndex )
 		return; // hover item unchanged.
 	m_nHoverMIIndex = nHoverNew;
-	// full redraw ( the popup is small ).
-	HDC hDC = ::GetDC( pWP->hwnd );
-	_doDrawSkin( hDC, rcCanvas );
-	::ReleaseDC( pWP->hwnd, hDC );
+	// full redraw through the buffered WM_PAINT cycle ( drawtrigger WMP ):
+	// a direct GetDC repaint showed intermediate states on screen -
+	// background 9-patch flashing while sweeping across items.
+	::InvalidateRect( pWP->hwnd, NULL, FALSE );
 }
 
 void hm_wmp_popupmenu::_OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
