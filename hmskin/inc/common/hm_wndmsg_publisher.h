@@ -4,12 +4,18 @@
 #include "common\hm_cmn_pattern_observer.h"
 #include "win\hm_export_defs.h"
 ///////////////////////////////////////////////////////////////////////
+// dispatch-truncation flags - each layer stops AFTER the current handler:
+//   DISABLE_OLD_WNDPROC (0x1)          : skip the host's original WndProc
+//   DISABLE_OTHER_MSGSINK (0x2)        : skip subsequent msg sinks
+//   DISABLE_OTHER_MSGOBSRV (0x4)       : skip subsequent keelobj observers
+//   DISABLE_OTHER_WNDMSGPROCESSOR (0x8): skip the remaining WMPs of THIS keelobj
 #define EATMSGFLAG_DISABLE_NONE (0x00000000)
 #define EATMSGFLAG_DISABLE_OLD_WNDPROC (0x0000001)
 #define EATMSGFLAG_DISABLE_OTHER_MSGSINK (0x00000002)
 #define EATMSGFLAG_DISABLE_OTHER_MSGOBSRV (0x00000004)
 #define EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR (0x00000008)
-#define EATMSGFLAG_DISABLE_SOURCE (0x00000010)
+// the usual "message fully handled" combination.
+#define EATMSGFLAG_CUT_ALL ( EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR )
 //
 typedef UINT wnd_msg_type;
 typedef std::deque< wnd_msg_type > wndmsg_container_type;

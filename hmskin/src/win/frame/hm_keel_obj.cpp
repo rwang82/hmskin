@@ -67,7 +67,7 @@ void hm_keel_obj::update( void* pSubject, UINT idEvent, LPARAM pEventParam, LPAR
 			// Notify
 			notifyWndMsg( pWP->hwnd, pWP->message, pWP->wParam, pWP->lParam, pParamWndProc );
 
-			if ( !pParamWndProc || !( pParamWndProc->m_flagEatMsg & EATMSGFLAG_DISABLE_SOURCE ) ) {
+			if ( pParamWndProc ) {
 				_doWndMsg( pWP, pParamWndProc );
 			}
 
@@ -195,10 +195,12 @@ void hm_keel_obj::_doWndMsg( CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWnd
 	for ( itWMP = m_containerWMP.begin(); itWMP!=iendWMP; ++itWMP ) {
 		pWndMsgProcessor = *itWMP;
 		if ( !pWndMsgProcessor ) {
-			assert( false );		
+			assert( false );
 			continue;
 		}
 		pWndMsgProcessor->doWndMsg( this, pWP, pParamWndProc );
+		if ( pParamWndProc->m_flagEatMsg & EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR )
+			break;
 	}
 }
 //

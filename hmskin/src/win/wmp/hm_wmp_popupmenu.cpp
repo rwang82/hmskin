@@ -179,7 +179,7 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 	//
 	if ( ::PtInRect( &rcCanvas, ptClient ) ) {
 		//
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 
@@ -211,7 +211,7 @@ void hm_wmp_popupmenu::_OnDestroy( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 		return;
 	
 	//
-	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;//HTNOWHERE;
 	//
@@ -227,7 +227,7 @@ void hm_wmp_popupmenu::_OnHMWMBindMenu( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 	SIZE sizeMenuWnd;
 	
 	//
-	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;
 	//
@@ -366,7 +366,7 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 void hm_wmp_popupmenu::_OnKeyDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
 	if ( !pKeelObj || !pWP || !pParamWndProc )
 		return;
-	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;
 	if ( !m_pDimensionMenuWndObj || !m_hMenu )
@@ -454,7 +454,7 @@ void hm_wmp_popupmenu::_OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	// WMP never saw the clicks ( trace 2026-10-15: 6x WM_NCLBUTTONDOWN w=2 ).
 	if ( !pKeelObj || !pWP || !pParamWndProc )
 		return;
-	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+	pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = HTCLIENT;
 }
@@ -476,7 +476,7 @@ void hm_wmp_popupmenu::_OnRButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 	//
 	if ( ::PtInRect( &rcCanvas, ptClient ) ) {
 		//
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 

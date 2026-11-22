@@ -131,7 +131,7 @@ void hm_wmp_rootmenu::_OnNCLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, m
 	//
 	if ( ::PtInRect( &rcCanvas, ptWnd ) ) {
 		//
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 		
@@ -170,7 +170,7 @@ void hm_wmp_rootmenu::_OnNCLButtonDblClk( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP,
 	//
 	if ( ::PtInRect( &rcCanvas, ptWnd ) ) {
 		//
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 		
@@ -207,7 +207,7 @@ void hm_wmp_rootmenu::_OnNCLButtonUp( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 	if ( ::PtInRect( &rcCanvas, ptWnd ) ) {
 		//
 		BOOL bBtnDown = ( m_uRootMenuFlags & RMFLAG_BTNDOWN );
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 
@@ -313,7 +313,7 @@ void hm_wmp_rootmenu::_OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_s
 	//
 	if ( ::PtInRect( &rcCanvas, ptWnd ) ) {
 		//
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_OTHER_WNDMSGPROCESSOR | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OLD_WNDPROC | EATMSGFLAG_CUT_ALL;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = HTCAPTION;//HTNOWHERE;	
 	}

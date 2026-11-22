@@ -464,7 +464,7 @@ void hm_wmp_button_nca::_OnNCHitTest( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg
 	//
 	if ( ::PtInRect( &rcObj, ptWnd ) ) {
 		//eat message
-		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV | EATMSGFLAG_DISABLE_SOURCE;
+		pParamWndProc->m_flagEatMsg = EATMSGFLAG_DISABLE_OTHER_MSGSINK | EATMSGFLAG_DISABLE_OTHER_MSGOBSRV;
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = HTCAPTION;
 	}
