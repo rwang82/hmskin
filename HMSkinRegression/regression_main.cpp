@@ -369,16 +369,19 @@ int main() {
 		CHECK( hm_wndpropid_connect( pRoot, hWndPop, 21 ) == true,
 		       "popupcase key window connect" );
 		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
-		// separator click: absorbed like a disabled item - the menu stays
-		// open ( native, verified on Win11 ); ESC then dismisses it.
+		// separator band clicks: absorbed, menu stays ( VM-verified native );
+		// a blank-margin click dismisses ( also VM-verified ).
 		{
 			const int s6 = hm_layout_scale_px( 6 ), h25 = hm_layout_scale_px( 25 );
 			::SendMessage( hWndPop, WM_LBUTTONDOWN, MK_LBUTTON,
 			               MAKELPARAM( s6 + 10, 4 * s6 + 3 * h25 ) );
+			::SendMessage( hWndPop, WM_LBUTTONDOWN, MK_LBUTTON,
+			               MAKELPARAM( s6 + 10, 4 * s6 + 3 * h25 - s6 + 1 ) );
+			CHECK( ::IsWindow( hWndPop ), "popupcase separator band clicks keep the popup" );
+			::SendMessage( hWndPop, WM_LBUTTONDOWN, MK_LBUTTON,
+			               MAKELPARAM( 2, h25 / 2 ) );
 		}
-		CHECK( ::IsWindow( hWndPop ), "popupcase separator click keeps the popup" );
-		::SendMessage( hWndPop, WM_KEYDOWN, VK_ESCAPE, 0 );
-		CHECK( !::IsWindow( hWndPop ), "popupcase separator window dismissed by ESC" );
+		CHECK( !::IsWindow( hWndPop ), "popupcase blank-margin click dismisses" );
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndPop, 21 ) == true,
 		       "popupcase separator-click slot released" );
 

@@ -80,6 +80,13 @@ bool dimension_menuwnd_default::getMIRect( HMENU hMenu, unsigned int uMIIndex, R
 	pMIRect->top = nTop;
 	pMIRect->right = pMIRect->left + m_uMIWidth;
 	pMIRect->bottom = nTop + _ItemSlotHeight( hMenu, uMIIndex, m_uMIHeight );
+	if ( _IsMenuSeparator( hMenu, uMIIndex ) ) {
+		// the separator hit zone spans its surrounding spacing band - a
+		// bare 1px row is not humanly clickable ( the hairline itself stays
+		// at the band center: ( top + bottom ) / 2 == the 1px slot ).
+		pMIRect->top -= m_uSpace;
+		pMIRect->bottom += m_uSpace;
+	}
 
 	return true;
 }
@@ -170,9 +177,9 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 		pParamWndProc->m_bValidRes = true;
 		pParamWndProc->m_lResult = 0;//HTNOWHERE;
 
-		// resolve the clicked item and notify the app before closing.
-		// clicks on separators and disabled items are absorbed - no command,
-		// the menu stays open ( native, verified on Win11 ).
+		// clicks on separators ( their whole spacing band ) and disabled
+		// items are absorbed - no command, the menu stays open; blank
+		// margins and gaps dismiss ( both VM-verified native behavior ).
 		if ( m_pDimensionMenuWndObj && m_hMenu ) {
 			int nMICount = ::GetMenuItemCount( m_hMenu );
 			for ( int nMIIndex = 0; nMIIndex < nMICount; ++nMIIndex ) {
@@ -181,7 +188,7 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 					continue;
 				if ( ::PtInRect( &rcMI, ptClient ) ) {
 					if ( !_isSelectableItem( nMIIndex ) )
-						return;   // separator/disabled: no-op, stays open
+						return;   // separator/disabled: absorbed
 					_activateItem( nMIIndex, pKeelObj );
 					break;
 				}
