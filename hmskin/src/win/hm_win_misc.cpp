@@ -18,6 +18,20 @@ BOOL GetCurModuleDirPath( tstring_type& strModuleDirPath ) {
 	return TRUE;
 }
 
+HFONT GetMenuLabelFont() {
+	static HFONT hFontMenuLabel = NULL;
+	if ( !hFontMenuLabel ) {
+		LOGFONT logFont;
+		memset( &logFont, 0, sizeof( LOGFONT ) );
+		logFont.lfHeight = -12;
+		logFont.lfWeight = FW_NORMAL;
+		logFont.lfCharSet = GB2312_CHARSET;
+		_tcscpy_s( logFont.lfFaceName, _T( "Microsoft YaHei UI" ) );
+		hFontMenuLabel = ::CreateFontIndirect( &logFont );
+	}
+	return hFontMenuLabel;
+}
+
 BOOL MultiByteToWideChar( const std::string& strMultiByte, std::basic_string<WCHAR>& wstrWideChar, unsigned int uCodePage, DWORD dwFlags ) {
 #define DEFAULT_WCHARTMPBUF_SIZE (64)
 	int nRet;
