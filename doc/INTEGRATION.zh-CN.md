@@ -213,7 +213,7 @@ InvalidateRect。
 - **不支持**：阴影/模糊（设计立场：深度靠面层级+发丝线）、保留模式合成、alpha 混合窗口。
 - **DPI**：Phase 1 已落——`hm_startup_param` 第三参 `uDpi`（96 基准 manifest 在加载咽喉点缩放；
   GDI+ 点制字体由 Graphics 真实 DPI 自动换算，**切勿再手动乘 scale**）；专用 Cfg 几何
-  （菜单条目/NC 边框厚度）同步缩放。Phase 2 backlog：Per-Monitor 动态换档 + 多倍率位图集。
+  （菜单条目/NC 边框厚度）同步缩放。Phase 2 backlog：Per-Monitor 动态换档 + 多倍率位图集，以及 9-patch 固定边拆分（`m_ufixL/T/R/B` 目前一份数值同时用于源图切割与目标画布几何——scale≠1 时边框按原始像素渲染而非缩放像素，需拆「源侧裸值/目标侧缩放值」双套，与多倍率位图集一并设计）。
 - **透明菜单接管**（opt-in）：`hm_lib_enable_trackpopupmenu_hook(root, TRUE)` 后，宿主的原生
   `TrackPopupMenu` 调用被引擎接管并皮肤化，选单按**原生语义** `PostMessage(WM_COMMAND, id)`
   送回属主窗口——宿主零配合、现有 WM_COMMAND 处理器无感工作。manifest 需声明

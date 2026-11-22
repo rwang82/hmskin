@@ -259,7 +259,11 @@ the `_at` variant targeting ( district id, declaration index ).
   fonts convert automatically through the Graphics DPI - **never multiply
   by the scale yourself** ); dedicated Cfg geometry ( menu item / NC border
   thicknesses ) scales in step. Phase 2 backlog: per-monitor dynamic
-  switching + multi-scale bitmap sets.
+  switching + multi-scale bitmap sets, plus the 9-patch fix-edge split
+  ( `m_ufixL/T/R/B` currently serve BOTH source-bitmap cutting and
+  destination-canvas geometry with one raw value - at scale != 1 borders
+  render at authored px instead of scaled px; needs a source-raw /
+  dest-scaled dual set, designed together with multi-scale bitmaps ).
 - **Transparent menu takeover** ( opt-in ): after
   `hm_lib_enable_trackpopupmenu_hook(root, TRUE)`, the host's native
   `TrackPopupMenu` calls are intercepted and skinned by the engine;
