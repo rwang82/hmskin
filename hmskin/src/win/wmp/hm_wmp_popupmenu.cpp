@@ -25,6 +25,22 @@ static HFONT _GetMenuLabelFont() {
 }
 
 //
+static bool _IsMenuSeparator( HMENU hMenu, unsigned int uIndex ) {
+	MENUITEMINFO miinfo;
+	memset( &miinfo, 0, sizeof( miinfo ) );
+	miinfo.cbSize = sizeof( miinfo );
+	miinfo.fMask = MIIM_FTYPE;
+	return ::GetMenuItemInfo( hMenu, uIndex, TRUE, &miinfo )
+	       && ( miinfo.fType & MFT_SEPARATOR );
+}
+
+// separators occupy a 1px slot only - the surrounding item spacing forms
+// their margins ( native menus show a hairline, not a full item row ).
+static unsigned int _ItemSlotHeight( HMENU hMenu, unsigned int uIndex, unsigned int uMIHeight ) {
+	return _IsMenuSeparator( hMenu, uIndex ) ? 1 : uMIHeight;
+}
+
+//
 dimension_menuwnd_default::dimension_menuwnd_default( unsigned int uMIHeight, unsigned int uMIWidth, unsigned int uSpace )
 : dimension_menuwnd_i()
 , m_uMIHeight( uMIHeight )
@@ -41,9 +57,12 @@ bool dimension_menuwnd_default::getWndSize( HMENU hMenu, SIZE* pMenuWndSize ){
 	nMICount = GetMenuItemCount( hMenu );
 	if ( nMICount == -1 )
 		return false;
-	
+
+	unsigned int nItemsH = 0;
+	for ( int i = 0; i < nMICount; ++i )
+		nItemsH += _ItemSlotHeight( hMenu, (unsigned int)i, m_uMIHeight );
 	pMenuWndSize->cx = m_uSpace + m_uMIWidth + m_uSpace;
-	pMenuWndSize->cy = m_uSpace + m_uMIHeight*nMICount + m_uSpace*(nMICount-1) + m_uSpace;
+	pMenuWndSize->cy = m_uSpace + nItemsH + m_uSpace*(nMICount-1) + m_uSpace;
 	return true;
 }
 //
@@ -53,12 +72,15 @@ bool dimension_menuwnd_default::getMIRect( HMENU hMenu, unsigned int uMIIndex, R
 
 	nMICount = GetMenuItemCount( hMenu );
 	if ( (nMICount == -1) || (nMICount <= (int)uMIIndex) ) return false;
-	
+
+	unsigned int nTop = m_uSpace;
+	for ( unsigned int i = 0; i < uMIIndex; ++i )
+		nTop += _ItemSlotHeight( hMenu, i, m_uMIHeight ) + m_uSpace;
 	pMIRect->left = m_uSpace;
-	pMIRect->top = m_uSpace + uMIIndex*(m_uMIHeight + m_uSpace);
+	pMIRect->top = nTop;
 	pMIRect->right = pMIRect->left + m_uMIWidth;
-	pMIRect->bottom = pMIRect->top + m_uMIHeight;
-	
+	pMIRect->bottom = nTop + _ItemSlotHeight( hMenu, uMIIndex, m_uMIHeight );
+
 	return true;
 }
 //
@@ -150,7 +172,8 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 
 		// resolve the clicked item and notify the app before closing.
 		// native behavior: a click on a DISABLED item does nothing at all -
-		// no command, the menu stays open.
+		// no command, the menu stays open; a SEPARATOR click closes the
+		// menu like the background does.
 		if ( m_pDimensionMenuWndObj && m_hMenu ) {
 			int nMICount = ::GetMenuItemCount( m_hMenu );
 			for ( int nMIIndex = 0; nMIIndex < nMICount; ++nMIIndex ) {
@@ -158,8 +181,11 @@ void hm_wmp_popupmenu::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 				if ( !m_pDimensionMenuWndObj->getMIRect( m_hMenu, (unsigned int)nMIIndex, &rcMI ) )
 					continue;
 				if ( ::PtInRect( &rcMI, ptClient ) ) {
-					if ( !_isSelectableItem( nMIIndex ) )
-						return;
+					if ( !_isSelectableItem( nMIIndex ) ) {
+						if ( !_IsMenuSeparator( m_hMenu, (unsigned int)nMIIndex ) )
+							return;   // disabled: no-op, stays open
+						break;          // separator: close without a command
+					}
 					_activateItem( nMIIndex, pKeelObj );
 					break;
 				}
@@ -256,8 +282,15 @@ void hm_wmp_popupmenu::_doDrawSkin( HDC hDC, const RECT& rcCanvas ) {
 		miinfo.dwTypeData = NULL;
 		if ( !::GetMenuItemInfo( m_hMenu, nMIIndex, TRUE, &miinfo ) )
 			continue;
-		if ( miinfo.fType & MFT_SEPARATOR )
-			continue; // separator: background only.
+		if ( miinfo.fType & MFT_SEPARATOR ) {
+			// hairline #262C34 ( DESIGN.md ), insets match the label margins.
+			RECT rcLine = { rcMI.left + 12, ( rcMI.top + rcMI.bottom ) / 2,
+			                rcMI.right - 8, ( rcMI.top + rcMI.bottom ) / 2 + 1 };
+			HBRUSH hbrLine = ::CreateSolidBrush( RGB( 0x26, 0x2C, 0x34 ) );
+			::FillRect( hDC, &rcLine, hbrLine );
+			::DeleteObject( hbrLine );
+			continue;
+		}
 		// get menu item text
 		pMITextBuf = new TCHAR[ miinfo.cch + 1 ];
 		miinfo.dwTypeData = pMITextBuf;

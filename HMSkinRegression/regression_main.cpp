@@ -312,7 +312,6 @@ int main() {
 		mii.dwTypeData = _T("rg item");
 		mii.wID = 301;
 		::InsertMenuItem( hMenu, 0, TRUE, &mii );
-		::InsertMenuItem( hMenu, 1, TRUE, &mii );
 		// item 1 disabled, item 2 distinct id: keyboard DOWN must SKIP the
 		// disabled middle item and land on 2.
 		mii.fMask |= MIIM_STATE;
@@ -322,6 +321,11 @@ int main() {
 		mii.fState = 0;
 		mii.wID = 302;
 		::InsertMenuItem( hMenu, 2, TRUE, &mii );
+		// trailing separator: a 1px slot, not a full item row.
+		mii.fMask = MIIM_FTYPE;
+		mii.fType = MFT_SEPARATOR;
+		mii.dwTypeData = NULL;
+		::InsertMenuItem( hMenu, 3, TRUE, &mii );
 
 		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, 0 );
 		RECT rcPop;
@@ -338,6 +342,12 @@ int main() {
 		::GetWindowRect( hWndPop, &rcPop );
 		CHECK( rcPop.left == rcWork.left + 40 && rcPop.top == rcWork.top + 40,
 		       "popupcase mid-screen anchor keeps left/top" );
+		// separator geometry: 3 full items + a 1px slot, 5 gaps total.
+		{
+			const int s6 = hm_layout_scale_px( 6 ), h25 = hm_layout_scale_px( 25 );
+			CHECK( rcPop.bottom - rcPop.top == 5 * s6 + 3 * h25 + 1,
+			       "popupcase separator thins to a 1px slot" );
+		}
 
 		// keyboard path ( native parity ): ESC dismisses; on a fresh window
 		// DOWN selects item 0 and RETURN activates - WM_COMMAND must land in
@@ -358,6 +368,23 @@ int main() {
 		CHECK( hWndPop != NULL && hWndOwner != NULL, "popupcase key window created" );
 		CHECK( hm_wndpropid_connect( pRoot, hWndPop, 21 ) == true,
 		       "popupcase key window connect" );
+		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
+		// separator click closes the menu ( native behavior ).
+		{
+			const int s6 = hm_layout_scale_px( 6 ), h25 = hm_layout_scale_px( 25 );
+			::SendMessage( hWndPop, WM_LBUTTONDOWN, MK_LBUTTON,
+			               MAKELPARAM( s6 + 10, 4 * s6 + 3 * h25 ) );
+		}
+		CHECK( !::IsWindow( hWndPop ), "popupcase separator click closes the popup" );
+		CHECK( hm_wndpropid_disconnect( pRoot, hWndPop, 21 ) == true,
+		       "popupcase separator-click slot released" );
+
+		hWndPop = ::CreateWindowEx( 0, _T("STATIC"), _T("rgpopup3"),
+			WS_POPUP, rcWork.left + 40, rcWork.top + 40, 40, 40, NULL, NULL,
+			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
+		CHECK( hWndPop != NULL, "popupcase key window recreated" );
+		CHECK( hm_wndpropid_connect( pRoot, hWndPop, 21 ) == true,
+		       "popupcase key window reconnect" );
 		::SendMessage( hWndPop, HMWM_BINDMENU, (WPARAM)hMenu, (LPARAM)hWndOwner );
 		::SendMessage( hWndPop, WM_KEYDOWN, VK_DOWN, 0 );
 		::SendMessage( hWndPop, WM_KEYDOWN, VK_DOWN, 0 );   // skips the disabled middle item
