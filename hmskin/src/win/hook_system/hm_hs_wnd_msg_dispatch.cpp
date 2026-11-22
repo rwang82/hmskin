@@ -325,7 +325,14 @@ LRESULT CALLBACK WndProcMsgDispatcher( HWND hWndDest, UINT message, WPARAM wPara
 	MsgDispatcher::msg_sink_container_type::iterator it, iend;
 	msg_sink_i* pMsgSink = NULL;
 	msg_sink_i::WNDPROCPARAM paramWndProc;
-	
+
+	// snapshot the original proc BEFORE the sink phase: a handler may detach
+	// this window mid-dispatch, and the old exit path then read the attach
+	// map after the erase ( operator[] inserts NULL -> CallWindowProc(NULL)
+	// crash ). this invocation is now self-contained.
+	if ( WNDPROCMGR_INSTANCE->WasAttached( hWndDest ) )
+		pfnWndProcOld = WNDPROCMGR_INSTANCE->GetWndProcOld( hWndDest );
+
 	//find message sink container that belong to hWndDest
 	paramFindMSC.hWndDest = hWndDest;
 	paramFindMSC.m_bFindMSC = FALSE;
@@ -381,8 +388,8 @@ LRESULT CALLBACK WndProcMsgDispatcher( HWND hWndDest, UINT message, WPARAM wPara
 		return 0;
 	}
 
-	assert( WNDPROCMGR_INSTANCE->WasAttached( hWndDest ) );
-	pfnWndProcOld = WNDPROCMGR_INSTANCE->GetWndProcOld( hWndDest );
+	if ( !pfnWndProcOld )
+		return ::DefWindowProc( hWndDest, message, wParam, lParam );
 	return CallWindowProc( pfnWndProcOld, hWndDest, message, wParam, lParam );
 
 }
