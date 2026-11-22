@@ -108,6 +108,7 @@ void hm_wmp_drawtrigger::_OnPaint( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_si
 	::BitBlt( hPaintDC, ps.rcPaint.left, ps.rcPaint.top,
 		( ps.rcPaint.right - ps.rcPaint.left ), ( ps.rcPaint.bottom - ps.rcPaint.top ),
 		m_hmCanvas.GetMemDC(), ps.rcPaint.left, ps.rcPaint.top, SRCCOPY );
+	hm_util_invlog( _T("paint-end"), &ps.rcPaint );
 
 	::EndPaint( pWP->hwnd, &ps );
 }
