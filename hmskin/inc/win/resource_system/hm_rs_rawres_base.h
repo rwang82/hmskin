@@ -114,7 +114,6 @@ public:
 protected:
 	// for m_hFont
 	LONG FontStyle2Weight( unsigned int uFontStyle );
-	BYTE FaceName2CharSet( const string_type& strFaceName );
 	// for m_pGPFont
 	Gdiplus::FontStyle FontStyle2GP( unsigned int uFontStyle );
 	Gdiplus::Unit FontUnit2GP( unsigned int uFontUnit );;

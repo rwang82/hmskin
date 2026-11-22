@@ -82,12 +82,16 @@ static void __cdecl hm_count_uiroot( hm_uiroot* /*pRoot*/, void* pParam ) {
 	++*( unsigned int* )pParam;
 }
 
+// one skin session per process ( see hmskin.h ): stays true across
+// shutdown - the factory count alone would bless a post-shutdown restart.
+static bool s_bSessionUsed = false;
+
 bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_uiroot** ppHMUIRoot )
 {
 	// single-uiroot contract ( see hmskin.h ): refuse a second session.
 	unsigned int uLiveUIRoots = 0;
 	HMUIROOTFACTORY_INSTANCE->enumObjs( hm_count_uiroot, &uLiveUIRoots );
-	if ( uLiveUIRoots > 0 ) {
+	if ( s_bSessionUsed || uLiveUIRoots > 0 ) {
 		::OutputDebugString( _T("hmskin: second uiroot refused ( single-uiroot contract ).\n") );
 		return false;
 	}
@@ -153,6 +157,7 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 	//
 
 	mfpkDestroyHMUIRoot.Cancel();
+	s_bSessionUsed = true;
 	*ppHMUIRoot = pHMUIRootNew;
 	return true;
 }
@@ -220,6 +225,15 @@ void hm_lib_shutdown( hm_uiroot* pHMUIRoot )
 	hs_mouse_ll_proc_hook_stop();
 	//
 	hs_wnd_proc_hook_stop();
+
+	// deterministic teardown: destroy the uiroot NOW ( trees first, then
+	// the WMP pool - see ~hm_uiroot ) while every process-wide facility
+	// ( rawres factories, drawtool singletons, GDI+ token ) is still alive.
+	// leaving it to DLL static destruction made the order depend on link
+	// order - the raw-font factory died BEFORE the WMPs ( crash, 2026-11-22 ).
+	hm_uiroot_factory_type::obj_id_type idHMUIRoot;
+	if ( HMUIROOTFACTORY_INSTANCE->getObjId( pHMUIRoot, idHMUIRoot ) )
+		HMUIROOTFACTORY_INSTANCE->destroyObj( idHMUIRoot );
 }
 
 bool ParseUIManifest( const TCHAR* szUIManifestFilePath, hm_uiroot* pHMUIRoot ) {

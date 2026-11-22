@@ -101,6 +101,9 @@ hm_rs_rawres_font::hm_rs_rawres_font( const hm_rs_font_param& fontParam )
 };
 
 hm_rs_rawres_font::~hm_rs_rawres_font() {
+	// force-finalize every still-referenced resource ( e.g. menu-borrowed
+	// HFONTs that never release ): the factory owns fonts process-wide and
+	// this dtor is the safety net - counts are intentionally not honored.
 	for ( unsigned int rrId = REFRES_BEGIN; rrId<REFRES_COUNT; ++rrId ) {
 		doFinalRelase( rrId );
 	}
@@ -154,16 +157,6 @@ LONG hm_rs_rawres_font::FontStyle2Weight( unsigned int uFontStyle ) {
 	return lfWeight;
 }
 
-BYTE hm_rs_rawres_font::FaceName2CharSet( const string_type& strFaceName ) {
-	if ( 0 == _tcscmp( strFaceName.c_str(), _T("ºÚÌå") ) ) {
-		return GB2312_CHARSET;
-	} else if ( 0 == _tcscmp( strFaceName.c_str(), _T("Arial") ) ) {
-		return GB2312_CHARSET;
-	} else {
-		return GB2312_CHARSET;
-	}
-}
-
 Gdiplus::FontStyle hm_rs_rawres_font::FontStyle2GP( unsigned int uFontStyle ) {
 	if ( uFontStyle & FONTSTYLE_REGULAR ) {
 		if ( uFontStyle & FONTSTYLE_ITALIC )
@@ -215,9 +208,15 @@ void hm_rs_rawres_font::doFirstRef( refres_id_type rrId ) {
 			hFontDC = ::GetDC( NULL );
 			CFuncPack fpkReleaseDC( ::ReleaseDC, (HWND)NULL, hFontDC );
 			memset( &logFont, 0, sizeof(LOGFONT) );
-			logFont.lfHeight = MulDiv( m_fontParam.m_uSize, -::GetDeviceCaps( hFontDC,  LOGPIXELSY ), 72 );// pt -> px through the DC real DPI ( negative = char height )
+			// POINT sizes convert pt -> px through the DC real DPI; PIXEL
+			// sizes are already px ( negative = char height ).
+			logFont.lfHeight = ( m_fontParam.m_uFlagSizeUnit == FONTUNIT_PIXEL )
+				? -(LONG)m_fontParam.m_uSize
+				: MulDiv( m_fontParam.m_uSize, -::GetDeviceCaps( hFontDC, LOGPIXELSY ), 72 );
 			logFont.lfWeight = FontStyle2Weight( m_fontParam.m_uFlagStyle );
-			logFont.lfCharSet = FaceName2CharSet( m_fontParam.m_strFaceName );
+			// GB2312 across the board: localized labels need the CJK glyph
+			// match even on latin face names ( GDI falls back through it ).
+			logFont.lfCharSet = GB2312_CHARSET;
 			logFont.lfItalic = ( m_fontParam.m_uFlagStyle & FONTSTYLE_ITALIC );
 			_tcscpy_s( logFont.lfFaceName, m_fontParam.m_strFaceName.c_str() );//
 			m_hFont = ::CreateFontIndirect( &logFont );

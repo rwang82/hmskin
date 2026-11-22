@@ -414,6 +414,12 @@ int main() {
 	hm_lib_shutdown( pRoot );
 	++s_nPass; printf( "PASS shutdown\n" );
 
+	// session-per-process: shutdown destroyed the uiroot, but the session
+	// flag still refuses a restart ( one skin session per process ).
+	hm_uiroot* pRootRestart = NULL;
+	CHECK( hm_lib_startup( &param, _T( "demo.hm.manifest" ), &pRootRestart ) == false,
+	       "startup after shutdown refused ( session-per-process )" );
+
 	printf( "HMSkinRegression: %d passed, %d failed\n", s_nPass, s_nFail );
 	printf( "HMSkinRegression: %s\n", s_nFail ? "FAILED" : "ALL GREEN" );
 	return s_nFail;
