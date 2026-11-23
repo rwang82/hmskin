@@ -45,6 +45,8 @@ public:
 		int          m_nFixedThumbLen;    // <0 = proportional thumb; >=0 = fixed length
 		BOOL         m_bLayoutScroll;     // TRUE = translate the content layout ( static subtree scrolling )
 		int          m_nWheelStep;        // px per wheel notch, default 60
+		BOOL         m_bAnchorBottom;     // chat-list mode: extent growth pins to the new bottom when the
+		                                  // user was at the bottom; scrolled-up users keep their position
 		SCROLLVIEW_CFG();
 	};
 	enum { FLAG_SVIEW_CONTENT_DIRTY = 0x00000001 };

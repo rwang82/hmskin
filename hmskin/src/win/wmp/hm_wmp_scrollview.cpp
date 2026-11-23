@@ -22,6 +22,7 @@ hm_wmp_scrollview::SCROLLVIEW_CFG::SCROLLVIEW_CFG()
 , m_nFixedThumbLen( -1 )
 , m_bLayoutScroll( FALSE )
 , m_nWheelStep( 60 )
+, m_bAnchorBottom( FALSE )
 {
 }
 
@@ -106,11 +107,34 @@ void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam
 			HECTPARAM* pHECTParam = (HECTPARAM*)pEventParam;
 			if ( !pHECTParam )
 				break;
-			m_uContentExtentW = ( pHECTParam->m_cxExtent > 0 ) ? (unsigned int)pHECTParam->m_cxExtent : 0;
-			m_uContentExtentH = ( pHECTParam->m_cyExtent > 0 ) ? (unsigned int)pHECTParam->m_cyExtent : 0;
-			m_uFlag |= FLAG_SVIEW_CONTENT_DIRTY;
-			if ( m_bWired && m_pKeelObjViewport )
-				_recalcFromViewport( m_pKeelObjViewport );
+			if ( m_cfg.m_bAnchorBottom ) {
+				// chat-list mode: decide against the OLD extent before overwriting.
+				// at-bottom ( stick-to-latest ) -> pin to the new bottom; scrolled
+				// up ( do-not-disturb ) -> keep the position, the non-dirty clamp
+				// path preserves a still-valid top. never sets the (0,0) dirty reset.
+				bool bAtBottom = ( m_rcContentVisible.bottom + 2 >= (long)m_uContentExtentH );
+				m_uContentExtentW = ( pHECTParam->m_cxExtent > 0 ) ? (unsigned int)pHECTParam->m_cxExtent : 0;
+				m_uContentExtentH = ( pHECTParam->m_cyExtent > 0 ) ? (unsigned int)pHECTParam->m_cyExtent : 0;
+				if ( m_bWired && m_pKeelObjViewport ) {
+					if ( bAtBottom ) {
+						hm_layout_obj* pLayoutViewport = m_pKeelObjViewport->getLayoutObj();
+						int nViewH = pLayoutViewport ? ( pLayoutViewport->m_rect.bottom - pLayoutViewport->m_rect.top ) : 0;
+						int nMax = (int)m_uContentExtentH - nViewH;
+						if ( nMax < 0 )
+							nMax = 0;
+						_scrollTo( m_pKeelObjViewport, nMax, false );
+					} else {
+						// keeps top; re-syncs the bar range/thumb for the new extent.
+						_recalcFromViewport( m_pKeelObjViewport );
+					}
+				}
+			} else {
+				m_uContentExtentW = ( pHECTParam->m_cxExtent > 0 ) ? (unsigned int)pHECTParam->m_cxExtent : 0;
+				m_uContentExtentH = ( pHECTParam->m_cyExtent > 0 ) ? (unsigned int)pHECTParam->m_cyExtent : 0;
+				m_uFlag |= FLAG_SVIEW_CONTENT_DIRTY;
+				if ( m_bWired && m_pKeelObjViewport )
+					_recalcFromViewport( m_pKeelObjViewport );
+			}
 		}
 		break;
 	default:

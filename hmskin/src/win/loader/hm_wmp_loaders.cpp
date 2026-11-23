@@ -1027,6 +1027,10 @@ hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& v
 	v = valCfg[ "WheelStep96" ];
 	if ( v.isInt() && v.asInt() > 0 )
 		cfg.m_nWheelStep = _ScalePx( m_dblScale, v.asInt() );
+	// AnchorBottom ( optional: chat-list extent-growth behavior ).
+	v = valCfg[ "AnchorBottom" ];
+	if ( v.isBool() )
+		cfg.m_bAnchorBottom = v.asBool() ? TRUE : FALSE;
 
 	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_scrollview, const hm_wmp_scrollview::SCROLLVIEW_CFG&, hm_uiroot* >(
 		idWMP, cfg, pHMUIRoot );
