@@ -16,6 +16,7 @@
 #include "win\wmp\hm_wmp_rootmenu.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
 #include "win\wmp\hm_wmp_scrollview.h"
+#include "win\wmp\hm_wmp_msgout.h"
 #include "win\wmp\hm_wmp_tab.h"
 #include "win\wmp\hm_wmp_viewbkcontent.h"
 #include "win\wmp\hm_wmp_movewnd.h"
@@ -1034,6 +1035,82 @@ hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& v
 
 	return pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_scrollview, const hm_wmp_scrollview::SCROLLVIEW_CFG&, hm_uiroot* >(
 		idWMP, cfg, pHMUIRoot );
+};
+//////////////////////////////////////////////////////////////////////////
+hm_wmp_msgout_loader::hm_wmp_msgout_loader() {
+
+}
+
+hm_wmp_msgout_loader::~hm_wmp_msgout_loader() {
+
+}
+
+hm_wndmsgprocessor_i* hm_wmp_msgout_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
+	if ( !pHMUIRoot ) { HM_LOADER_FAIL( NULL ); }
+	Json::Value valTmp;
+	hm_wmp_factory::obj_id_type idWMP = 0;
+	std::string strWMPClsName;
+
+	assert( _getWMPName( valWMP, strWMPClsName ) );
+	assert( strWMPClsName == "hm_wmp_msgout" );
+	valTmp = valWMP[ "idWMP" ];
+	if ( !valTmp.isInt() ) { HM_LOADER_FAIL( NULL ); }
+	idWMP = valTmp.asInt();
+
+	hm_wmp_msgout* pWMPMsgOut = pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_msgout, hmskin_event_listener_base* >(
+		idWMP, pHMUIRoot->m_pEventListener );
+
+	// MsgOutCfg ( all keys optional; defaults follow the WeChat-style spec ).
+	hm_wmp_msgout::MSGOUT_CFG cfg;
+	valTmp = valWMP[ "MsgOutCfg" ];
+	if ( valTmp.isObject() ) {
+		Json::Value valCfg = valTmp;
+		Json::Value v;
+		// FontId -> the raw-font factory ( borrowed HFONT, menu contract ).
+		v = valCfg[ "FontId" ];
+		if ( v.isInt() ) {
+			hm_rs_rawres_font* pRawFont = RAWFONTFACTORY_INSTANCE->getObj(
+				(hm_rawres_font_factory::obj_id_type)v.asInt() );
+			if ( !pRawFont ) {   // FontId names a font the manifest never declared
+				HM_LOADER_FAIL( NULL );
+			}
+			cfg.m_hFontText = pRawFont->getHFont();
+		}
+		// colors ( Color section ids ).
+		{
+			bool bBadColor = false;
+			struct { const char* m_szKey; COLORREF* m_pClr; } aryclr[] = {
+				{ "TextColor", &cfg.m_clrText },
+				{ "SelfBubbleColor", &cfg.m_clrBubbleSelf },
+				{ "PeerBubbleColor", &cfg.m_clrBubblePeer },
+				{ "SystemColor", &cfg.m_clrSystem },
+				{ "SelfAvatarColor", &cfg.m_clrAvatarSelf },
+				{ "PeerAvatarColor", &cfg.m_clrAvatarPeer },
+			};
+			for ( int i = 0; i < 6; ++i ) {
+				if ( !_MenuCfgColor( valCfg, aryclr[ i ].m_szKey, bBadColor, aryclr[ i ].m_pClr ) && bBadColor ) {
+					assert( false );   // the id names a color the manifest never declared
+					HM_LOADER_FAIL( NULL );
+				}
+			}
+		}
+		// geometry ( 96-baseline, scaled here ).
+		v = valCfg[ "AvatarLen96" ];
+		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nAvatarLen = _ScalePx( m_dblScale, v.asInt() );
+		v = valCfg[ "MaxBubblePct" ];
+		if ( v.isInt() && v.asInt() >= 10 && v.asInt() <= 100 ) cfg.m_nMaxBubblePct = v.asInt();
+		v = valCfg[ "MsgGap96" ];
+		if ( v.isInt() && v.asInt() >= 0 ) cfg.m_nMsgGap = _ScalePx( m_dblScale, v.asInt() );
+		v = valCfg[ "PadH96" ];
+		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nPadH = _ScalePx( m_dblScale, v.asInt() );
+		v = valCfg[ "PadV96" ];
+		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nPadV = _ScalePx( m_dblScale, v.asInt() );
+		v = valCfg[ "CornerLen96" ];
+		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nCornerLen = _ScalePx( m_dblScale, v.asInt() );
+	}
+
+	pWMPMsgOut->setConfigure( cfg );
+	return pWMPMsgOut;
 };
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_tabheader_loader::hm_wmp_tabheader_loader() {

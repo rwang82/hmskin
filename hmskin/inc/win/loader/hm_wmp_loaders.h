@@ -156,6 +156,15 @@ public:
 	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
 };
 //
+class hm_wmp_msgout_loader : public hm_wmp_loader_base {
+public:
+	hm_wmp_msgout_loader();
+	virtual ~hm_wmp_msgout_loader();
+
+public:
+	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
+};
+//
 class hm_wmp_tabheader_loader : public hm_wmp_display_loader {
 public:
 	hm_wmp_tabheader_loader();
