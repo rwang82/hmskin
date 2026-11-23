@@ -116,6 +116,7 @@ MSGBIND_BEGIN( hm_wmp_popupmenu )
 	MSGBIND( WM_NCHITTEST, _OnNCHitTest )
 	MSGBIND( WM_RBUTTONDOWN, _OnRButtonDown )
 	MSGBIND( WM_MOUSEMOVE, _OnMouseMove )
+	MSGBIND( WM_MOUSELEAVE, _OnMouseLeave )
 	MSGBIND( WM_DESTROY, _OnDestroy )
 	MSGBIND( HMWM_BINDMENU, _OnHMWMBindMenu )
 	MSGBIND( WM_KILLFOCUS, _OnKillFocus )
@@ -127,6 +128,7 @@ ORDERWNDMSG_BEGIN( hm_wmp_popupmenu )
 	ORDERWNDMSG( WM_NCHITTEST )
 	ORDERWNDMSG( WM_RBUTTONDOWN )
 	ORDERWNDMSG( WM_MOUSEMOVE )
+	ORDERWNDMSG( WM_MOUSELEAVE )
 	ORDERWNDMSG( WM_DESTROY )
 	ORDERWNDMSG( HMWM_BINDMENU )
 	ORDERWNDMSG( WM_KILLFOCUS )
@@ -343,6 +345,15 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	//
 	ptClient.x = LOWORD( pWP->lParam );
 	ptClient.y = HIWORD( pWP->lParam );
+	// arm the leave notification ( one-shot, same pattern as the scrollbar ).
+	{
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof( TRACKMOUSEEVENT );
+		tme.dwFlags = TME_LEAVE;
+		tme.hwndTrack = pWP->hwnd;
+		tme.dwHoverTime = HOVER_DEFAULT;
+		::TrackMouseEvent( &tme );
+	}
 	nMICount = ::GetMenuItemCount( m_hMenu );
 	for ( int nMIIndex = 0; nMIIndex < nMICount; ++nMIIndex ) {
 		RECT rcMI;
@@ -357,7 +368,21 @@ void hm_wmp_popupmenu::_OnMouseMove( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	}
 	if ( nHoverNew == m_nHoverMIIndex )
 		return; // hover item unchanged.
+	if ( nHoverNew < 0 )
+		return; // gap/separator/margin: keep the current highlight - native menus
+		        // move the selection item-to-item, never through a no-selection flash
 	_setHoverIndex( nHoverNew, pWP->hwnd );
+}
+
+// leaving the menu window entirely clears the highlight ( TrackMouseEvent,
+// same pattern as the scrollbar ). WM_MOUSEMOVE no longer arrives once the
+// cursor is off the window, so the frozen highlight must be cleared here.
+void hm_wmp_popupmenu::_OnMouseLeave( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
+	if ( !pKeelObj || !pWP || !pParamWndProc )
+		return;
+	if ( m_nHoverMIIndex < 0 )
+		return;
+	_setHoverIndex( -1, pWP->hwnd );
 }
 
 // native TrackPopupMenu keyboard parity: arrows move the selection ( wrapping,
