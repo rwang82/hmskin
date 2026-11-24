@@ -4,6 +4,8 @@
 #include "win\frame\hm_layout_obj.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
 #include "win\hm_event_defs.h"
+#include "win\hm_wndmsg_defs.h"
+#include "win\hook_system\hm_hs_whellengine.h"
 #include <gdiplus.h>
 #include <assert.h>
 
@@ -29,6 +31,7 @@ hm_wmp_msgout::hm_wmp_msgout( hmskin_event_listener_base* pEventListener )
 : hm_wmp_display( pEventListener )
 , m_nContentH( 0 )
 , m_nCanvasW( 0 )
+, m_bWheelStopped( false )
 {
 }
 
@@ -37,9 +40,11 @@ hm_wmp_msgout::~hm_wmp_msgout() {
 
 //
 MSGBIND_BEGIN( hm_wmp_msgout )
+MSGBIND( HMWM_MOUSEWHEEL, _OnHMMouseWhell )
 MSGBIND_END()
 
 ORDERWNDMSG_BEGIN( hm_wmp_msgout )
+ORDERWNDMSG( HMWM_MOUSEWHEEL )
 ORDERWNDMSG_END()
 
 void hm_wmp_msgout::_createDistrictObjs() {
@@ -179,6 +184,28 @@ bool hm_wmp_msgout::_measureItem( MsgItem& msg, int nRowW ) {
 		::SetRect( &msg.m_rcBubble, nRowW - m_cfg.m_nAvatarLen - m_cfg.m_nPadH - nBubbleW, 0,
 			nRowW - m_cfg.m_nAvatarLen - m_cfg.m_nPadH, nBubbleH );
 	return true;
+}
+
+// inertial wheel ticks ( whellengine ): translate the decay into a pixel
+// distance and hand it to the scrollview via the engine wheel event; the
+// engine self-parks once the decay reaches zero ( viewbkcontent pattern ).
+void hm_wmp_msgout::_OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
+	if ( !pKeelObj || !pWP || !pParamWndProc )
+		return;
+	unsigned int uNoTriggerTagCount = (unsigned int)pWP->wParam;
+	wtd_container_type* pWTDContainer = (wtd_container_type*)pWP->lParam;
+	int nDistance = WHELLHELPER_INSTANCE->getDistancePixel( uNoTriggerTagCount, pWTDContainer, 2000 );
+	if ( nDistance == 0 ) {
+		if ( m_bWheelStopped )
+			return;
+	} else {
+		m_bWheelStopped = false;
+	}
+	Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)nDistance );
+	if ( nDistance == 0 ) {
+		m_bWheelStopped = true;
+		WHELLENGINE_INSTANCE->pauseTriggerThread();
+	}
 }
 
 void hm_wmp_msgout::_notifyExtent( int nCanvasW ) {

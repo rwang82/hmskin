@@ -79,6 +79,7 @@ private:
 	void _measureAll();          // full re-measure ( width changed / clear )
 	bool _measureItem( MsgItem& msg, int nRowW );
 	void _notifyExtent( int nCanvasW );
+	void _OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
 
 private:
 #pragma warning(push)
@@ -88,6 +89,7 @@ private:
 	MSGOUT_CFG m_cfg;
 	int m_nContentH;             // total stacked height, content px
 	int m_nCanvasW;              // last known canvas width ( re-measure on change )
+	bool m_bWheelStopped;        // inertia decay seen - engine parked until the next real wheel
 };
 
 #endif //__HM_WMP_MSGOUT_H__

@@ -137,6 +137,16 @@ void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam
 			}
 		}
 		break;
+	case HM_EVENT_MOUSEWHEEL:
+		{ // subject = the content WMP; inertial ticks as pixel distances
+		  // ( < 0 = towards the content top, same sign as GET_WHEEL_DELTA ).
+			if ( !m_bWired || !m_pKeelObjViewport || !m_pKeelObjViewport->getLayoutObj() )
+				break;
+			int nDistance = (int)pEventParam;
+			if ( nDistance )
+				_scrollTo( m_pKeelObjViewport, m_rcContentVisible.top - nDistance, false );
+		}
+		break;
 	default:
 		break;
 	}
@@ -174,8 +184,11 @@ bool hm_wmp_scrollview::_ensureWiring() {
 	// all resolutions passed - subscriptions are safe now.
 	m_pWMPBar = pWMPBar;
 	m_pWMPBar->Register( this, HM_EVENT_TRACKTHUMB_MOVED );
-	if ( pWMPContent )
+	if ( pWMPContent ) {
 		pWMPContent->Register( this, HM_EVENT_CONTENT_EXTENT );
+		// inertial wheel ticks ( whellengine ) arrive as pixel distances.
+		pWMPContent->Register( this, HM_EVENT_MOUSEWHEEL );
+	}
 	m_pWMPBar->setStartThumbLen( m_cfg.m_uArrowLen );
 	m_pWMPBar->setEndThumbLen( m_cfg.m_uArrowLen );
 	if ( m_cfg.m_nFixedThumbLen >= 0 )
