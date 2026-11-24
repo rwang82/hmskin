@@ -4,6 +4,7 @@
 #include "win\frame\hm_layout_obj.h"
 #include "win\frame\hm_coordinate_system_hwnd.h"
 #include "win\hm_event_defs.h"
+#include "win\frame\hm_debug_utils.h"
 #include "win\hm_wndmsg_defs.h"
 #include "win\hook_system\hm_hs_whellengine.h"
 #include <gdiplus.h>
@@ -33,6 +34,10 @@ hm_wmp_msgout::hm_wmp_msgout( hmskin_event_listener_base* pEventListener )
 , m_nCanvasW( 0 )
 , m_bWheelStopped( false )
 {
+	// 60fps inertia ticks: half the per-tick distance at double the
+	// cadence - the same total distance reads far smoother ( FRAME24's
+	// 41ms ticks with 30-90px steps looked jumpy on fast flicks ).
+	WHELLENGINE_INSTANCE->setFrameMode( hm_hs_whellengine::FRAME60 );
 }
 
 hm_wmp_msgout::~hm_wmp_msgout() {

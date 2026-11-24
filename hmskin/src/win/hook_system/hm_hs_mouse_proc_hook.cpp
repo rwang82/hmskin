@@ -172,8 +172,11 @@ LRESULT CALLBACK HMLibMouseLowLevelMouseProc( int nCode, WPARAM wParam, LPARAM l
 		case WM_MOUSEWHEEL:
 			{	
 				__int16 zDelta = HIWORD( mllhs->mouseData );
-			//	::OutputDebugString( _T("WM_MOUSEWHEEL in HMLibMouseLowLevelMouseProc \n") );
-				bMWhellForward = ( zDelta >= 0 );
+				// direction contract ( consumers, see hm_event_defs.h ): positive
+				// distance = towards the content top = positive wheel delta. the
+				// forward flag multiplies by -1 in calcDistance, so forward must
+				// mean DOWN ( negative delta ).
+				bMWhellForward = ( zDelta < 0 );
 			} break;
 		default:
 			break;

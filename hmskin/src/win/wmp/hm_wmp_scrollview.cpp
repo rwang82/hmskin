@@ -117,12 +117,16 @@ void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam
 				m_uContentExtentH = ( pHECTParam->m_cyExtent > 0 ) ? (unsigned int)pHECTParam->m_cyExtent : 0;
 				if ( m_bWired && m_pKeelObjViewport ) {
 					if ( bAtBottom ) {
+						// re-bind the bar range FIRST: _scrollTo syncs the value
+						// and paints the thumb while the range is still 0 when the
+						// extent jumps 0 -> large ( divide-by-zero in the bar ).
+						_updateScrollBarPos( m_pKeelObjViewport );
 						hm_layout_obj* pLayoutViewport = m_pKeelObjViewport->getLayoutObj();
 						int nViewH = pLayoutViewport ? ( pLayoutViewport->m_rect.bottom - pLayoutViewport->m_rect.top ) : 0;
 						int nMax = (int)m_uContentExtentH - nViewH;
 						if ( nMax < 0 )
 							nMax = 0;
-							_scrollTo( m_pKeelObjViewport, nMax, false );
+						_scrollTo( m_pKeelObjViewport, nMax, false );
 					} else {
 						// keeps top; re-syncs the bar range/thumb for the new extent.
 						_recalcFromViewport( m_pKeelObjViewport );
@@ -139,7 +143,7 @@ void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam
 		break;
 	case HM_EVENT_MOUSEWHEEL:
 		{ // subject = the content WMP; inertial ticks as pixel distances
-		  // ( < 0 = towards the content top, same sign as GET_WHEEL_DELTA ).
+		  // ( positive = towards the content top, top decreases ).
 			if ( !m_bWired || !m_pKeelObjViewport || !m_pKeelObjViewport->getLayoutObj() )
 				break;
 			int nDistance = (int)pEventParam;
@@ -446,6 +450,11 @@ bool hm_wmp_scrollview::_isCursorOverViewport( hm_keel_obj* pKeelObjViewport, HW
 
 void hm_wmp_scrollview::_OnMouseWheel( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
 	if ( !pKeelObj || !pWP )
+		return;
+	// a dynamic content WMP brings the inertial wheel stream ( evt10 ) - the
+	// raw viewport wheel must yield or every notch double-scrolls ( the old
+	// viewbkcontent architecture kept its raw wheel handler empty likewise ).
+	if ( m_cfg.m_idWMPContent )
 		return;
 	if ( !_ensureWiring() )
 		return;

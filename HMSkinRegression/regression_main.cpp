@@ -8,6 +8,8 @@
 #include <tchar.h>
 #include "hmskin.h"
 #include "hmskin_event_listener_base.h"
+#include "win\frame\hm_keel_obj.h"
+#include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\hm_wndmsg_defs.h"
 
 static int s_nFail = 0;
@@ -255,17 +257,30 @@ int main() {
 		int nTopPinned = rcK2.top - rcK38.top;
 		CHECK( nTopPinned > 0, "msgoutcase 40 rows pin to the bottom" );
 
-		// (b) wheel up one notch == exactly one step ( viewport-side wheel ).
-		POINT ptContent = { rcK2.left + hm_layout_scale_px( 50 ), rcK2.top + hm_layout_scale_px( 50 ) };
-		::ClientToScreen( hWndScroll, &ptContent );
-		LPARAM lpContent = MAKELPARAM( ptContent.x, ptContent.y );
+		// (b) inertial tick stream drives the wheel now: a raw viewport wheel
+		// must yield to it ( no double-drive ). simulate one "up" tick with
+		// the exact WheelStep px, plus assert the raw wheel does nothing.
 		const int nStep = hm_layout_scale_px( 60 );   // WheelStep96
-		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
-			MAKEWPARAM( 0, (SHORT)( 1 * WHEEL_DELTA ) ), lpContent );
+		{
+			hm_keel_obj* pKO38 = NULL;
+			hm_get_keelobj( pRoot, 38, &pKO38 );
+			hm_wndmsgprocessor_i* pWMP66 = pKO38 ? pKO38->getWMP( 66 ) : NULL;
+			CHECK( pWMP66 != NULL, "msgoutcase WMP66 resolved" );
+			pWMP66->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)( nStep ) );
+		}
 		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
 		_find_node_rect( szDumpMsg, 38, &rcK38 );
 		CHECK( ( rcK2.top - rcK38.top ) == nTopPinned - nStep,
-		       "msgoutcase wheel up 1 notch -> one step" );
+		       "msgoutcase inertia tick up nStep -> one step" );
+		POINT ptContent = { rcK2.left + hm_layout_scale_px( 50 ), rcK2.top + hm_layout_scale_px( 50 ) };
+		::ClientToScreen( hWndScroll, &ptContent );
+		LPARAM lpContent = MAKELPARAM( ptContent.x, ptContent.y );
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
+			MAKEWPARAM( 0, (SHORT)( 10 * WHEEL_DELTA ) ), lpContent );
+		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
+		_find_node_rect( szDumpMsg, 38, &rcK38 );
+		CHECK( ( rcK2.top - rcK38.top ) == nTopPinned - nStep,
+		       "msgoutcase raw viewport wheel yields to inertia" );
 
 		// (c) scrolled up: appends must NOT move the position ( do-not-disturb ).
 		for ( int i = 0; i < 5; ++i )
@@ -275,16 +290,26 @@ int main() {
 		CHECK( ( rcK2.top - rcK38.top ) == nTopPinned - nStep,
 		       "msgoutcase scrolled-up appends keep the position ( DND )" );
 
-		// (d) huge wheel down: re-pins to the NEW bottom ( content grew ) and
+		// (d) huge inertia down: re-pins to the NEW bottom ( content grew ) and
 		// clamps there - further down changes nothing.
-		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
-			MAKEWPARAM( 0, (SHORT)( -10 * WHEEL_DELTA ) ), lpContent );
+		{
+			hm_keel_obj* pKO38 = NULL;
+			hm_get_keelobj( pRoot, 38, &pKO38 );
+			hm_wndmsgprocessor_i* pWMP66 = pKO38 ? pKO38->getWMP( 66 ) : NULL;
+			if ( pWMP66 )
+				pWMP66->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)( -100 * nStep ) );
+		}
 		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
 		_find_node_rect( szDumpMsg, 38, &rcK38 );
 		int nTopRePinned = rcK2.top - rcK38.top;
 		CHECK( nTopRePinned > nTopPinned, "msgoutcase overshoot down re-pins lower ( grown )" );
-		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
-			MAKEWPARAM( 0, (SHORT)( -10 * WHEEL_DELTA ) ), lpContent );
+		{
+			hm_keel_obj* pKO38 = NULL;
+			hm_get_keelobj( pRoot, 38, &pKO38 );
+			hm_wndmsgprocessor_i* pWMP66 = pKO38 ? pKO38->getWMP( 66 ) : NULL;
+			if ( pWMP66 )
+				pWMP66->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)( -100 * nStep ) );
+		}
 		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
 		_find_node_rect( szDumpMsg, 38, &rcK38 );
 		CHECK( ( rcK2.top - rcK38.top ) == nTopRePinned,

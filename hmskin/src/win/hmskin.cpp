@@ -152,7 +152,10 @@ bool hm_lib_startup( hm_startup_param* pParam, const TCHAR* szResFilePath, hm_ui
 	//
 	hs_wnd_proc_hook_start( g_hModule );
 	//
-	//hs_mouse_ll_proc_hook_start( g_hModule );
+	// the LL hook feeds the wheel DIRECTION to the whellengine ( the WH_MOUSE
+	// MOUSEHOOKSTRUCT carries no wheel delta ) - without it every inertia tick
+	// is "forward" and wheel-up never scrolls up.
+	hs_mouse_ll_proc_hook_start( g_hModule );
 	//
 	hs_mouse_proc_hook_start( g_hModule );
 	//

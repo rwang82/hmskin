@@ -7,6 +7,7 @@
 #define PIXELPERTAG ( m_uLinesPerTag * m_uPixelPerLine )
 #define TAGDATAMAX ( 50 )
 const unsigned int TRIGGERTAILMAX (5*1000); //ms
+const unsigned int FRAME60_MS = 1000/60;
 const unsigned int FRAME24_MS = 1000/24;
 const unsigned int FRAME12_MS = 1000/12;
 const unsigned int FRAME6_MS = 1000/6;
@@ -91,6 +92,11 @@ void hm_hs_whellengine::_waitAccessOpCountToZero() {
 
 void hm_hs_whellengine::setFrameMode( ENUMFRAMEMODE eFrameMode ) {
 	switch ( eFrameMode ) {
+	case FRAME60:
+		{
+			m_uTriggerInterval = FRAME60_MS;
+		}
+		break;
 	case FRAME24:
 		{
 			m_uTriggerInterval = FRAME24_MS;

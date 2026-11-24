@@ -18,7 +18,7 @@ typedef std::list< WHELLTAGDATA > wtd_container_type;
 //
 class hm_hs_whellengine : public cmn::hm_cmn_subject {
 public:
-	enum ENUMFRAMEMODE { FRAME24, FRAME12, FRAME6 };
+	enum ENUMFRAMEMODE { FRAME60, FRAME24, FRAME12, FRAME6 };
 	
 public:
 	static hm_hs_whellengine* getInstance();

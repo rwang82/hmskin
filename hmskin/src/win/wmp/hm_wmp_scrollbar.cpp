@@ -331,7 +331,13 @@ bool hm_wmp_scrollbar::_updateCurVal2TrackThumbPos( const RECT& rcKeelObj ) {
 	
 	if ( !_getTrackThumbRefRect( rcKeelObj, rcTrackThumbRefRect ) ) 
 		return false;
-	
+	// zero value range = nothing scrolled: the thumb parks at the track
+	// start ( divide-by-zero crash when an extent jumps 0 -> large and the
+	// bar draws before the orchestrator re-binds the range, 2026-11-24 ).
+	if ( ( m_nValMax - m_nValMin ) == 0 ) {
+		m_pPosDecoderTrackThumb->m_distance = 0;
+		return true;
+	}
 	switch ( m_pPosDecoderTrackThumb->m_eSliderType ) {
 	case hm_posdecoder_slider::SLIDER_L2R:
 		{
