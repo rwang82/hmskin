@@ -92,12 +92,13 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 	// do-not-disturb ( scrolled up ).
 	if ( uChapterIndex == 3 ) {
 		hm_msgout_clear( g_pHMRoot, 38, 66 );
-		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:00 — 会话开始") );
+		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:00 — conversation started") );
 		for ( int i = 1; i <= 8; ++i ) {
 			hm_msgout_append_text( g_pHMRoot, 38, 66, ( i % 2 ) ? 0 : 1,
-				( i % 2 ) ? _T("收到，我看一下然后给你回复，稍等。")
-				          : _T("好的，这条消息长一点，用来演示气泡的换行行为："
-					           "文本超过最大宽度的 80% 之后会在词边界处折行，气泡高度自适应增长。") );
+				( i % 2 ) ? _T("Got it, let me take a look and get back to you.")
+				          : _T("Sure - this one runs longer to demo the bubble wrapping: past 80% "
+					           "of the max width the text folds at word boundaries and the "
+					           "bubble height grows to fit.") );
 		}
 		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:05") );
 		SetTimer( g_hWnd, 2, 3000, NULL );
@@ -893,8 +894,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			static int s_nDrip = 0;
 			++s_nDrip;
 			hm_msgout_append_text( g_pHMRoot, 38, 66, ( s_nDrip % 2 ) ? 1 : 0,
-				( s_nDrip % 2 ) ? _T("自动追加：贴底状态会跟随滚动。")
-				                : _T("滚上去阅读历史时，新消息不会打扰你。") );
+				( s_nDrip % 2 ) ? _T("auto drip: follows the scroll while pinned to the bottom.")
+				                : _T("scrolled up to read history? new messages never disturb you.") );
 			if ( s_nDrip >= 40 )
 				KillTimer( hWnd, 2 );
 			break;
