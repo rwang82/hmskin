@@ -1,6 +1,7 @@
 #ifndef __HM_WMP_SCROLLVIEW_H__
 #define __HM_WMP_SCROLLVIEW_H__
 #include "win\wmp\hm_wndmsgprocessor_i.h"
+#include "win\wmp\hm_scroll_core.h"
 #include "win\hm_export_defs.h"
 
 class hm_uiroot;
@@ -88,6 +89,7 @@ private:
 	unsigned int m_uContentExtentW;    // seeded from cfg, replaced by CONTENT_EXTENT
 	unsigned int m_uContentExtentH;
 	unsigned int m_uFlag;
+	hm_scroll_core m_core;             // vertical state machine ( shared with hm_wmp_msgout )
 	bool m_bWired;
 	bool m_bRangeBound;                // scrollbar range synced at least once
 };

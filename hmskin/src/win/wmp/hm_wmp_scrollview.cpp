@@ -40,6 +40,8 @@ hm_wmp_scrollview::hm_wmp_scrollview( const SCROLLVIEW_CFG& cfgScaled, hm_uiroot
 , m_bRangeBound( false )
 {
 	::SetRect( &m_rcContentVisible, 0, 0, 0, 0 );
+	m_core.setExtent( (int)cfgScaled.m_uContentExtentH );
+	m_core.setThumbCfg( cfgScaled.m_nFixedThumbLen, cfgScaled.m_uMinThumbLen );
 }
 
 hm_wmp_scrollview::~hm_wmp_scrollview() {
@@ -112,21 +114,17 @@ void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam
 				// at-bottom ( stick-to-latest ) -> pin to the new bottom; scrolled
 				// up ( do-not-disturb ) -> keep the position, the non-dirty clamp
 				// path preserves a still-valid top. never sets the (0,0) dirty reset.
-				bool bAtBottom = ( m_rcContentVisible.bottom + 2 >= (long)m_uContentExtentH );
+				bool bAtBottom = m_core.isAtBottom();   // against the OLD extent
 				m_uContentExtentW = ( pHECTParam->m_cxExtent > 0 ) ? (unsigned int)pHECTParam->m_cxExtent : 0;
 				m_uContentExtentH = ( pHECTParam->m_cyExtent > 0 ) ? (unsigned int)pHECTParam->m_cyExtent : 0;
+				m_core.setExtent( (int)m_uContentExtentH );
 				if ( m_bWired && m_pKeelObjViewport ) {
 					if ( bAtBottom ) {
 						// re-bind the bar range FIRST: _scrollTo syncs the value
 						// and paints the thumb while the range is still 0 when the
 						// extent jumps 0 -> large ( divide-by-zero in the bar ).
 						_updateScrollBarPos( m_pKeelObjViewport );
-						hm_layout_obj* pLayoutViewport = m_pKeelObjViewport->getLayoutObj();
-						int nViewH = pLayoutViewport ? ( pLayoutViewport->m_rect.bottom - pLayoutViewport->m_rect.top ) : 0;
-						int nMax = (int)m_uContentExtentH - nViewH;
-						if ( nMax < 0 )
-							nMax = 0;
-						_scrollTo( m_pKeelObjViewport, nMax, false );
+						_scrollTo( m_pKeelObjViewport, m_core.getMaxTop(), false );
 					} else {
 						// keeps top; re-syncs the bar range/thumb for the new extent.
 						_recalcFromViewport( m_pKeelObjViewport );
@@ -220,52 +218,20 @@ bool hm_wmp_scrollview::_getContentExtent( unsigned int& uW, unsigned int& uH, h
 	return true;
 }
 
-// visible-window clamp math - ported verbatim from the retired
-// hm_keelctrl_scrollview::calcContentVisibleRect.
+// visible-window settle: horizontal math inline ( the core is vertical ),
+// vertical clamping delegated to hm_scroll_core - dirty resets to the top,
+// otherwise a still-valid top survives and an overshoot re-clamps.
 void hm_wmp_scrollview::_calcContentVisibleRect( const SIZE& sizeCanvas ) {
-	RECT rcContentVisibleOld;
-	unsigned int uPosCVL;
-	unsigned int uPosCVT;
+	if ( FLAG_SVIEW_CONTENT_DIRTY & m_uFlag )
+		m_core.reset();
+	else
+		m_core.scrollTo( m_core.getTop() );   // clamp-only apply
 
-	if ( FLAG_SVIEW_CONTENT_DIRTY & m_uFlag ) {
-		uPosCVL = 0;
-		uPosCVT = 0;
-	} else {
-		rcContentVisibleOld = m_rcContentVisible;
-		// calc uPosCVL
-		if ( rcContentVisibleOld.left + sizeCanvas.cx < (long)m_uContentExtentW )
-			uPosCVL = (unsigned int)rcContentVisibleOld.left;
-		else {
-			if ( sizeCanvas.cx < (long)m_uContentExtentW )
-				uPosCVL = m_uContentExtentW - (unsigned int)sizeCanvas.cx;
-			else
-				uPosCVL = 0;
-		}
-		// calc uPosCVT
-		if ( rcContentVisibleOld.top + sizeCanvas.cy < (long)m_uContentExtentH )
-			uPosCVT = (unsigned int)rcContentVisibleOld.top;
-		else {
-			if ( sizeCanvas.cy < (long)m_uContentExtentH )
-				uPosCVT = m_uContentExtentH - (unsigned int)sizeCanvas.cy;
-			else
-				uPosCVT = 0;
-		}
-	}
-	// calc m_rcContentVisible
-	m_rcContentVisible.left = m_uContentExtentW < (unsigned int)sizeCanvas.cx
-						? 0
-						: ( ( uPosCVL + (unsigned int)sizeCanvas.cx ) > m_uContentExtentW
-							? ( long )( m_uContentExtentW - (unsigned int)sizeCanvas.cx )
-							: ( long )uPosCVL );
-	m_rcContentVisible.right = m_rcContentVisible.left
-		+ ( long )min( m_uContentExtentW, (unsigned int)sizeCanvas.cx );
-	m_rcContentVisible.top = m_uContentExtentH < (unsigned int)sizeCanvas.cy
-						? 0
-						: ( ( uPosCVT + (unsigned int)sizeCanvas.cy ) > m_uContentExtentH
-							? ( long )( m_uContentExtentH - (unsigned int)sizeCanvas.cy )
-							: ( long )uPosCVT );
+	m_rcContentVisible.left = 0;
+	m_rcContentVisible.right = ( long )min( m_uContentExtentW, (unsigned int)sizeCanvas.cx );
+	m_rcContentVisible.top = m_core.getTop();
 	m_rcContentVisible.bottom = m_rcContentVisible.top
-		+ ( long )min( m_uContentExtentH, (unsigned int)sizeCanvas.cy );
+		+ ( long )min( (unsigned int)m_core.getExtentH(), (unsigned int)sizeCanvas.cy );
 
 	// cancel FLAG_SVIEW_CONTENT_DIRTY flag
 	m_uFlag &= ~FLAG_SVIEW_CONTENT_DIRTY;
@@ -289,6 +255,10 @@ void hm_wmp_scrollview::_recalcFromViewport( hm_keel_obj* pKeelObjViewport ) {
 	SIZE sizeCanvas;
 	sizeCanvas.cx = pLayoutViewport->m_rect.right - pLayoutViewport->m_rect.left;
 	sizeCanvas.cy = pLayoutViewport->m_rect.bottom - pLayoutViewport->m_rect.top;
+	unsigned int uExtentW = 0, uExtentH = 0;
+	_getContentExtent( uExtentW, uExtentH, pKeelObjViewport );
+	m_core.setViewport( sizeCanvas.cy );
+	m_core.setExtent( (int)uExtentH );
 	_calcContentVisibleRect( sizeCanvas );
 	_updateScrollBarPos( pKeelObjViewport );
 }
@@ -300,41 +270,8 @@ void hm_wmp_scrollview::_updateScrollBarPos( hm_keel_obj* pKeelObjViewport ) {
 	if ( !pLayoutViewport )
 		return;
 
-	unsigned int uExtentW, uExtentH;
-	if ( !_getContentExtent( uExtentW, uExtentH, pKeelObjViewport ) )
-		return;
-	int nViewH = pLayoutViewport->m_rect.bottom - pLayoutViewport->m_rect.top;
-
-	// value range == the pixel overflow; value unit == 1 scaled px.
-	int nRange = (int)uExtentH - nViewH;
-	if ( nRange < 0 )
-		nRange = 0;
-	m_pWMPBar->setValRange( 0, nRange );
-	m_pWMPBar->setCurValue( m_rcContentVisible.top );
-
-	// thumb length: fixed ( golden-look pinning ) or viewport/content ratio
-	// floored at the configured minimum.
-	int nThumbLen;
-	if ( m_cfg.m_nFixedThumbLen >= 0 ) {
-		nThumbLen = m_cfg.m_nFixedThumbLen;
-	} else {
-		int nTrackTotal = 0;
-		hm_keel_obj* pKeelObjBar = _getKeelObj( m_cfg.m_idKeelObjBar );
-		hm_layout_obj* pLayoutBar = pKeelObjBar ? pKeelObjBar->getLayoutObj() : NULL;
-		if ( pLayoutBar )
-			nTrackTotal = pLayoutBar->m_rect.bottom - pLayoutBar->m_rect.top;
-		nTrackTotal -= m_pWMPBar->getStartThumbPosDecoder()->m_space1
-			+ m_pWMPBar->getStartThumbPosDecoder()->m_nThickness;
-		nTrackTotal -= m_pWMPBar->getEndThumbPosDecoder()->m_space1
-			+ m_pWMPBar->getEndThumbPosDecoder()->m_nThickness;
-		nThumbLen = (int)m_cfg.m_uMinThumbLen;
-		if ( uExtentH && nTrackTotal > 0 ) {
-			nThumbLen = nTrackTotal * nViewH / (int)uExtentH;
-			if ( nThumbLen < (int)m_cfg.m_uMinThumbLen )
-				nThumbLen = (int)m_cfg.m_uMinThumbLen;
-		}
-	}
-	m_pWMPBar->setTrackThumbLen( (unsigned int)nThumbLen );
+	// range / value / thumb math lives in the scroll core.
+	m_core.syncBar( m_pWMPBar, _getKeelObj( m_cfg.m_idKeelObjBar ) );
 }
 
 void hm_wmp_scrollview::_applyContentOffset( int nTop ) {
@@ -357,13 +294,10 @@ void hm_wmp_scrollview::_scrollTo( hm_keel_obj* pKeelObjViewport, int nTop, bool
 	if ( !_getContentExtent( uExtentW, uExtentH, pKeelObjViewport ) )
 		return;
 	int nViewH = pLayoutViewport->m_rect.bottom - pLayoutViewport->m_rect.top;
-	int nMax = (int)uExtentH - nViewH;
-	if ( nMax < 0 )
-		nMax = 0;
-	if ( nTop < 0 )
-		nTop = 0;
-	if ( nTop > nMax )
-		nTop = nMax;
+	m_core.setViewport( nViewH );
+	m_core.setExtent( (int)uExtentH );
+	m_core.scrollTo( nTop );
+	nTop = m_core.getTop();
 
 	m_rcContentVisible.top = nTop;
 	m_rcContentVisible.bottom = nTop + min( (int)uExtentH, nViewH );
