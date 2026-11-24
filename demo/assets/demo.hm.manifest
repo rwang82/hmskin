@@ -621,16 +621,16 @@
       "WMPClsName": "hm_wmp_tabheader",
       "TabBtns": [
         {
-          "Title": "基础交互"
+          "Title": "Basics"
         },
         {
-          "Title": "文本数据"
+          "Title": "Text & Data"
         },
         {
-          "Title": "菜单系统"
+          "Title": "Menus"
         },
         {
-          "Title": "滚动与容器"
+          "Title": "Scrolling"
         }
       ],
       "DefaultBtn": 0,

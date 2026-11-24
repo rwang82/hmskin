@@ -41,25 +41,25 @@ IDI_SMALL               ICON                    "small.ico"
 
 IDC_DEMO MENU
 BEGIN
-    POPUP "文件(&F)"
+    POPUP "&File"
     BEGIN
-        MENUITEM "退出(&X)",                    IDM_EXIT
+        MENUITEM "E&xit",                    IDM_EXIT
     END
-    POPUP "视图(&V)"
+    POPUP "&View"
     BEGIN
-        MENUITEM "基础控件",                    0
+        MENUITEM "Basic Controls",                    0
     END
-    POPUP "皮肤(&S)"
+    POPUP "&Skin"
     BEGIN
-        MENUITEM "重载清单",                    0
+        MENUITEM "Reload Manifest",                    0
     END
-    POPUP "帮助(&H)"
+    POPUP "&Help"
     BEGIN
-        MENUITEM "关于(&A) ...",                IDM_ABOUT
+        MENUITEM "&About ...",                IDM_ABOUT
     END
-    POPUP "窗口(&W)"
+    POPUP "&Window"
     BEGIN
-        MENUITEM "第二窗口(&2)",                IDM_WIN2
+        MENUITEM "&Second Window",                IDM_WIN2
     END
 END
 
