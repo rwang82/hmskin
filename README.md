@@ -117,6 +117,7 @@ them ( see `tools/hmskin_mcp.py --selftest` ).
 | Tab header | `hm_wmp_tabheader` | sprite tri-state + selected state; keyboard ←/→ cycling |
 | Scrollbar | `hm_wmp_scrollbar` | value-range API; drag/arrow/wheel input paths; auto-step inside containers |
 | Scroll view | `hm_wmp_scrollview` | orchestrator WMP: manifest-declared subtree + ClipChildren viewport; drag/wheel/clamp/invalidation fully engine-side, zero host glue |
+| Chat message list | `hm_wmp_msgout` | MsgOutEditor v1a: WeChat-style bubbles ( peer/self/system ), stick-to-bottom, do-not-disturb, inertial wheel |
 | Root menu bar | `hm_wmp_rootmenu` | labels read directly from HMENU (`GetMenuItemInfo`) |
 | Popup menu | `hm_wmp_popupmenu` | engine-created window, auto-sized, self-drawn items, work-area edge flip, keyboard navigation, disabled items, hairline separators; label font/colors manifest-configurable; takeover or direct call |
 | Static / text | `hm_wmp_bkgnd` | text refreshes live via `hm_wmp_set_text()` / `hm_wmp_set_text_at()` — pixel cache invalidates itself |

@@ -48,7 +48,7 @@
 │  │ hm_event_defs.h（17 个事件,全部 observer 总线 id,p1/p2 逐条注释）                        │   │
 │  │ hmskin_event_listener_base（宿主事件监听面）                       │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
-│  公共 API: hmskin.h 19 函数正门（宿主只说 manifest id,不碰引擎内部）      │
+│  公共 API: hmskin.h 21 函数正门（宿主只说 manifest id,不碰引擎内部）      │
 └───────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -357,7 +357,7 @@ virtual void Update( void* pSubject, UINT idEvent, LPARAM p1, LPARAM p2, BOOL* p
 - 位数图 = district 实绘尺寸（引擎整体拉伸,非原生比例会变形发糊）
 - RegEvts 数值 = hm_event_defs 的 (HM_EVENT_BEGIN+N) 值（如 6=DRAWSELF）
 
-## 6. 公共 API 正门（hmskin.h,19 函数）
+## 6. 公共 API 正门（hmskin.h,21 函数）
 
 ```
 会话:     hm_lib_startup / hm_lib_shutdown / hm_wndpropid_connect / disconnect
@@ -365,6 +365,7 @@ virtual void Update( void* pSubject, UINT idEvent, LPARAM p1, LPARAM p2, BOOL* p
 查询:     hm_get_keelobj / hm_keelobj_get_layout_rect / hm_keelobj_dump_tree
 控件操纵: hm_keelobj_set_visible / set_clip_children
 文字:     hm_wmp_set_text / set_text_at / get_text
+消息列表: hm_msgout_append_text / hm_msgout_clear
 渲染:     hm_set_drawtool_all / hm_lib_warm_render(首绘预热) / hm_layout_scale(转发)
 ```
 

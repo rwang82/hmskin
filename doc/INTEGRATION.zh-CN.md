@@ -114,6 +114,7 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 | `hm_wmp_radio` | 单选（继承 checkbox） | 已选中点击不翻转（无中间态闪屏）；点击发独立 RADIO_CLICK；组语义（选一灭兄弟）由应用层驱动 |
 | `hm_wmp_tabheader` | Tab 条 | `←/→` 键循环切换（wrap）；雪碧图三态+SEL |
 | `hm_wmp_scrollbar` | 滚动条 | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`；滚轮悬停父容器内自动步进 |
+| `hm_wmp_msgout` | 聊天消息列表（ MsgOutEditor v1a ） | 对方/自己/系统三态行、80% 宽气泡、头像色块；经 CONTENT_EXTENT 驱动 scrollview（`AnchorBottom` = 贴底/免打扰）；惯性滚轮；经 `hm_msgout_append_text` / `hm_msgout_clear` 增删 |
 | `hm_wmp_rootmenu` | 皮肤菜单栏 | 标签直接读 HMENU（GetMenuItemInfo） |
 | `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目；边缘翻转、键盘导航（方向键/Enter/Esc）、禁用项与发丝分隔线（原生对齐）；字体/颜色经 MenuCfg `FontId` / `TextColor` / `TextColorDisabled` / `SeparatorColor` 配置 |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | 非客户区三件套 | 标题栏按钮/边框；NC 跟踪用 `TME_LEAVE\|TME_NONCLIENT` |

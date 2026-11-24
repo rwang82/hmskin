@@ -132,6 +132,7 @@ rects; fixed ).
 | `hm_wmp_radio` | radio ( inherits checkbox ) | a checked radio does not flip on re-click ( no mid-state flicker ); fires its own RADIO_CLICK; group semantics ( select one, uncheck siblings ) is app-driven |
 | `hm_wmp_tabheader` | tab strip | `left/right` arrow cycling ( wrap ); sprite tri-state + SEL |
 | `hm_wmp_scrollbar` | scrollbar | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`; wheel auto-steps while hovering the parent container |
+| `hm_wmp_msgout` | chat message list ( MsgOutEditor v1a ) | peer/self/system rows, 80%-width bubbles, avatar blocks; extent via CONTENT_EXTENT drives the scrollview ( `AnchorBottom` = stick-to-bottom / do-not-disturb ); inertial wheel; append/clear via `hm_msgout_append_text` / `hm_msgout_clear` |
 | `hm_wmp_rootmenu` | skin menu bar | labels read straight from the HMENU ( GetMenuItemInfo ) |
 | `hm_wmp_popupmenu` | skin popup menu | `HMWM_BINDMENU` binds an HMENU; self-sizing, self-drawn items; work-area edge flip, keyboard navigation (arrows/Enter/Esc), disabled items and hairline separators ( native parity ); label font/colors configurable via MenuCfg `FontId` / `TextColor` / `TextColorDisabled` / `SeparatorColor` |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | the non-client trio | title-bar buttons / borders; NC tracking uses `TME_LEAVE\|TME_NONCLIENT` |
