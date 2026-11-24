@@ -23,6 +23,7 @@ hm_wmp_scrollbar::hm_wmp_scrollbar( ENUMDIRECTIONTYPE eDirectType, hmskin_event_
 , m_nValMin( -10 )
 , m_nValMax( 90 )
 , m_nValCur( 40 )
+, m_nArrowStepVal( 30 )
 , m_pHEDSParamCache( NULL )
 {
 	m_pHEDSParamCache = new HEDSPARAM();
@@ -508,6 +509,30 @@ bool hm_wmp_scrollbar::setCurValue( int nValCur ) {
 	return true;
 }
 
+// arrow-button click step: the same clamp -> notify -> thumb-follow cycle
+// the wheel-over-bar path runs ( closes the 2016 "need more code here" gap
+// where arrow clicks only painted the pressed state ).
+void hm_wmp_scrollbar::stepCurValue( int nDelta, hm_keel_obj* pKeelObj ) {
+	int nValNew = m_nValCur + nDelta;
+	if ( nValNew < m_nValMin )
+		nValNew = m_nValMin;
+	if ( nValNew > m_nValMax )
+		nValNew = m_nValMax;
+	if ( nValNew == m_nValCur )
+		return;
+	m_nValCur = nValNew;
+
+	HETMPARAM* pHETMParam = new HETMPARAM();
+	pHETMParam->m_nPosCur = ( m_nValCur - m_nValMin );
+	pHETMParam->m_nPosMax = ( m_nValMax - m_nValMin );
+	pHETMParam->m_pWMPScrollbar = this;
+	Notify( HM_EVENT_TRACKTHUMB_MOVED, (LPARAM)pHETMParam );
+	delete pHETMParam;
+	if ( m_pEventListener && pKeelObj )
+		m_pEventListener->onHKSkinEvent( HMSKIN_EVENT_SCROLLBAR_CHANGED, ( void* )pKeelObj, ( void* )( UINT_PTR )m_nValCur );
+	drawSelf();
+}
+
 void hm_wmp_scrollbar::_OnLButtonDown( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc ) {
 	if ( m_pCurStateObj )
 		m_pCurStateObj->_OnLButtonDown( this, pKeelObj, pWP, pParamWndProc );
@@ -652,11 +677,13 @@ void scrollbar_state_nondragtrackthumb::_OnLButtonDown( hm_wmp_scrollbar* pScrol
 	case hm_wmp_scrollbar::ECP_STARTTHUMB: 
 		{
 			pScrollBarCtx->m_uMouseStatusFlags |= SCRBAR_FLAG_STARTTHUMB_LBTNDOWN;
+			pScrollBarCtx->stepCurValue( -pScrollBarCtx->m_nArrowStepVal, pKeelObj );
 		}
 		break;
 	case hm_wmp_scrollbar::ECP_ENDTHUMB: 
 		{
 			pScrollBarCtx->m_uMouseStatusFlags |= SCRBAR_FLAG_ENDTHUMB_LBTNDOWN;
+			pScrollBarCtx->stepCurValue( pScrollBarCtx->m_nArrowStepVal, pKeelObj );
 		}
 		break;
 	case hm_wmp_scrollbar::ECP_TRACKTHUMB:

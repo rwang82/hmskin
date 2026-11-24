@@ -70,6 +70,10 @@ public:
 	bool setValRange( int nValMin, int nValMax );
 	void getValRange( int& nValMin, int& nValMax ) { nValMin = this->m_nValMin; nValMax = m_nValMax; }
 	bool setCurValue( int nValCur );
+	// arrow-button click step ( the 2016 "need more code here" gap ): clamps,
+	// then the same two-part notification the drag/wheel paths emit.
+	void stepCurValue( int nDelta, hm_keel_obj* pKeelObj );
+	void setArrowStepVal( int nStepVal ) { m_nArrowStepVal = nStepVal; }
 	void getCurValue( int& nValCur ) { nValCur = m_nValCur; };
 	bool setTrackThumbLen( unsigned int uLen );
 	// start/end thumb = the arrow buttons docked at the bar's ends. thickness
@@ -119,6 +123,7 @@ private:
 	int m_nValMin;
 	int m_nValMax;
 	int m_nValCur;
+	int m_nArrowStepVal;
 	//
 	POINT m_ptTrackThumbLBtnDown;
 	int m_nDistanceLBtnDown;
