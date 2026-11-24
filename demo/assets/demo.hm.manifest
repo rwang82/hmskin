@@ -3004,6 +3004,7 @@
     {
       "idWMP": 66,
       "WMPClsName": "hm_wmp_msgout",
+      "DrawTool": "Gdiplus",
       "MsgOutCfg": {
         "FontId": 6,
         "TextColor": 10,

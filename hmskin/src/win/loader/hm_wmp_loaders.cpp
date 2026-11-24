@@ -1075,6 +1075,7 @@ hm_wndmsgprocessor_i* hm_wmp_msgout_loader::_createWMP( const Json::Value& valWM
 				HM_LOADER_FAIL( NULL );
 			}
 			cfg.m_hFontText = pRawFont->getHFont();
+			cfg.m_pRawFontText = pRawFont;   // drawtool text path
 		}
 		// colors ( Color section ids ).
 		{
@@ -1088,10 +1089,21 @@ hm_wndmsgprocessor_i* hm_wmp_msgout_loader::_createWMP( const Json::Value& valWM
 				{ "PeerAvatarColor", &cfg.m_clrAvatarPeer },
 			};
 			for ( int i = 0; i < 6; ++i ) {
+				COLORREF clrDump;
+				Json::Value vKey = valCfg[ aryclr[ i ].m_szKey ];
+				hm_rs_rawres_color* pRawClr = vKey.isInt() ? RAWCOLORFACTORY_INSTANCE->getObj(
+					(hm_rawres_color_factory::obj_id_type)vKey.asInt() ) : NULL;
 				if ( !_MenuCfgColor( valCfg, aryclr[ i ].m_szKey, bBadColor, aryclr[ i ].m_pClr ) && bBadColor ) {
 					assert( false );   // the id names a color the manifest never declared
 					HM_LOADER_FAIL( NULL );
 				}
+				if ( pRawClr ) {
+					if ( 0 == strcmp( aryclr[ i ].m_szKey, "TextColor" ) )
+						cfg.m_pRawClrText = pRawClr;
+					else if ( 0 == strcmp( aryclr[ i ].m_szKey, "SystemColor" ) )
+						cfg.m_pRawClrSystem = pRawClr;
+				}
+				UNREFERENCED_PARAMETER( clrDump );
 			}
 		}
 		// geometry ( 96-baseline, scaled here ).

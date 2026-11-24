@@ -6,13 +6,18 @@
 #include "win\hm_event_defs.h"
 #include "win\frame\hm_debug_utils.h"
 #include "win\hm_wndmsg_defs.h"
+#include "win\paint_system\hm_ps_drawtool_i.h"
+#include "win\resource_system\hm_rs_uires_text.h"
 #include "win\hook_system\hm_hs_whellengine.h"
 #include <gdiplus.h>
 #include <assert.h>
 
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_msgout::MSGOUT_CFG::MSGOUT_CFG()
-: m_hFontText( NULL )
+: m_pRawFontText( NULL )
+, m_pRawClrText( NULL )
+, m_pRawClrSystem( NULL )
+, m_hFontText( NULL )
 , m_clrText( RGB( 232, 236, 241 ) )
 , m_clrBubbleSelf( RGB( 0x95, 0xEC, 0x69 ) )
 , m_clrBubblePeer( RGB( 0xFF, 0xFF, 0xFF ) )
@@ -157,13 +162,18 @@ bool hm_wmp_msgout::_measureItem( MsgItem& msg, int nRowW ) {
 	::SetRect( &msg.m_rcRow, 0, 0, nRowW, 0 );
 	if ( msg.m_eSender == EMSGSENDER_SYSTEM ) {
 		// centered one-liner; single-line measure at full width.
-		HDC hDC = ::GetDC( NULL );
-		HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
-		RECT rcText = { 0, 0, nRowW, 0 };
-		::DrawText( hDC, msg.m_strText.c_str(), -1, &rcText, DT_CALCRECT | DT_SINGLELINE | DT_NOPREFIX );
-		::SelectObject( hDC, hFontOld );
-		::ReleaseDC( NULL, hDC );
-		msg.m_rcRow.bottom = ( rcText.bottom - rcText.top ) + 2 * m_cfg.m_nPadV;
+		int nTextH = 0;
+		if ( _measureTextHeight( msg.m_strText.c_str(), nRowW, false, nTextH ) ) {
+			msg.m_rcRow.bottom = nTextH + 2 * m_cfg.m_nPadV;
+		} else {
+			HDC hDC = ::GetDC( NULL );
+			HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
+			RECT rcText = { 0, 0, nRowW, 0 };
+			::DrawText( hDC, msg.m_strText.c_str(), -1, &rcText, DT_CALCRECT | DT_SINGLELINE | DT_NOPREFIX );
+			::SelectObject( hDC, hFontOld );
+			::ReleaseDC( NULL, hDC );
+			msg.m_rcRow.bottom = ( rcText.bottom - rcText.top ) + 2 * m_cfg.m_nPadV;
+		}
 		::SetRect( &msg.m_rcBubble, 0, 0, 0, 0 );
 		return true;
 	}
@@ -171,16 +181,22 @@ bool hm_wmp_msgout::_measureItem( MsgItem& msg, int nRowW ) {
 	if ( nAvail < 40 )
 		nAvail = 40;
 	int nMaxBubble = nAvail * m_cfg.m_nMaxBubblePct / 100;
-	// measure the text at the fixed bubble width, height grows ( word wrap ).
-	HDC hDC = ::GetDC( NULL );
-	HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
-	RECT rcText = { 0, 0, nMaxBubble - 2 * m_cfg.m_nPadH, 0 };
-	::DrawText( hDC, msg.m_strText.c_str(), -1, &rcText,
-		DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX );
-	::SelectObject( hDC, hFontOld );
-	::ReleaseDC( NULL, hDC );
-	int nBubbleW = min( nMaxBubble, ( rcText.right - rcText.left ) + 2 * m_cfg.m_nPadH );
-	int nBubbleH = ( rcText.bottom - rcText.top ) + 2 * m_cfg.m_nPadV;
+	// measure the text at the fixed bubble width, height grows ( word wrap ):
+	// drawtool calcRect first ( three-backend parity ), GDI DrawText fallback.
+	int nTextW = 0, nTextH = 0;
+	if ( !_measureTextExtent( msg.m_strText.c_str(), nMaxBubble - 2 * m_cfg.m_nPadH, nTextW, nTextH ) ) {
+		HDC hDC = ::GetDC( NULL );
+		HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
+		RECT rcText = { 0, 0, nMaxBubble - 2 * m_cfg.m_nPadH, 0 };
+		::DrawText( hDC, msg.m_strText.c_str(), -1, &rcText,
+			DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX );
+		::SelectObject( hDC, hFontOld );
+		::ReleaseDC( NULL, hDC );
+		nTextW = rcText.right - rcText.left;
+		nTextH = rcText.bottom - rcText.top;
+	}
+	int nBubbleW = min( nMaxBubble, nTextW + 2 * m_cfg.m_nPadH );
+	int nBubbleH = nTextH + 2 * m_cfg.m_nPadV;
 	msg.m_rcRow.bottom = max( nBubbleH, m_cfg.m_nAvatarLen );
 	if ( msg.m_eSender == EMSGSENDER_PEER )
 		::SetRect( &msg.m_rcBubble, m_cfg.m_nAvatarLen + m_cfg.m_nPadH, 0,
@@ -213,6 +229,53 @@ void hm_wmp_msgout::_OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_
 	}
 }
 
+// drawtool text helpers ( three-backend parity ): the rawres pointers come
+// from the manifest ( loader-retained ); stack-constructed text data is
+// safe - no backend reads the id fields.
+bool hm_wmp_msgout::_measureTextExtent( const TCHAR* szText, int nW, int& nWOut, int& nHOut ) {
+	if ( !m_pDrawTool || !m_cfg.m_pRawFontText || !m_cfg.m_pRawClrText || !szText )
+		return false;
+	RECT rc = { 0, 0, nW, 0 };
+	if ( !m_pDrawTool->calcRect( NULL, rc, szText, m_cfg.m_pRawFontText, m_cfg.m_pRawClrText, true ) )
+		return false;
+	nWOut = rc.right - rc.left;
+	nHOut = rc.bottom - rc.top;
+	return true;
+}
+
+bool hm_wmp_msgout::_measureTextHeight( const TCHAR* szText, int nW, bool bMultiLine, int& nHOut ) {
+	if ( !m_pDrawTool || !m_cfg.m_pRawFontText || !m_cfg.m_pRawClrText || !szText )
+		return false;
+	RECT rc = { 0, 0, nW, 0 };
+	if ( !m_pDrawTool->calcRect( NULL, rc, szText, m_cfg.m_pRawFontText, m_cfg.m_pRawClrText, bMultiLine ) )
+		return false;
+	nHOut = rc.bottom - rc.top;
+	return true;
+}
+
+void hm_wmp_msgout::_drawText( HDC hDC, const TCHAR* szText, const RECT& rc,
+                               hm_rs_rawres_color* pRawClr, bool bMultiLine, bool bCenter ) {
+	if ( m_pDrawTool && m_cfg.m_pRawFontText && pRawClr ) {
+		hm_uires_text_data data;
+		data.m_tstrData = szText;
+		data.m_idRawResFont = 0;
+		data.m_idRawResColor = 0;
+		data.m_eTextFlag = (hm_uires_text_data::ENUMTEXTFALG)( bMultiLine ? hm_uires_text_data::TEXTFLAG_MULTILINE : hm_uires_text_data::TEXTFLAG_SINGLELINE );
+		data.m_eAlginment = bCenter ? hm_uires_text_data::EALGINMENT_RIGHT : hm_uires_text_data::EALGINMENT_LEFT;
+		m_pDrawTool->draw( hDC, rc, &data, m_cfg.m_pRawFontText, pRawClr, bMultiLine );
+		return;
+	}
+	// GDI fallback ( no DrawTool configured ).
+	HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
+	int nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
+	COLORREF clrOld = ::SetTextColor( hDC, pRawClr ? pRawClr->getCOLORREF() : m_cfg.m_clrText );
+	::DrawText( hDC, szText, -1, (RECT*)&rc, ( bMultiLine ? DT_WORDBREAK : 0 )
+		| DT_NOPREFIX | ( bCenter ? ( DT_CENTER | DT_VCENTER | DT_SINGLELINE ) : 0 ) );
+	::SetTextColor( hDC, clrOld );
+	::SetBkMode( hDC, nBKModeOld );
+	::SelectObject( hDC, hFontOld );
+}
+
 void hm_wmp_msgout::_notifyExtent( int nCanvasW ) {
 	HECTPARAM hectParam;
 	hectParam.m_cxExtent = nCanvasW;
@@ -234,14 +297,8 @@ void hm_wmp_msgout::_render( HDC hDC, const RECT& rcCanvas ) {
 		if ( rcRow.top >= rcCanvas.bottom || rcRow.bottom <= rcCanvas.top )
 			continue;   // outside the viewport band ( ClipChildren culls anyway )
 		if ( msg.m_eSender == EMSGSENDER_SYSTEM ) {
-			HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
-			int nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
-			COLORREF clrOld = ::SetTextColor( hDC, m_cfg.m_clrSystem );
-			::DrawText( hDC, msg.m_strText.c_str(), -1, &rcRow,
-				DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX );
-			::SetTextColor( hDC, clrOld );
-			::SetBkMode( hDC, nBKModeOld );
-			::SelectObject( hDC, hFontOld );
+			_drawText( hDC, msg.m_strText.c_str(), rcRow,
+				m_cfg.m_pRawClrSystem ? m_cfg.m_pRawClrSystem : m_cfg.m_pRawClrText, false, true );
 			continue;
 		}
 		// avatar color block.
@@ -275,15 +332,8 @@ void hm_wmp_msgout::_render( HDC hDC, const RECT& rcCanvas ) {
 		pathBubble.CloseFigure();
 		graphics.FillPath( &brushBubble, &pathBubble );
 		// text inside the bubble.
-		HFONT hFontOld = (HFONT)::SelectObject( hDC, m_cfg.m_hFontText );
-		int nBKModeOld = ::SetBkMode( hDC, TRANSPARENT );
-		COLORREF clrOld = ::SetTextColor( hDC, m_cfg.m_clrText );
 		RECT rcText = rcBubble;
 		::InflateRect( &rcText, -m_cfg.m_nPadH, -m_cfg.m_nPadV );
-		::DrawText( hDC, msg.m_strText.c_str(), -1, &rcText,
-			DT_LEFT | DT_TOP | DT_WORDBREAK | DT_NOPREFIX );
-		::SetTextColor( hDC, clrOld );
-		::SetBkMode( hDC, nBKModeOld );
-		::SelectObject( hDC, hFontOld );
+		_drawText( hDC, msg.m_strText.c_str(), rcText, m_cfg.m_pRawClrText, true, false );
 	}
 }

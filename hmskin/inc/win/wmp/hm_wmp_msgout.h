@@ -21,8 +21,13 @@ public:
 	enum ENUMMSGSENDER { EMSGSENDER_PEER = 0, EMSGSENDER_SELF = 1, EMSGSENDER_SYSTEM = 2 };
 
 	// all lengths arrive ALREADY DPI-scaled from the loader; the font and the
-	// colors are owned process-wide by the rawres factories.
+	// colors are owned process-wide by the rawres factories. the rawres
+	// pointers drive the drawtool text path ( three-backend parity ); the
+	// HFONT is the fallback when no DrawTool is set ( headless ).
 	struct MSGOUT_CFG {
+		hm_rs_rawres_font* m_pRawFontText;
+		hm_rs_rawres_color* m_pRawClrText;
+		hm_rs_rawres_color* m_pRawClrSystem;
 		HFONT m_hFontText;
 		COLORREF m_clrText;
 		COLORREF m_clrBubbleSelf;
@@ -80,6 +85,9 @@ private:
 	bool _measureItem( MsgItem& msg, int nRowW );
 	void _notifyExtent( int nCanvasW );
 	void _OnHMMouseWhell( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, msg_sink_i::WNDPROCPARAM* pParamWndProc );
+	bool _measureTextExtent( const TCHAR* szText, int nW, int& nWOut, int& nHOut );
+	bool _measureTextHeight( const TCHAR* szText, int nW, bool bMultiLine, int& nHOut );
+	void _drawText( HDC hDC, const TCHAR* szText, const RECT& rc, class hm_rs_rawres_color* pRawClr, bool bMultiLine, bool bCenter );
 
 private:
 #pragma warning(push)
