@@ -32,6 +32,7 @@
 #include "win\wmp\hm_wmp_rootmenu.h"
 #include "win\wmp\hm_wmp_popupmenu.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
+#include "win\wmp\hm_wmp_msgout.h"
 #include "win\hook_system\hm_hs_apihook.h"
 #include "win\wndctrl_repository\hm_wndctrl_base.h"
 #include "win\resource_system\hm_rs_rawres_base.h"
@@ -546,6 +547,33 @@ static hm_rs_uires_text* _find_wmp_text_first( hm_wmp_display* pWMPDisplay ) {
 		}
 	}
 	return NULL;
+}
+
+// MsgOutEditor front door ( see hmskin.h ): id-addressed forwarding.
+static hm_wmp_msgout* _get_wmp_msgout( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId ) {
+	hm_keel_obj* pKeelObj = NULL;
+	if ( !hm_get_keelobj( pHMUIRoot, uKeelObjId, &pKeelObj ) || !pKeelObj )
+		return NULL;
+	return dynamic_cast< hm_wmp_msgout* >( pKeelObj->getWMP( uWMPId ) );
+}
+
+HMLIB_API bool hm_msgout_append_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int eSender, const TCHAR* szText ) {
+	if ( !pHMUIRoot || !szText )
+		return false;
+	hm_wmp_msgout* pWMPMsgOut = _get_wmp_msgout( pHMUIRoot, uKeelObjId, uWMPId );
+	if ( !pWMPMsgOut )
+		return false;
+	return pWMPMsgOut->appendText( eSender, szText );
+}
+
+HMLIB_API bool hm_msgout_clear( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId ) {
+	if ( !pHMUIRoot )
+		return false;
+	hm_wmp_msgout* pWMPMsgOut = _get_wmp_msgout( pHMUIRoot, uKeelObjId, uWMPId );
+	if ( !pWMPMsgOut )
+		return false;
+	pWMPMsgOut->clear();
+	return true;
 }
 
 HMLIB_API bool hm_wmp_set_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, const TCHAR* szText ) {

@@ -460,6 +460,12 @@
       "R": 20,
       "G": 20,
       "B": 20
+    },
+    {
+      "id": 11,
+      "R": 149,
+      "G": 236,
+      "B": 105
     }
   ],
   "CoordinateSystem": [
@@ -2996,18 +3002,38 @@
       ]
     },
     {
+      "idWMP": 66,
+      "WMPClsName": "hm_wmp_msgout",
+      "MsgOutCfg": {
+        "FontId": 6,
+        "TextColor": 10,
+        "SelfBubbleColor": 11,
+        "PeerBubbleColor": 1,
+        "SystemColor": 3,
+        "SelfAvatarColor": 4,
+        "PeerAvatarColor": 3,
+        "AvatarLen96": 40,
+        "MaxBubblePct": 80,
+        "MsgGap96": 10,
+        "PadH96": 12,
+        "PadV96": 8,
+        "CornerLen96": 8
+      }
+    },
+    {
       "idWMP": 87,
       "WMPClsName": "hm_wmp_scrollview",
       "ScrollViewCfg": {
         "ScrollBarWMPId": 70,
         "ContentKeelObjId": 38,
         "BarKeelObjId": 47,
-        "ContentExtent96": { "W": 560, "H": 600 },
+        "ContentWMPId": 66,
         "ArrowLen96": 20,
         "MinThumbLen96": 20,
         "FixedThumbLen96": 48,
         "LayoutScroll": true,
-        "WheelStep96": 60
+        "WheelStep96": 60,
+        "AnchorBottom": true
       }
     },
     {
@@ -5485,7 +5511,7 @@
         {
           "id": 87,
           "RegEvts": [
-            10
+            11
           ]
         }
       ]
@@ -5920,20 +5946,20 @@
       "LayoutObj": {
         "CSId": 1,
         "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_corner",
+          "DecoderType": "hm_layoutdecoder_offset",
           "RefKeelObjId": 2,
-          "m_eCornerType": "CORNER_LT",
-          "m_width": 560,
-          "m_height": 600,
-          "m_space1": 8,
-          "m_space2": 22
+          "m_nOffsetL": 0,
+          "m_nOffsetT": 0,
+          "m_nOffsetR": 15,
+          "m_nOffsetB": 0
         }
       },
       "WMP": [
         {
-          "id": 60,
+          "id": 66,
           "RegEvts": [
-            6
+            6,
+            11
           ]
         }
       ]

@@ -103,6 +103,13 @@ HMLIB_API bool hm_wmp_set_text_at( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId
 // and returns the copied length. 0 = WMP/text not found.
 HMLIB_API unsigned int hm_wmp_get_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, LPTSTR lpszBuf, int nMaxTextCount );
 //////////////////////////////////////////////////////////////////////////
+// MsgOutEditor ( chat message list ): append one message to the
+// hm_wmp_msgout WMP addressed by manifest ids. eSender: 0 = peer, 1 = self,
+// 2 = system. the WMP measures the text, grows the content extent and the
+// bound scrollview ( AnchorBottom ) sticks to / preserves the position.
+HMLIB_API bool hm_msgout_append_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int eSender, const TCHAR* szText );
+HMLIB_API bool hm_msgout_clear( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId );
+//////////////////////////////////////////////////////////////////////////
 
 
 EXTERN_C_END

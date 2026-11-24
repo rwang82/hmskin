@@ -25,7 +25,7 @@ void hm_cmn_subject::Notify(UINT idEvent, LPARAM pEventParam, LPARAM pEventParam
 }
 
 void hm_cmn_subject::EraseAllRegister()
-{	
+{
 	m_pObsContainer.clear();
 }
 

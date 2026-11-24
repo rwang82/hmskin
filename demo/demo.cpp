@@ -87,6 +87,23 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 	// the native-adoption button ( sec.1 contrast specimen ) follows chapter visibility.
 	if ( g_hBtnTest1 )
 		::ShowWindow( g_hBtnTest1, ( uChapterIndex == 0 ) ? SW_SHOW : SW_HIDE );
+	// sec.4 = MsgOutEditor specimen: script a conversation on first entry,
+	// then a slow drip demonstrates stick-to-bottom ( at bottom ) vs
+	// do-not-disturb ( scrolled up ).
+	if ( uChapterIndex == 3 ) {
+		hm_msgout_clear( g_pHMRoot, 38, 66 );
+		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:00 — 会话开始") );
+		for ( int i = 1; i <= 8; ++i ) {
+			hm_msgout_append_text( g_pHMRoot, 38, 66, ( i % 2 ) ? 0 : 1,
+				( i % 2 ) ? _T("收到，我看一下然后给你回复，稍等。")
+				          : _T("好的，这条消息长一点，用来演示气泡的换行行为："
+					           "文本超过最大宽度的 80% 之后会在词边界处折行，气泡高度自适应增长。") );
+		}
+		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:05") );
+		SetTimer( g_hWnd, 2, 3000, NULL );
+	} else {
+		KillTimer( g_hWnd, 2 );
+	}
 	hm_util_invlog( _T("chapter"), NULL );
 	::InvalidateRect( g_hWnd, NULL, FALSE );
 }
@@ -870,6 +887,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_TIMER:
+		// sec.4 drip: one message every 3s ( stick-to-bottom while at the
+		// bottom, silent while scrolled up - the scrollview decides ).
+		if ( wParam == 2 ) {
+			static int s_nDrip = 0;
+			++s_nDrip;
+			hm_msgout_append_text( g_pHMRoot, 38, 66, ( s_nDrip % 2 ) ? 1 : 0,
+				( s_nDrip % 2 ) ? _T("自动追加：贴底状态会跟随滚动。")
+				                : _T("滚上去阅读历史时，新消息不会打扰你。") );
+			if ( s_nDrip >= 40 )
+				KillTimer( hWnd, 2 );
+			break;
+		}
 		// dump-tree mode: one shot ( with a single retry when the tree came
 		// out empty - e.g. the timer beat the skin loading ), then exit.
 		if ( wParam == 1 && g_szDumpTreePath[ 0 ] ) {

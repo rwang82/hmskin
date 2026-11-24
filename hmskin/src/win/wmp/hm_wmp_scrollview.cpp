@@ -122,7 +122,7 @@ void hm_wmp_scrollview::update( void* pSubject, UINT idEvent, LPARAM pEventParam
 						int nMax = (int)m_uContentExtentH - nViewH;
 						if ( nMax < 0 )
 							nMax = 0;
-						_scrollTo( m_pKeelObjViewport, nMax, false );
+							_scrollTo( m_pKeelObjViewport, nMax, false );
 					} else {
 						// keeps top; re-syncs the bar range/thumb for the new extent.
 						_recalcFromViewport( m_pKeelObjViewport );
