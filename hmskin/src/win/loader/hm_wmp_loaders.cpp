@@ -1008,24 +1008,24 @@ hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& v
 		if ( ve.isInt() && ve.asInt() > 0 )
 			cfg.m_uContentExtentH = (unsigned int)_ScalePx( m_dblScale, ve.asInt() );
 	}
-	// ArrowLen96 ( optional, default 20 = sbbtn bitmap size ).
-	v = valCfg[ "ArrowLen96" ];
+	// ArrowLen ( optional, default 20 = sbbtn bitmap size ).
+	v = valCfg[ "ArrowLen" ];
 	if ( v.isInt() && v.asInt() > 0 )
 		cfg.m_uArrowLen = (unsigned int)_ScalePx( m_dblScale, v.asInt() );
-	// MinThumbLen96 ( optional, default 20 ).
-	v = valCfg[ "MinThumbLen96" ];
+	// MinThumbLen ( optional, default 20 ).
+	v = valCfg[ "MinThumbLen" ];
 	if ( v.isInt() && v.asInt() > 0 )
 		cfg.m_uMinThumbLen = (unsigned int)_ScalePx( m_dblScale, v.asInt() );
-	// FixedThumbLen96 ( optional; absent = proportional thumb ).
-	v = valCfg[ "FixedThumbLen96" ];
+	// FixedThumbLen ( optional; absent = proportional thumb ).
+	v = valCfg[ "FixedThumbLen" ];
 	if ( v.isInt() && v.asInt() > 0 )
 		cfg.m_nFixedThumbLen = _ScalePx( m_dblScale, v.asInt() );
 	// LayoutScroll ( optional: translate the content layout on scroll ).
 	v = valCfg[ "LayoutScroll" ];
 	if ( v.isBool() )
 		cfg.m_bLayoutScroll = v.asBool() ? TRUE : FALSE;
-	// WheelStep96 ( optional: px per wheel notch, default 60 ).
-	v = valCfg[ "WheelStep96" ];
+	// WheelStep ( optional: px per wheel notch, default 60 ).
+	v = valCfg[ "WheelStep" ];
 	if ( v.isInt() && v.asInt() > 0 )
 		cfg.m_nWheelStep = _ScalePx( m_dblScale, v.asInt() );
 	// AnchorBottom ( optional: chat-list extent-growth behavior ).
@@ -1057,15 +1057,22 @@ hm_wndmsgprocessor_i* hm_wmp_msgout_loader::_createWMP( const Json::Value& valWM
 	if ( !valTmp.isInt() ) { HM_LOADER_FAIL( NULL ); }
 	idWMP = valTmp.asInt();
 
-	hm_wmp_msgout* pWMPMsgOut = pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_msgout, hmskin_event_listener_base* >(
-		idWMP, pHMUIRoot->m_pEventListener );
+	hm_wmp_msgout* pWMPMsgOut = pHMUIRoot->m_pWMPFactory->createObj< hm_wmp_msgout, hm_uiroot*, hmskin_event_listener_base* >(
+		idWMP, pHMUIRoot, pHMUIRoot->m_pEventListener );
 
-	// MsgOutCfg ( all keys optional; defaults follow the WeChat-style spec ).
+	// MsgOutCfg: BarWMPId required ( self-owned scrolling - must be < idWMP,
+	// shutdown contract ); the rest optional, WeChat-style defaults.
 	hm_wmp_msgout::MSGOUT_CFG cfg;
 	valTmp = valWMP[ "MsgOutCfg" ];
 	if ( valTmp.isObject() ) {
 		Json::Value valCfg = valTmp;
 		Json::Value v;
+		v = valCfg[ "BarWMPId" ];
+		if ( !v.isInt() ) { HM_LOADER_FAIL( NULL ); }
+		cfg.m_idWMPSearchBar = v.asInt();
+		assert( cfg.m_idWMPSearchBar < idWMP );
+		v = valCfg[ "BarKeelObjId" ];
+		if ( v.isInt() ) cfg.m_idKeelObjBar = v.asInt();
 		// FontId -> the raw-font factory ( borrowed HFONT, menu contract ).
 		v = valCfg[ "FontId" ];
 		if ( v.isInt() ) {
@@ -1106,19 +1113,42 @@ hm_wndmsgprocessor_i* hm_wmp_msgout_loader::_createWMP( const Json::Value& valWM
 				UNREFERENCED_PARAMETER( clrDump );
 			}
 		}
-		// geometry ( 96-baseline, scaled here ).
-		v = valCfg[ "AvatarLen96" ];
-		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nAvatarLen = _ScalePx( m_dblScale, v.asInt() );
+		// geometry ( 96-baseline, scaled here ). the ctor defaults ARE the 96
+		// values: override them with the manifest, then scale everything - an
+		// absent key must not leave unscaled px in the cfg.
+		int nAvatarLen = cfg.m_nAvatarLen, nMsgGap = cfg.m_nMsgGap, nPadH = cfg.m_nPadH;
+		int nPadV = cfg.m_nPadV, nCornerLen = cfg.m_nCornerLen, nWheelStep = cfg.m_nWheelStep;
+		int nFixedThumbLen = cfg.m_nFixedThumbLen;
+		unsigned int uMinThumbLen = cfg.m_uMinThumbLen, uArrowLen = cfg.m_uArrowLen;
+		v = valCfg[ "AvatarLen" ];
+		if ( v.isInt() && v.asInt() > 0 ) nAvatarLen = v.asInt();
 		v = valCfg[ "MaxBubblePct" ];
 		if ( v.isInt() && v.asInt() >= 10 && v.asInt() <= 100 ) cfg.m_nMaxBubblePct = v.asInt();
-		v = valCfg[ "MsgGap96" ];
-		if ( v.isInt() && v.asInt() >= 0 ) cfg.m_nMsgGap = _ScalePx( m_dblScale, v.asInt() );
-		v = valCfg[ "PadH96" ];
-		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nPadH = _ScalePx( m_dblScale, v.asInt() );
-		v = valCfg[ "PadV96" ];
-		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nPadV = _ScalePx( m_dblScale, v.asInt() );
-		v = valCfg[ "CornerLen96" ];
-		if ( v.isInt() && v.asInt() > 0 ) cfg.m_nCornerLen = _ScalePx( m_dblScale, v.asInt() );
+		v = valCfg[ "MsgGap" ];
+		if ( v.isInt() && v.asInt() >= 0 ) nMsgGap = v.asInt();
+		v = valCfg[ "PadH" ];
+		if ( v.isInt() && v.asInt() > 0 ) nPadH = v.asInt();
+		v = valCfg[ "PadV" ];
+		if ( v.isInt() && v.asInt() > 0 ) nPadV = v.asInt();
+		v = valCfg[ "CornerLen" ];
+		if ( v.isInt() && v.asInt() > 0 ) nCornerLen = v.asInt();
+		v = valCfg[ "WheelStep" ];
+		if ( v.isInt() && v.asInt() > 0 ) nWheelStep = v.asInt();
+		v = valCfg[ "FixedThumbLen" ];
+		if ( v.isInt() && v.asInt() > 0 ) nFixedThumbLen = v.asInt();
+		v = valCfg[ "MinThumbLen" ];
+		if ( v.isInt() && v.asInt() > 0 ) uMinThumbLen = (unsigned int)v.asInt();
+		v = valCfg[ "ArrowLen" ];
+		if ( v.isInt() && v.asInt() > 0 ) uArrowLen = (unsigned int)v.asInt();
+		cfg.m_nAvatarLen = _ScalePx( m_dblScale, nAvatarLen );
+		cfg.m_nMsgGap = _ScalePx( m_dblScale, nMsgGap );
+		cfg.m_nPadH = _ScalePx( m_dblScale, nPadH );
+		cfg.m_nPadV = _ScalePx( m_dblScale, nPadV );
+		cfg.m_nCornerLen = _ScalePx( m_dblScale, nCornerLen );
+		cfg.m_nWheelStep = _ScalePx( m_dblScale, nWheelStep );
+		cfg.m_nFixedThumbLen = nFixedThumbLen > 0 ? _ScalePx( m_dblScale, nFixedThumbLen ) : nFixedThumbLen;   // <0 = proportional
+		cfg.m_uMinThumbLen = (unsigned int)_ScalePx( m_dblScale, (int)uMinThumbLen );
+		cfg.m_uArrowLen = (unsigned int)_ScalePx( m_dblScale, (int)uArrowLen );
 	}
 
 	pWMPMsgOut->setConfigure( cfg );

@@ -3002,10 +3002,12 @@
       ]
     },
     {
-      "idWMP": 66,
+      "idWMP": 88,
       "WMPClsName": "hm_wmp_msgout",
       "DrawTool": "Gdiplus",
       "MsgOutCfg": {
+        "BarWMPId": 70,
+        "BarKeelObjId": 47,
         "FontId": 6,
         "TextColor": 10,
         "SelfBubbleColor": 11,
@@ -3013,28 +3015,16 @@
         "SystemColor": 3,
         "SelfAvatarColor": 4,
         "PeerAvatarColor": 3,
-        "AvatarLen96": 40,
+        "AvatarLen": 40,
         "MaxBubblePct": 80,
-        "MsgGap96": 10,
-        "PadH96": 12,
-        "PadV96": 8,
-        "CornerLen96": 8
-      }
-    },
-    {
-      "idWMP": 87,
-      "WMPClsName": "hm_wmp_scrollview",
-      "ScrollViewCfg": {
-        "ScrollBarWMPId": 70,
-        "ContentKeelObjId": 38,
-        "BarKeelObjId": 47,
-        "ContentWMPId": 66,
-        "ArrowLen96": 20,
-        "MinThumbLen96": 20,
-        "FixedThumbLen96": 48,
-        "LayoutScroll": true,
-        "WheelStep96": 60,
-        "AnchorBottom": true
+        "MsgGap": 10,
+        "PadH": 12,
+        "PadV": 8,
+        "CornerLen": 8,
+        "ArrowLen": 20,
+        "MinThumbLen": 20,
+        "FixedThumbLen": 48,
+        "WheelStep": 60
       }
     },
     {
@@ -5510,8 +5500,9 @@
           ]
         },
         {
-          "id": 87,
+          "id": 88,
           "RegEvts": [
+            6,
             11
           ]
         }
@@ -5933,34 +5924,6 @@
           "id": 57,
           "RegEvts": [
             6
-          ]
-        }
-      ]
-    },
-    {
-      "idKeelObj": 38,
-      "WndMsgSource": {
-        "Type": "MsgSink",
-        "MsgSinkId": 10
-      },
-      "ParentKeelObjId": 2,
-      "LayoutObj": {
-        "CSId": 1,
-        "LayoutDecoder": {
-          "DecoderType": "hm_layoutdecoder_offset",
-          "RefKeelObjId": 2,
-          "m_nOffsetL": 0,
-          "m_nOffsetT": 0,
-          "m_nOffsetR": 15,
-          "m_nOffsetB": 0
-        }
-      },
-      "WMP": [
-        {
-          "id": 66,
-          "RegEvts": [
-            6,
-            11
           ]
         }
       ]

@@ -51,5 +51,10 @@
 // lParam1 - hm_trackpopupmenu_param* ( hmskin.h ): menu, screen x/y, owner.
 // lParam2 - NONE.
 #define HMSKIN_EVENT_TRACKPOPUPMENU (0x00000009)
+//////////////////////////////////////////////////////////////////////////
+// HMSKIN_EVENT_MSGOUT_COPY
+// a chat-list selection was copied to the clipboard ( Ctrl+C in
+// hm_wmp_msgout ). lParam1 - NONE. lParam2 - the copied char count.
+#define HMSKIN_EVENT_MSGOUT_COPY (0x0000000A)
 
 #endif //__HMSKIN_EVENT_DEFS_H__

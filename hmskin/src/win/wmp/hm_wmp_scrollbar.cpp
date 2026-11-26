@@ -307,7 +307,7 @@ bool hm_wmp_scrollbar::_moveTrackThumb( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, c
 	
 	//
 	m_pPosDecoderTrackThumb->m_distance = nDistanceTmp < 0 ? 0 : ( ( nDistanceTmp > nMaxDistance ) ? nMaxDistance : nDistanceTmp );
- 
+
 	// adjust m_nValCur
 	m_nValCur = m_nValMin + ( ( m_nValMax - m_nValMin ) * m_pPosDecoderTrackThumb->m_distance / nMaxDistance );
 
@@ -344,7 +344,7 @@ bool hm_wmp_scrollbar::_updateCurVal2TrackThumbPos( const RECT& rcKeelObj ) {
 		{
 			m_pPosDecoderTrackThumb->m_distance = ( rcTrackThumbRefRect.right - rcTrackThumbRefRect.left ) * ( m_nValCur - m_nValMin ) / ( m_nValMax - m_nValMin );
 		} break;
-	case hm_posdecoder_slider::SLIDER_T2B: 
+	case hm_posdecoder_slider::SLIDER_T2B:
 		{
 			m_pPosDecoderTrackThumb->m_distance = ( rcTrackThumbRefRect.bottom - rcTrackThumbRefRect.top ) * ( m_nValCur - m_nValMin ) / ( m_nValMax - m_nValMin );
 		} break;
@@ -670,11 +670,15 @@ void scrollbar_state_nondragtrackthumb::_OnLButtonDown( hm_wmp_scrollbar* pScrol
 	pParamWndProc->m_bValidRes = true;
 	pParamWndProc->m_lResult = 0;
 	//
+	// hit-test against the VALUE, not the last painted distance: a bar that
+	// has not repainted since its value moved ( headless, pre-show, or a
+	// drawSelf skipped by its cursor probe ) must still grab its own thumb.
+	pScrollBarCtx->_updateCurVal2TrackThumbPos( rcKeelObj );
 	eCursorPos = pScrollBarCtx->_getCursorPos( rcKeelObj, ptClient );
 	switch ( eCursorPos ) {
 	case hm_wmp_scrollbar::ECP_OUTSIDE:
 		return;
-	case hm_wmp_scrollbar::ECP_STARTTHUMB: 
+	case hm_wmp_scrollbar::ECP_STARTTHUMB:
 		{
 			pScrollBarCtx->m_uMouseStatusFlags |= SCRBAR_FLAG_STARTTHUMB_LBTNDOWN;
 			pScrollBarCtx->stepCurValue( -pScrollBarCtx->m_nArrowStepVal, pKeelObj );

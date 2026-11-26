@@ -20,10 +20,11 @@ public:
 	// inputs ( scaled px ).
 	void setViewport( int nViewH );
 	void setExtent( int nExtentH );
-	// extent grew ( chat-list append ): stick to the new bottom when the
-	// user was at the bottom, otherwise keep the position ( DND ). returns
-	// true when the top moved ( repaint needed ).
-	bool onExtentGrown();
+	// the extent grew to nExtentH ( chat-list append ): stick to the new
+	// bottom when the user WAS at the bottom ( decided against the OLD
+	// extent ), otherwise keep the position ( DND ). returns true when the
+	// top moved ( repaint needed ).
+	bool onExtentGrown( int nExtentH );
 	// clamp + apply; returns true when the top actually moved.
 	bool scrollTo( int nTop );
 	// reset to the unscrolled state ( content cleared / first layout ).

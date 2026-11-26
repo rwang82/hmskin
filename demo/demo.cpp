@@ -69,7 +69,7 @@ static const unsigned int arrChapterGroups[4][17] = {
 	{ 3, 19, 10, 11, 29, 30, 31, 32, 33, 34, 35, 36, 48, 49, 50, 51, 0 },	// sec.1 basics (+ native-adoption button + 8-state checkbox grid)
 	{ 21, 22, 23, 24, 25, 26, 52, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.2 text & data ( type-scale specimens + PRG progress )
 	{ 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.3 menus
-	{ 2, 28, 38, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.4 scrolling & containers ( well + content rows + scrollbar )
+	{ 2, 28, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },	// sec.4 scrolling & containers ( viewport + rows + scrollbar )
 };
 
 void SwitchChapter( unsigned int uChapterIndex ) {
@@ -91,16 +91,18 @@ void SwitchChapter( unsigned int uChapterIndex ) {
 	// then a slow drip demonstrates stick-to-bottom ( at bottom ) vs
 	// do-not-disturb ( scrolled up ).
 	if ( uChapterIndex == 3 ) {
-		hm_msgout_clear( g_pHMRoot, 38, 66 );
-		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:00 — conversation started") );
+		hm_msgout_clear( g_pHMRoot, 2, 88 );
+		hm_msgout_append_text( g_pHMRoot, 2, 88, 2, _T("12:00 — conversation started") );
 		for ( int i = 1; i <= 8; ++i ) {
-			hm_msgout_append_text( g_pHMRoot, 38, 66, ( i % 2 ) ? 0 : 1,
+			hm_msgout_append_text( g_pHMRoot, 2, 88, ( i % 2 ) ? 0 : 1,
 				( i % 2 ) ? _T("Got it, let me take a look and get back to you.")
 				          : _T("Sure - this one runs longer to demo the bubble wrapping: past 80% "
 					           "of the max width the text folds at word boundaries and the "
 					           "bubble height grows to fit.") );
 		}
-		hm_msgout_append_text( g_pHMRoot, 38, 66, 2, _T("12:05") );
+		hm_msgout_append_text( g_pHMRoot, 2, 88, 2, _T("12:05") );
+		hm_msgout_append_image( g_pHMRoot, 2, 88, 0,
+			_T("image\\msg_screenshot.png"), NULL );   // image item specimen ( block-level )
 		SetTimer( g_hWnd, 2, 3000, NULL );
 	} else {
 		KillTimer( g_hWnd, 2 );
@@ -517,7 +519,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	// debug dogfood: the single manifest stays Gdiplus ( portable default ),
 	// debug builds flip the whole skin to D2D at runtime so the hybrid
 	// backend gets daily use. --drawtool below still overrides both.
-	hm_set_drawtool_all( g_pHMRoot, HM_DRAWTOL_D2D );
+	// ON HOLD: hm_wmp_msgout's measure path ( calcRect with a NULL DC )
+	// spins forever under D2D - the Debug demo stays Gdiplus until that is
+	// fixed; --drawtool D2D still exercises the backend knowingly.
+	//hm_set_drawtool_all( g_pHMRoot, HM_DRAWTOL_D2D );
 #endif
 
 	// "--drawtool D2D|Gdiplus|Gdi" - runtime backend override for A/B perf
@@ -893,9 +898,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if ( wParam == 2 ) {
 			static int s_nDrip = 0;
 			++s_nDrip;
-			hm_msgout_append_text( g_pHMRoot, 38, 66, ( s_nDrip % 2 ) ? 1 : 0,
-				( s_nDrip % 2 ) ? _T("auto drip: follows the scroll while pinned to the bottom.")
-				                : _T("scrolled up to read history? new messages never disturb you.") );
+			// every 4th drip is the image specimen so it stays in view.
+			if ( s_nDrip % 4 == 3 )
+				hm_msgout_append_image( g_pHMRoot, 2, 88, 0, _T("image\\msg_screenshot.png"), NULL );
+			else
+				hm_msgout_append_text( g_pHMRoot, 2, 88, ( s_nDrip % 2 ) ? 1 : 0,
+					( s_nDrip % 2 ) ? _T("auto drip: follows the scroll while pinned to the bottom.")
+					                : _T("scrolled up to read history? new messages never disturb you.") );
 			if ( s_nDrip >= 40 )
 				KillTimer( hWnd, 2 );
 			break;

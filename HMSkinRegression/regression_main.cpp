@@ -205,131 +205,161 @@ int main() {
 		::DestroyWindow( hWndMap );
 	}
 
-	// ---- MsgOutEditor ( hm_wmp_msgout WMP66 on K38, scrollview WMP87 with
-	// ContentWMPId + AnchorBottom ): append -> extent grows -> stick-to-bottom;
-	// wheel exact-step math; do-not-disturb; clear -> back to top.
-	// SendMessage drives the dispatcher subclass synchronously - no message
-	// pump needed headless; the wheel point rides in lParam ( screen coords ).
-	// all assertions are FONT-INDEPENDENT: nTop is derived as K2.top - K38.top
-	// ( the offset decoder pins K38's top to K2's top when unscrolled ).
+	// ---- MsgOutEditor v1b ( WMP88 hm_wmp_msgout SELF-OWNS scrolling on K2:
+	// viewport wheel -> core, extent growth -> stick/DND, bar binding, evt10
+	// inertia stream ). all assertions font-independent: scroll top comes
+	// from the front-door getter, input from REAL messages ( SendMessage ).
 	{
 		printf( "msgoutcase: begin\n" );
-		// WS_POPUP: frameless = the client is EXACTLY 1700x1200 ( an
-		// overlapped STATIC came out ~384x261 and collapsed K12 - the old
-		// corner-decoder specimen never depended on the viewport width ).
+		// off-origin on purpose: a client/screen coordinate mix-up in a hit
+		// test is invisible while the client origin IS the screen origin.
 		HWND hWndScroll = ::CreateWindowEx( 0, _T("STATIC"), _T("rgmsgout"),
-			WS_POPUP, 0, 0, 1700, 1200, NULL, NULL,
+			WS_POPUP, 100, 100, 1700, 1200, NULL, NULL,
 			(HINSTANCE)::GetModuleHandle( NULL ), NULL );
 		CHECK( hWndScroll != NULL, "msgoutcase window created" );
 		CHECK( hm_wndpropid_connect( pRoot, hWndScroll, 258 ) == true,
 		       "msgoutcase connect PropId 258" );
 		hm_keelobj_set_visible( pRoot, 2, TRUE );
-		hm_keelobj_set_visible( pRoot, 38, TRUE );
 		hm_keelobj_set_visible( pRoot, 47, TRUE );
-
-		// drive the REAL startup flow: the creation-time WM_SIZE went to the
-		// original STATIC proc ( the subclass attaches later ), and the dump's
-		// lazy layout does not run the POSCHANGED relay chain - without this
-		// the msgout never learns its canvas width and appends defer forever.
 		RECT rcClient = { 0, 0, 0, 0 };
 		::GetClientRect( hWndScroll, &rcClient );
 		::SendMessage( hWndScroll, WM_SIZE, SIZE_RESTORED,
 			MAKELPARAM( rcClient.right - rcClient.left, rcClient.bottom - rcClient.top ) );
 
 		const TCHAR* szDumpMsg = _T( "hmskin_tree.msgoutcase.json" );
-		RECT rcK2 = { 0, 0, 0, 0 }, rcK38 = { 0, 0, 0, 0 };
-		// settle dump ( the WM_SIZE cascade wired everything synchronously ).
 		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		CHECK( _find_node_rect( szDumpMsg, 2, &rcK2 ) && _find_node_rect( szDumpMsg, 38, &rcK38 ),
-		       "msgoutcase K2/K38 rects dumped" );
+		RECT rcK2 = { 0, 0, 0, 0 };
+		CHECK( _find_node_rect( szDumpMsg, 2, &rcK2 ), "msgoutcase K2 rect dumped" );
 
-		// (a) 40 appends: the WM_SIZE-driven POSCHANGED gave the canvas a
-		// width, so each append measures immediately and notifies
-		// CONTENT_EXTENT; at-bottom ( the empty list trivially was ) pins.
+		// (a) 40 appends pin to the bottom.
+		const TCHAR* szLong = _T("regression message row with enough length to wrap at 80 percent width");
+		const TCHAR* szShort = _T("silent history append");
 		int nAppended = 0;
 		for ( int i = 0; i < 40; ++i )
-			nAppended += hm_msgout_append_text( pRoot, 38, 66, ( i % 2 ) ? 1 : 0,
-				_T("regression message row with enough length to wrap at 80 percent width") ) ? 1 : 0;
+			nAppended += hm_msgout_append_text( pRoot, 2, 88, ( i % 2 ) ? 1 : 0, szLong ) ? 1 : 0;
 		CHECK( nAppended == 40, "msgoutcase 40 appends accepted" );
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 2, &rcK2 );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		int nTopPinned = rcK2.top - rcK38.top;
-		CHECK( nTopPinned > 0, "msgoutcase 40 rows pin to the bottom" );
+		int nTopPinned = 0;
+		CHECK( hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopPinned ) && nTopPinned > 0,
+		       "msgoutcase 40 rows pin to the bottom" );
+		// image item ( png through GDI+ ): accepted, the pinned view follows;
+		// a file that does not exist is refused.
+		int nTopBeforeImg = nTopPinned;
+		CHECK( hm_msgout_append_image( pRoot, 2, 88, 0, _T("image\\msg_screenshot.png"), NULL ) == true,
+		       "msgoutcase image item accepted ( png )" );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopPinned );
+		CHECK( nTopPinned > nTopBeforeImg, "msgoutcase image grows the extent ( pinned follows )" );
+		CHECK( hm_msgout_append_image( pRoot, 2, 88, 0, _T("image\\no_such_file.png"), NULL ) == false,
+		       "msgoutcase image missing file -> false" );
+		// the paint path ( DRAWSELF -> _render on a memory DC ) must run once
+		// under the gate: a WMP missing DRAWSELF in its RegEvts paints nothing.
+		CHECK( hm_lib_warm_render( pRoot, hWndScroll ) == true,
+		       "msgoutcase warm render ( _render path ) after appends" );
 
-		// (b) inertial tick stream drives the wheel now: a raw viewport wheel
-		// must yield to it ( no double-drive ). simulate one "up" tick with
-		// the exact WheelStep px, plus assert the raw wheel does nothing.
-		const int nStep = hm_layout_scale_px( 60 );   // WheelStep96
-		{
-			hm_keel_obj* pKO38 = NULL;
-			hm_get_keelobj( pRoot, 38, &pKO38 );
-			hm_wndmsgprocessor_i* pWMP66 = pKO38 ? pKO38->getWMP( 66 ) : NULL;
-			CHECK( pWMP66 != NULL, "msgoutcase WMP66 resolved" );
-			pWMP66->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)( nStep ) );
-		}
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		CHECK( ( rcK2.top - rcK38.top ) == nTopPinned - nStep,
-		       "msgoutcase inertia tick up nStep -> one step" );
+		// (b) REAL wheel up one notch == exactly one step; wheel over the bar
+		// strip is the bar's own fine input ( no content jump ).
 		POINT ptContent = { rcK2.left + hm_layout_scale_px( 50 ), rcK2.top + hm_layout_scale_px( 50 ) };
 		::ClientToScreen( hWndScroll, &ptContent );
 		LPARAM lpContent = MAKELPARAM( ptContent.x, ptContent.y );
+		const int nStep = hm_layout_scale_px( 60 );
 		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
-			MAKEWPARAM( 0, (SHORT)( 10 * WHEEL_DELTA ) ), lpContent );
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		CHECK( ( rcK2.top - rcK38.top ) == nTopPinned - nStep,
-		       "msgoutcase raw viewport wheel yields to inertia" );
+			MAKEWPARAM( 0, (SHORT)( 1 * WHEEL_DELTA ) ), lpContent );
+		int nTopNow = 0;
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( nTopNow == nTopPinned - nStep,
+		       "msgoutcase wheel up 1 notch -> one step" );
 
-		// (c) scrolled up: appends must NOT move the position ( do-not-disturb ).
+		// (c) scrolled up: appends keep the position ( DND ).
 		for ( int i = 0; i < 5; ++i )
-			hm_msgout_append_text( pRoot, 38, 66, 0, _T("silent history append") );
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		CHECK( ( rcK2.top - rcK38.top ) == nTopPinned - nStep,
+			hm_msgout_append_text( pRoot, 2, 88, 0, szShort );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( nTopNow == nTopPinned - nStep,
 		       "msgoutcase scrolled-up appends keep the position ( DND )" );
 
-		// (d) huge inertia down: re-pins to the NEW bottom ( content grew ) and
-		// clamps there - further down changes nothing.
-		{
-			hm_keel_obj* pKO38 = NULL;
-			hm_get_keelobj( pRoot, 38, &pKO38 );
-			hm_wndmsgprocessor_i* pWMP66 = pKO38 ? pKO38->getWMP( 66 ) : NULL;
-			if ( pWMP66 )
-				pWMP66->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)( -100 * nStep ) );
-		}
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		int nTopRePinned = rcK2.top - rcK38.top;
+		// (d) huge wheel down: re-pins lower and clamps there.
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
+			MAKEWPARAM( 0, (SHORT)( -10 * WHEEL_DELTA ) ), lpContent );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		int nTopRePinned = nTopNow;
 		CHECK( nTopRePinned > nTopPinned, "msgoutcase overshoot down re-pins lower ( grown )" );
-		{
-			hm_keel_obj* pKO38 = NULL;
-			hm_get_keelobj( pRoot, 38, &pKO38 );
-			hm_wndmsgprocessor_i* pWMP66 = pKO38 ? pKO38->getWMP( 66 ) : NULL;
-			if ( pWMP66 )
-				pWMP66->Notify( HM_EVENT_MOUSEWHEEL, (LPARAM)( -100 * nStep ) );
-		}
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		CHECK( ( rcK2.top - rcK38.top ) == nTopRePinned,
+		::SendMessage( hWndScroll, WM_MOUSEWHEEL,
+			MAKEWPARAM( 0, (SHORT)( -10 * WHEEL_DELTA ) ), lpContent );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( nTopNow == nTopRePinned,
 		       "msgoutcase clamp: past-bottom wheel changes nothing" );
 
-		// (e) clear: extent collapses, offset back to zero.
-		CHECK( hm_msgout_clear( pRoot, 38, 66 ) == true, "msgoutcase clear ok" );
-		hm_keelobj_dump_tree( pRoot, hWndScroll, szDumpMsg );
-		_find_node_rect( szDumpMsg, 38, &rcK38 );
-		CHECK( ( rcK2.top - rcK38.top ) == 0, "msgoutcase clear returns to the top" );
+		// (d2) REAL thumb drag: press on the track thumb ( parked at the track
+		// end while pinned ), move up, release - the view follows. the warm
+		// render first runs the bar's paint path, which syncs the track
+		// decoder to the current value ( headless windows never get WM_PAINT ).
+		hm_lib_warm_render( pRoot, hWndScroll );
+		RECT rcK47 = { 0, 0, 0, 0 };
+		bool bGotBar = _find_node_rect( szDumpMsg, 47, &rcK47 ) != false;
+		POINT ptThumb = { ( rcK47.left + rcK47.right ) / 2,
+		                  rcK47.bottom - hm_layout_scale_px( 20 ) - hm_layout_scale_px( 48 ) / 2 };
+		POINT ptDrag = { ptThumb.x, ptThumb.y - hm_layout_scale_px( 120 ) };
+		::SendMessage( hWndScroll, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM( ptThumb.x, ptThumb.y ) );
+		::SendMessage( hWndScroll, WM_MOUSEMOVE, MK_LBUTTON, MAKELPARAM( ptDrag.x, ptDrag.y ) );
+		::SendMessage( hWndScroll, WM_LBUTTONUP, 0, MAKELPARAM( ptDrag.x, ptDrag.y ) );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( bGotBar && nTopNow < nTopRePinned && nTopNow >= 0,
+		       "msgoutcase thumb drag moves the view" );
 
-		// (f) API negatives.
-		CHECK( hm_msgout_append_text( NULL, 38, 66, 0, _T("x") ) == false,
+		// (d3) arrow buttons: END steps down, START steps up - every click on
+		// the bar must reach the scrollbar ( the list stays out of the strip ).
+		int nTopBefore = nTopNow;
+		POINT ptEnd = { ptThumb.x, rcK47.bottom - hm_layout_scale_px( 10 ) };
+		::SendMessage( hWndScroll, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM( ptEnd.x, ptEnd.y ) );
+		::SendMessage( hWndScroll, WM_LBUTTONUP, 0, MAKELPARAM( ptEnd.x, ptEnd.y ) );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( bGotBar && nTopNow > nTopBefore, "msgoutcase END arrow steps down" );
+		int nTopMid = nTopNow;
+		POINT ptStart = { ptThumb.x, rcK47.top + hm_layout_scale_px( 10 ) };
+		::SendMessage( hWndScroll, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM( ptStart.x, ptStart.y ) );
+		::SendMessage( hWndScroll, WM_LBUTTONUP, 0, MAKELPARAM( ptStart.x, ptStart.y ) );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( bGotBar && nTopNow < nTopMid, "msgoutcase START arrow steps up" );
+
+		// (e) Ctrl+A + Ctrl+C: every message lands on the clipboard, joined
+		// by CRLF. Ctrl is held via SetKeyboardState: the headless session
+		// has no focused desktop, so keybd_event never reaches GetKeyState
+		// ( measured on the VM: GetKeyState stays 0 after keybd_event ).
+		BYTE abKeys[256];
+		::GetKeyboardState( abKeys );
+		abKeys[VK_CONTROL] = (BYTE)( abKeys[VK_CONTROL] | 0x80 );
+		::SetKeyboardState( abKeys );
+		::SendMessage( hWndScroll, WM_KEYDOWN, 'A', 0 );
+		::SendMessage( hWndScroll, WM_KEYDOWN, 'C', 0 );
+		abKeys[VK_CONTROL] = (BYTE)( abKeys[VK_CONTROL] & 0x7F );
+		::SetKeyboardState( abKeys );
+		CHECK( ::IsClipboardFormatAvailable( CF_TEXT ) || ::IsClipboardFormatAvailable( CF_UNICODETEXT ),
+		       "msgoutcase Ctrl+A Ctrl+C -> clipboard text" );
+		int nClipLen = -1;
+		if ( ::OpenClipboard( hWndScroll ) ) {
+			HGLOBAL hMem = (HGLOBAL)::GetClipboardData( CF_UNICODETEXT );
+			LPCTSTR pszClip = hMem ? (LPCTSTR)::GlobalLock( hMem ) : NULL;
+			if ( pszClip )
+				nClipLen = (int)_tcslen( pszClip );
+			if ( pszClip )
+				::GlobalUnlock( hMem );
+			::CloseClipboard();
+		}
+		int nWantLen = 40 * (int)_tcslen( szLong ) + 5 * (int)_tcslen( szShort ) + 44 * 2;
+		CHECK( nClipLen == nWantLen, "msgoutcase clipboard text == all 45 messages joined" );
+
+		// (f) clear: back to the top; API negatives.
+		CHECK( hm_msgout_clear( pRoot, 2, 88 ) == true, "msgoutcase clear ok" );
+		hm_msgout_get_scroll_top( pRoot, 2, 88, &nTopNow );
+		CHECK( nTopNow == 0, "msgoutcase clear returns to the top" );
+		CHECK( hm_msgout_append_text( NULL, 2, 88, 0, _T("x") ) == false,
 		       "msgoutcase null root -> false" );
-		CHECK( hm_msgout_append_text( pRoot, 99999, 66, 0, _T("x") ) == false,
+		CHECK( hm_msgout_append_text( pRoot, 99999, 88, 0, _T("x") ) == false,
 		       "msgoutcase unknown keelobj -> false" );
-		CHECK( hm_msgout_append_text( pRoot, 38, 99999, 0, _T("x") ) == false,
+		CHECK( hm_msgout_append_text( pRoot, 2, 99999, 0, _T("x") ) == false,
 		       "msgoutcase unknown wmp -> false" );
-		CHECK( hm_msgout_append_text( pRoot, 38, 66, 0, _T("") ) == false,
+		CHECK( hm_msgout_append_text( pRoot, 2, 88, 0, _T("") ) == false,
 		       "msgoutcase empty text -> false" );
+		CHECK( hm_msgout_get_scroll_top( NULL, 2, 88, &nTopNow ) == false,
+		       "msgoutcase getter null root -> false" );
 
 		CHECK( hm_wndpropid_disconnect( pRoot, hWndScroll, 258 ) == true,
 		       "msgoutcase disconnect" );

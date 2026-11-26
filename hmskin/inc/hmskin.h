@@ -102,6 +102,7 @@ HMLIB_API bool hm_wmp_set_text_at( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId
 // lpszBuf NULL returns the needed char count; otherwise copies ( truncated )
 // and returns the copied length. 0 = WMP/text not found.
 HMLIB_API unsigned int hm_wmp_get_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, LPTSTR lpszBuf, int nMaxTextCount );
+class hm_msgout_item_i;
 //////////////////////////////////////////////////////////////////////////
 // MsgOutEditor ( chat message list ): append one message to the
 // hm_wmp_msgout WMP addressed by manifest ids. eSender: 0 = peer, 1 = self,
@@ -109,6 +110,11 @@ HMLIB_API unsigned int hm_wmp_get_text( hm_uiroot* pHMUIRoot, unsigned int uKeel
 // bound scrollview ( AnchorBottom ) sticks to / preserves the position.
 HMLIB_API bool hm_msgout_append_text( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int eSender, const TCHAR* szText );
 HMLIB_API bool hm_msgout_clear( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId );
+// extensible content: host item classes plug in ( the list owns the item );
+// image items accept a file path OR an HBITMAP; scroll position readback.
+HMLIB_API bool hm_msgout_append_item( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, hm_msgout_item_i* pItem, int eSender );
+HMLIB_API bool hm_msgout_append_image( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int eSender, const TCHAR* szImagePath, HBITMAP hBmp );
+HMLIB_API bool hm_msgout_get_scroll_top( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int* pnTop );
 //////////////////////////////////////////////////////////////////////////
 
 

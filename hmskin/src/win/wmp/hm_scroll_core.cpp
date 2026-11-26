@@ -35,8 +35,10 @@ bool hm_scroll_core::isAtBottom() const {
 	return ( m_nTop + m_nViewH ) + 2 >= m_nExtentH;
 }
 
-bool hm_scroll_core::onExtentGrown() {
-	if ( !isAtBottom() )
+bool hm_scroll_core::onExtentGrown( int nExtentH ) {
+	bool bAtBottom = isAtBottom();   // against the OLD extent
+	setExtent( nExtentH );
+	if ( !bAtBottom )
 		return false;   // do-not-disturb: keep the position
 	return scrollTo( getMaxTop() );
 }

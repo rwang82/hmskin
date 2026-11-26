@@ -569,6 +569,34 @@ HMLIB_API bool hm_msgout_append_text( hm_uiroot* pHMUIRoot, unsigned int uKeelOb
 	return pWMPMsgOut->appendText( eSender, szText );
 }
 
+HMLIB_API bool hm_msgout_append_item( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, hm_msgout_item_i* pItem, int eSender ) {
+	if ( !pHMUIRoot || !pItem )
+		return false;
+	hm_wmp_msgout* pWMPMsgOut = _get_wmp_msgout( pHMUIRoot, uKeelObjId, uWMPId );
+	if ( !pWMPMsgOut )
+		return false;
+	return pWMPMsgOut->appendItem( pItem, eSender );
+}
+
+HMLIB_API bool hm_msgout_append_image( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int eSender, const TCHAR* szImagePath, HBITMAP hBmp ) {
+	if ( !pHMUIRoot )
+		return false;
+	hm_wmp_msgout* pWMPMsgOut = _get_wmp_msgout( pHMUIRoot, uKeelObjId, uWMPId );
+	if ( !pWMPMsgOut )
+		return false;
+	return pWMPMsgOut->appendImage( eSender, szImagePath, hBmp );
+}
+
+HMLIB_API bool hm_msgout_get_scroll_top( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId, int* pnTop ) {
+	if ( !pHMUIRoot || !pnTop )
+		return false;
+	hm_wmp_msgout* pWMPMsgOut = _get_wmp_msgout( pHMUIRoot, uKeelObjId, uWMPId );
+	if ( !pWMPMsgOut )
+		return false;
+	*pnTop = pWMPMsgOut->getScrollTop();
+	return true;
+}
+
 HMLIB_API bool hm_msgout_clear( hm_uiroot* pHMUIRoot, unsigned int uKeelObjId, unsigned int uWMPId ) {
 	if ( !pHMUIRoot )
 		return false;
