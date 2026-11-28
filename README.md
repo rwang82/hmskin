@@ -291,7 +291,6 @@ button/toggle/radio/menu interactions asserted by event log and pixel diff.
 |---|---|
 | `hmskin/` | core DLL (hook × DirectUI skinning engine) |
 | `demo/` | integration sample (the "benchmark bench" gallery: four chapters of control specimens + event log + token table) |
-| `scrolldecorator/` | standalone self-drawn scrollbar DLL (usable without hmskin) |
 | `tools/` | `gen_skin.py` bitmap generator + `smoke_test.py` smoke tests + `hmskin_mcp.py` agent bridge |
 | `doc/` | `INTEGRATION.md` integration guide + `BUILDING.md` build guide + `img/` screenshots |
 | `tools/golden/` | golden-image regression baseline (the appearance the smoke test guards) |

@@ -140,7 +140,6 @@ rects; fixed ).
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | the non-client trio | title-bar buttons / borders; NC tracking uses `TME_LEAVE\|TME_NONCLIENT` |
 | `hm_wmp_drawtrigger` | WM_PAINT taker | composites the tree offscreen, one blit; pair with `layouttrigger` for WM_SIZE relayout |
 | `hm_wmp_movewnd` | **layout drives a native window's position** | see section 6, pit 5 |
-| `hm_wmp_viewbkcontent` | 2016 scroll-view skeleton ( dormant ) | superseded by the setClipChildren + scrollbar combo |
 
 ### The advanced face ( pointer flows ), standard posture
 

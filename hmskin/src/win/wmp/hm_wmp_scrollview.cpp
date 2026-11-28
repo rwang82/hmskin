@@ -386,8 +386,7 @@ void hm_wmp_scrollview::_OnMouseWheel( hm_keel_obj* pKeelObj, CWPSTRUCT* pWP, ms
 	if ( !pKeelObj || !pWP )
 		return;
 	// a dynamic content WMP brings the inertial wheel stream ( evt10 ) - the
-	// raw viewport wheel must yield or every notch double-scrolls ( the old
-	// viewbkcontent architecture kept its raw wheel handler empty likewise ).
+	// raw viewport wheel must yield or every notch double-scrolls.
 	if ( m_cfg.m_idWMPContent )
 		return;
 	if ( !_ensureWiring() )

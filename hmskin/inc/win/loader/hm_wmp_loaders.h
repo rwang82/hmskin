@@ -180,15 +180,6 @@ private:
 	bool _fillBtns( const Json::Value& valWMP, hm_wmp_tabheader* pWMPLoading );
 };
 //
-class hm_wmp_viewbkcontent_loader : public hm_wmp_display_loader {
-public:
-	hm_wmp_viewbkcontent_loader();
-	virtual ~hm_wmp_viewbkcontent_loader();
-
-public:
-	virtual hm_wndmsgprocessor_i* _createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot );
-};
-//
 class hm_wmp_checkbox_loader : public hm_wmp_display_loader {
 public:
 	hm_wmp_checkbox_loader();

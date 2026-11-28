@@ -122,7 +122,6 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | 非客户区三件套 | 标题栏按钮/边框；NC 跟踪用 `TME_LEAVE\|TME_NONCLIENT` |
 | `hm_wmp_drawtrigger` | WM_PAINT 承接 | 整树离屏合成一次 blit；配 `layouttrigger` 处理 WM_SIZE 重排 |
 | `hm_wmp_movewnd` | **布局驱动原生窗口位置** | 见 §6 坑 5 |
-| `hm_wmp_viewbkcontent` | 2016 滚动视图骨架（休眠） | 已被「setClipChildren + 滚动条」组合方案取代 |
 
 ### 高级面（指针流）标准姿势
 

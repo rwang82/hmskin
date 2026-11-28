@@ -34,7 +34,7 @@
 │  │ 具体控件: bkgnd/button/checkbox/radio/scrollbar/scrollview(编排)/  │   │
 │  │           msgout(自持滚动,内嵌 hm_scroll_core)/                  │   │
 │  │           tab/rootmenu/popupmenu/movewnd/drawtrigger/            │   │
-│  │           layouttrigger/viewbkcontent                            │   │
+│  │           layouttrigger                                         │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
 │  ┌─ 资源层 ──────────────────────────────────────────────────────────┐   │
 │  │ hm_rs_uires_i（抽象资源,继承 subject,广播 CONTENTCHANGED）         │   │

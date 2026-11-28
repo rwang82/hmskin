@@ -26,7 +26,7 @@
 #include "win\wmp\hm_wmp_rootmenu.h"
 #include "win\wmp\hm_wmp_tab.h"
 #include "win\wmp\hm_wmp_scrollbar.h"
-#include "win\wmp\hm_wmp_viewbkcontent.h"
+#include "win\wmp\hm_wmp_msgout.h"   // hm_msgout_item_i: host item classes for hm_msgout_append_item
 #include "win\wmp\hm_wndmsgprocessor_i.h"
 #include "win\paint_system\hm_ps_drawtool_gdiplus.h"
 #include "win\paint_system\hm_ps_drawtool_gdi.h"

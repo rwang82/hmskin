@@ -18,7 +18,6 @@
 #include "win\wmp\hm_wmp_scrollview.h"
 #include "win\wmp\hm_wmp_msgout.h"
 #include "win\wmp\hm_wmp_tab.h"
-#include "win\wmp\hm_wmp_viewbkcontent.h"
 #include "win\wmp\hm_wmp_movewnd.h"
 #include "win\resource_system\hm_rs_uires_pic.h"
 #include "win\resource_system\hm_rs_uires_color.h"
@@ -1218,19 +1217,6 @@ bool hm_wmp_tabheader_loader::_fillBtns( const Json::Value& valWMP, hm_wmp_tabhe
 
 	return true;
 }
-//////////////////////////////////////////////////////////////////////////
-hm_wmp_viewbkcontent_loader::hm_wmp_viewbkcontent_loader() {
-
-}
-
-hm_wmp_viewbkcontent_loader::~hm_wmp_viewbkcontent_loader() {
-
-}
-
-hm_wndmsgprocessor_i* hm_wmp_viewbkcontent_loader::_createWMP( const Json::Value& valWMP, hm_uiroot* pHMUIRoot ) {
-	HM_WMP_X_LOADER_IMPL( hm_wmp_viewbkcontent );
-}
-
 //////////////////////////////////////////////////////////////////////////
 hm_wmp_checkbox_loader::hm_wmp_checkbox_loader() {
 

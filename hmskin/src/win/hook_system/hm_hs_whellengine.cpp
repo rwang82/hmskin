@@ -177,7 +177,7 @@ void hm_hs_whellengine::trigger() {
 	//
 	ENTER_TAGS_ACCESS()
 	// post HMWM_MOUSEWHEEL message - ONLY while new wheel tags keep coming.
-	// the original design relied on a consumer ( viewbkcontent ) calling
+	// the original design relied on a consumer calling
 	// pauseTriggerThread() when the inertia decayed to zero; with no
 	// consumer the thread posted forever once woken ( 5668 msgs per
 	// session ). no new tags = self-park.

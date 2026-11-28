@@ -357,7 +357,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClCompile Include="src\win\wmp\hm_scroll_core.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_scrollview.cpp" />
     <ClCompile Include="src\win\wmp\hm_wmp_tab.cpp" />
-    <ClCompile Include="src\win\wmp\hm_wmp_viewbkcontent.cpp" />
     <ClCompile Include="src\win\wmp\hm_wndmsgprocessor_i.cpp" />
     <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_base.cpp" />
     <ClCompile Include="src\win\wndctrl_repository\hm_wndctrl_popup.cpp" />
@@ -439,7 +438,6 @@ copy /Y $(OutDir)$(ProjectName).lib .\lib\$(Platform)\$(ProjectName).lib
     <ClInclude Include="inc\win\wmp\hm_scroll_core.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_scrollview.h" />
     <ClInclude Include="inc\win\wmp\hm_wmp_tab.h" />
-    <ClInclude Include="inc\win\wmp\hm_wmp_viewbkcontent.h" />
     <ClInclude Include="inc\win\wmp\hm_wndmsgprocessor_i.h" />
     <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_base.h" />
     <ClInclude Include="inc\win\wndctrl_repository\hm_wndctrl_popup.h" />

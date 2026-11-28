@@ -267,7 +267,6 @@ E2E 套件经 demo 内嵌 agent 服务驱动运行中的 demo——章节金图 
 |---|---|
 | `hmskin/` | 核心 DLL（hook × DirectUI 换肤引擎） |
 | `demo/` | 集成示例（「基准台」Gallery：四章节控件标本 + 事件日志 + token 表） |
-| `scrolldecorator/` | 独立自绘滚动条 DLL（可脱离 hmskin 单独使用） |
 | `tools/` | `gen_skin.py` 位图生成器 + `smoke_test.py` 冒烟测试 + `hmskin_mcp.py` agent 桥 |
 | `doc/` | `INTEGRATION.zh-CN.md` 集成指南 + `BUILDING.zh-CN.md` 构建指南（均有英文版）+ `img/` 截图 |
 | `tools/golden/` | 金图回归基线（冒烟守护的渲染外观） |
