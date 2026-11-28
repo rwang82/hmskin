@@ -63,6 +63,7 @@ manifest + the skin bitmap directory sit next to the exe.
 | Window binding | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
 | keelobj control | `hm_get_keelobj` ( advanced-face pointer ) / `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree` ( JSON tree dump, agent/debug ) |
 | Text | `hm_wmp_set_text` / `hm_wmp_set_text_at` ( multi-text targeting ) / `hm_wmp_get_text` ( two-call read ) |
+| Message list | `hm_msgout_append_text` / `hm_msgout_append_item` ( host item class deriving `hm_msgout_item_i`, the list owns it ) / `hm_msgout_append_image` ( file path or HBITMAP ) / `hm_msgout_clear` / `hm_msgout_get_scroll_top` |
 | Rendering | `hm_set_drawtool_all` ( `HM_DRAWTOL_GDI/GDIPLUS/D2D` backend swap for every WMP ) / `hm_lib_warm_render` ( offscreen first-render warm-up between connect and ShowWindow - kills the startup flash ) / `hm_layout_scale`, `hm_layout_scale_px` ( 96-baseline conversion ) |
 | Menus | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
 
@@ -131,8 +132,9 @@ rects; fixed ).
 | `hm_wmp_checkbox` | checkbox / toggle | `setCheck(BOOL)` ( interactive substates kept across the check family ); `setRadioStyle` superseded by the radio class |
 | `hm_wmp_radio` | radio ( inherits checkbox ) | a checked radio does not flip on re-click ( no mid-state flicker ); fires its own RADIO_CLICK; group semantics ( select one, uncheck siblings ) is app-driven |
 | `hm_wmp_tabheader` | tab strip | `left/right` arrow cycling ( wrap ); sprite tri-state + SEL |
-| `hm_wmp_scrollbar` | scrollbar | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`; wheel auto-steps while hovering the parent container |
-| `hm_wmp_msgout` | chat message list ( MsgOutEditor v1a ) | peer/self/system rows, 80%-width bubbles, avatar blocks; extent via CONTENT_EXTENT drives the scrollview ( `AnchorBottom` = stick-to-bottom / do-not-disturb ); inertial wheel; append/clear via `hm_msgout_append_text` / `hm_msgout_clear` |
+| `hm_wmp_scrollbar` | scrollbar | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`; wheel auto-steps while hovering the parent container; hit-test synced to the value on press |
+| `hm_wmp_scrollview` | static subtree scroller | translates a manifest-declared content subtree inside a ClipChildren viewport; `ScrollViewCfg` ( bar / content ids, `FixedThumbLen`, `WheelStep`…, all 96-baseline px ); vertical state in the shared `hm_scroll_core` |
+| `hm_wmp_msgout` | chat message list ( MsgOutEditor v1b ) | self-owns scrolling on the viewport keelobj ( `hm_scroll_core` embed, drives the bar directly, no content keelobj ); items plug in through `hm_msgout_item_i` ( text + GDI+ image built in, `hm_msgout_append_item` / `append_image` ); peer/self/system rows with bubbles hugging the content and avatar blocks; stick-to-bottom / do-not-disturb; inertial wheel; drag-select + Ctrl+A / Ctrl+C ( `HMSKIN_EVENT_MSGOUT_COPY` ); `hm_msgout_append_text` / `clear` / `get_scroll_top` |
 | `hm_wmp_rootmenu` | skin menu bar | labels read straight from the HMENU ( GetMenuItemInfo ) |
 | `hm_wmp_popupmenu` | skin popup menu | `HMWM_BINDMENU` binds an HMENU; self-sizing, self-drawn items; work-area edge flip, keyboard navigation (arrows/Enter/Esc), disabled items and hairline separators ( native parity ); label font/colors configurable via MenuCfg `FontId` / `TextColor` / `TextColorDisabled` / `SeparatorColor` |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | the non-client trio | title-bar buttons / borders; NC tracking uses `TME_LEAVE\|TME_NONCLIENT` |

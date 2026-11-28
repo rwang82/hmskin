@@ -54,6 +54,7 @@ hm_lib_shutdown( pRoot );
 | 窗口绑定 | `hm_wndpropid_connect` / `hm_wndpropid_disconnect` |
 | keelobj 控制 | `hm_get_keelobj`（取高级面指针）/ `hm_keelobj_set_visible` / `hm_keelobj_set_clip_children` / `hm_keelobj_get_layout_rect` / `hm_keelobj_dump_tree`（JSON 树转储，agent/调试） |
 | 文字 | `hm_wmp_set_text` / `hm_wmp_set_text_at`（多文字定位）/ `hm_wmp_get_text`（两段式读） |
+| 消息列表 | `hm_msgout_append_text` / `hm_msgout_append_item`（宿主条目类继承 `hm_msgout_item_i`，列表接管所有权）/ `hm_msgout_append_image`（文件路径或 HBITMAP）/ `hm_msgout_clear` / `hm_msgout_get_scroll_top` |
 | 渲染 | `hm_set_drawtool_all`（`HM_DRAWTOL_GDI/GDIPLUS/D2D` 全量换后端）/ `hm_lib_warm_render`（connect 与 ShowWindow 之间的离屏首绘预热，消启动白闪）/ `hm_layout_scale`、`hm_layout_scale_px`（96 基准换算） |
 | 菜单 | `hm_lib_enable_trackpopupmenu_hook` / `hm_lib_popupmenu_show` |
 
@@ -113,8 +114,9 @@ KeelObj          [{idKeelObj, WndMsgSource, ParentKeelObjId, LayoutObj{CSId, Lay
 | `hm_wmp_checkbox` | 复选框/开关 | `setCheck(BOOL)`（保留交互子态跨勾选族）；`setRadioStyle` 已被 radio 类取代 |
 | `hm_wmp_radio` | 单选（继承 checkbox） | 已选中点击不翻转（无中间态闪屏）；点击发独立 RADIO_CLICK；组语义（选一灭兄弟）由应用层驱动 |
 | `hm_wmp_tabheader` | Tab 条 | `←/→` 键循环切换（wrap）；雪碧图三态+SEL |
-| `hm_wmp_scrollbar` | 滚动条 | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`；滚轮悬停父容器内自动步进 |
-| `hm_wmp_msgout` | 聊天消息列表（ MsgOutEditor v1a ） | 对方/自己/系统三态行、80% 宽气泡、头像色块；经 CONTENT_EXTENT 驱动 scrollview（`AnchorBottom` = 贴底/免打扰）；惯性滚轮；经 `hm_msgout_append_text` / `hm_msgout_clear` 增删 |
+| `hm_wmp_scrollbar` | 滚动条 | `setValRange/setCurValue/setTrackThumbLen/setStartThumbLen/setEndThumbLen`；滚轮悬停父容器内自动步进；按下时按当前值同步命中判定 |
+| `hm_wmp_scrollview` | 静态子树滚动 | 在 ClipChildren 视口内平移整棵 manifest 内容子树；`ScrollViewCfg`（bar/content id、`FixedThumbLen`、`WheelStep`…，几何键均为 96 基准素名）；纵向状态在共享的 `hm_scroll_core` |
+| `hm_wmp_msgout` | 聊天消息列表（ MsgOutEditor v1b ） | 在视口 keelobj 上**自持滚动**（内嵌 `hm_scroll_core`，直接驱动 bar，无内容 keelobj）；条目经 `hm_msgout_item_i` 接入（内置 text + GDI+ image，`hm_msgout_append_item` / `append_image`）；对方/自己/系统三态行，气泡贴内容、头像色块；贴底/免打扰；惯性滚轮；拖选 + Ctrl+A / Ctrl+C（`HMSKIN_EVENT_MSGOUT_COPY`）；`hm_msgout_append_text` / `clear` / `get_scroll_top` |
 | `hm_wmp_rootmenu` | 皮肤菜单栏 | 标签直接读 HMENU（GetMenuItemInfo） |
 | `hm_wmp_popupmenu` | 皮肤弹出菜单 | `HMWM_BINDMENU` 绑 HMENU，自适尺寸、自绘条目；边缘翻转、键盘导航（方向键/Enter/Esc）、禁用项与发丝分隔线（原生对齐）；字体/颜色经 MenuCfg `FontId` / `TextColor` / `TextColorDisabled` / `SeparatorColor` 配置 |
 | `hm_wmp_button_nca`/`bkgnd_nca`/`drawtrigger_nca` | 非客户区三件套 | 标题栏按钮/边框；NC 跟踪用 `TME_LEAVE\|TME_NONCLIENT` |

@@ -32,6 +32,7 @@
 │  │ hm_wndmsgprocessor_i（基类 + MSGBIND 宏族）                        │   │
 │  │ hm_wmp_display（显示基类: district/showobj/三档缓冲/leave 跟踪）   │   │
 │  │ 具体控件: bkgnd/button/checkbox/radio/scrollbar/scrollview(编排)/  │   │
+│  │           msgout(自持滚动,内嵌 hm_scroll_core)/                  │   │
 │  │           tab/rootmenu/popupmenu/movewnd/drawtrigger/            │   │
 │  │           layouttrigger/viewbkcontent                            │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
@@ -214,31 +215,61 @@ WM_LBUTTONDOWN →（消息流 3.1）→ checkbox WMP MSGBIND → _OnLButtonDown
 - `pushbackWndMsgNeed()`：消息需求收集（含子树+自有 WMP）
 - 构造 protected + friend 工厂（只能经 KEELOBJ 工厂创建）
 
-### 4.4 hm_wmp_scrollview —— 滚动编排 WMP（行为单元,非 keelobj 子类）
+### 4.4 滚动:hm_scroll_core + hm_wmp_scrollview + hm_wmp_msgout
 
-滚动视口 = 纯 manifest 子树 + 一个挂在**视口 keelobj** 上的编排 WMP:
+纵向滚动的状态机抽成纯类 **hm_scroll_core**(inc/win/wmp/hm_scroll_core.h):viewport/extent/top、
+钳位、`isAtBottom`(+2px 容差)、`onExtentGrown(nExtentH)`(对**增长前**的 extent 判贴底 → setExtent →
+贴底则 scrollTo(maxTop),否则保位 = 免打扰)、`scrollTo()->moved`、`syncBar(bar, barKeelObj)`
+(范围 = 溢出像素、值 = top、滑块定长或视口/内容比例下限 MinThumb)。宿主 WMP 自己订阅输入并
+转调 `scrollTo`;bar 的 TRACKTHUMB_MOVED 按值转发(HETMPARAM 堆分配即删,不得缓存)。
+
+**hm_wmp_scrollview**——静态子树滚动(整棵 manifest 子树平移),非 keelobj 子类:
 
 ```
-viewport keelobj  ( ClipChildren:true, 挂 hm_wmp_scrollview, RegEvts:[10]=KEELOBJ_POSCHANGED )
+viewport keelobj  ( ClipChildren:true, 挂 hm_wmp_scrollview, RegEvts:[11]=KEELOBJ_POSCHANGED )
   ├─ content keelobj   ( LayoutScroll:true → 滚动 = layout 滚动偏移平移整棵子树 )
-  └─ scrollbar keelobj ( hm_wmp_scrollbar 通常 dock 右;bar 条内滚轮走它自己的 ±3 细步 )
+  └─ scrollbar keelobj ( hm_wmp_scrollbar 通常 dock 右;bar 条内滚轮走它自己的细步 )
 ```
 
 - 接线全声明式: `ScrollViewCfg{ScrollBarWMPId, ContentKeelObjId, BarKeelObjId?,  
-  ContentWMPId?, ContentExtent96?, ArrowLen96, MinThumbLen96, FixedThumbLen96?,  
-  LayoutScroll, WheelStep96}`( loader 已 DPI 缩放;WMP 节先于 KeelObj 节解析 → id 懒解析)
-- 编排状态机: 内容 extent ↔ 可见窗口钳位 ↔ bar 值域/滑块长度绑定;单汇点 `_scrollTo`  
-  = 钳位 →( LayoutScroll 时平移 content layout )→ Notify(MOVE_VIEWCONTENT 纯通知)  
-  → bar 回同步 → 失效「视口扣 bar 条」
+  ContentWMPId?, ContentExtent{W,H}?, ArrowLen, MinThumbLen, FixedThumbLen?,  
+  LayoutScroll, WheelStep}`( loader 已 DPI 缩放;WMP 节先于 KeelObj 节解析 → id 懒解析)
+- WMP 只做胶水:事件订阅/keelobj 解析/失效/平移,纵向状态全部委托内嵌 core
 - 滚轮: 绑 WM_MOUSEWHEEL,命中用**消息 lParam 坐标**(真实/合成输入一致),bar 条内让位
 - 关停契约: **被引用 WMP id( bar/内容 )必须小于自身 idWMP**——WMP 工厂按 id 升序销毁,  
   被引用者先死、其 ~subject::EraseAllRegister 自动清订阅;本类析构不回触任何指针  
   ( loader assert 双保险 )
-- 内容侧双模型: 静态子树( LayoutScroll,demo sec.4 )或内容 WMP 自绘可见窗口  
-  ( 订阅 MOVE_VIEWCONTENT,经 CONTENT_EXTENT 事件上报动态 extent——为 MsgOutEditor 预留 )
 - 已知时序坑(已修): 装载期 layout calcPosition 的 POSCHANGED 早于同条目 WMP 的 RegEvts  
   注册 → 编排器可能错过首次布局 → 懒接线成功后自补一次 `_recalcFromViewport`  
   ( m_bRangeBound ),宿主零依赖
+
+**hm_wmp_msgout**——聊天消息列表(doc/MsgOutEditor.md),**自持滚动**(组合 core,绕开菱形继承
+与 MSGBIND 单链):一个 WMP 挂在视口 keelobj 上,**没有内容 keelobj、没有事件总线往返**。
+
+```
+viewport keelobj  ( ClipChildren:true, 挂 hm_wmp_msgout, RegEvts:[6,11] )
+  └─ scrollbar keelobj ( hm_wmp_scrollbar;由 msgout 直接驱动 )
+```
+
+- **RegEvts 必须含 6(DRAWSELF)**——漏了列表永远空白(Debug 接线时 assert 自检);11 取视口尺寸
+- 接线: `MsgOutCfg{BarWMPId(必填,< 自身 id), BarKeelObjId?, FontId, TextColor, 自/对方气泡色,  
+  系统色, 自/对方头像色, AvatarLen, MaxBubblePct, MsgGap, PadH, PadV, CornerLen,  
+  ArrowLen, MinThumbLen, FixedThumbLen?, WheelStep}`;ctor 默认值即 96 基准数,loader 统一缩放
+- 条目模型: `hm_msgout_item_i{ measure(rowW)->H, render(hdc, rcContent, drawtool),  
+  getBubbleSize }(0,0=填满行)`;列表负责头像/气泡/行定位,条目只画内容。内置 text(走  
+  drawtool 三后端)与 image(GDI+,路径或借用的 HBITMAP,≤240 等比缩不放大);宿主经  
+  `hm_msgout_append_item` 接入新类型。文字选择能力是可选接口 `hm_msgout_textsel_i`
+- 滚动: KEELOBJ_POSCHANGED 取视口高/内容宽(视口宽 − bar 实宽)并重测;追加 → `onExtentGrown`  
+  → `syncBar` → 失效视口;自收 WM_MOUSEWHEEL(命中「视口扣 bar 条」,lParam 屏幕坐标)与  
+  HMWM_MOUSEWHEEL(惯性距离直接 scrollTo,归零自泊车);bar 的 TRACKTHUMB_MOVED/端钮/条内  
+  滚轮经同一 `scrollTo` 汇点
+- 渲染: DRAWSELF 里条目按 `row.top − top` 平移绘制,ClipChildren 裁剪;系统行居中细字
+- 选取: LButtonDown 定锚(客户区坐标!共享命中测试说屏幕坐标,先 ClientToScreen——混用会吃掉  
+  bar 上的点击)→ 拖拽扩选 → LButtonUp 收;WM_KEYDOWN + GetKeyState(VK_CONTROL) 判 'A'/'C'  
+  (WM_CHAR 会把 Ctrl+A 变 0x01);复制 CF_UNICODETEXT,消息间 `\r\n`,Notify HMSKIN_EVENT_MSGOUT_COPY。
+  高亮矩形为比例近似模型(行距实测、字符按比例),画在文字之下
+- 已知延迟项: D2D 后端下 `calcRect(NULL DC)` 会陷入 GDI+ calcRect 的 while(1)(任务 #21),  
+  Debug demo 暂停 D2D dogfood
 
 ### 4.5 hm_layoutdecoder_i —— 布局解码器（inc/win/frame/hm_layout_obj.h:53）
 
@@ -355,9 +386,10 @@ virtual void Update( void* pSubject, UINT idEvent, LPARAM p1, LPARAM p2, BOOL* p
 - WMP 区先于 KeelObj 区解析（keelobj 条目引用 WMP id 时必须已存在）
 - 几何数值一律 96 基准,loader 咽喉点乘 `hm_layout_scale`（D2D/DCRT 保持 96 像素制）
 - 位数图 = district 实绘尺寸（引擎整体拉伸,非原生比例会变形发糊）
-- RegEvts 数值 = hm_event_defs 的 (HM_EVENT_BEGIN+N) 值（如 6=DRAWSELF）
+- RegEvts 数值 = hm_event_defs 的 (HM_EVENT_BEGIN+N) 值（如 6=DRAWSELF, 11=KEELOBJ_POSCHANGED）
+- 几何键一律素名（`AvatarLen`/`WheelStep`…）,整份 manifest 都是 96 基准,由 loader 咽喉点缩放
 
-## 6. 公共 API 正门（hmskin.h,21 函数）
+## 6. 公共 API 正门（hmskin.h,24 函数）
 
 ```
 会话:     hm_lib_startup / hm_lib_shutdown / hm_wndpropid_connect / disconnect
@@ -365,7 +397,8 @@ virtual void Update( void* pSubject, UINT idEvent, LPARAM p1, LPARAM p2, BOOL* p
 查询:     hm_get_keelobj / hm_keelobj_get_layout_rect / hm_keelobj_dump_tree
 控件操纵: hm_keelobj_set_visible / set_clip_children
 文字:     hm_wmp_set_text / set_text_at / get_text
-消息列表: hm_msgout_append_text / hm_msgout_clear
+消息列表: hm_msgout_append_text / append_item(宿主条目类) / append_image(路径|HBITMAP)
+          / hm_msgout_clear / hm_msgout_get_scroll_top
 渲染:     hm_set_drawtool_all / hm_lib_warm_render(首绘预热) / hm_layout_scale(转发)
 ```
 

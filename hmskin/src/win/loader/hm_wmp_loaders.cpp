@@ -998,8 +998,8 @@ hm_wndmsgprocessor_i* hm_wmp_scrollview_loader::_createWMP( const Json::Value& v
 		cfg.m_idWMPContent = v.asInt();
 		assert( cfg.m_idWMPContent < idWMP );   // shutdown contract
 	}
-	// ContentExtent96 ( optional: static extent; 0 = measure at runtime ).
-	v = valCfg[ "ContentExtent96" ];
+	// ContentExtent{W,H} ( optional: static extent; 0 = measure at runtime ).
+	v = valCfg[ "ContentExtent" ];
 	if ( v.isObject() ) {
 		Json::Value ve = v[ "W" ];
 		if ( ve.isInt() && ve.asInt() > 0 )

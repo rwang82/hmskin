@@ -105,8 +105,8 @@ click_keelobj(3) -> WM_LBUTTONDOWN/UP 经消息 trace 实证
 | 单选(Radio) | `hm_wmp_radio` | 继承 checkbox；已选中点击不翻转；组语义由应用层驱动 |
 | Tab 标签条 | `hm_wmp_tabheader` | 雪碧图三态 + 选中态；键盘 ←/→ 循环切换 |
 | 滚动条 | `hm_wmp_scrollbar` | 值域 API；拖动/端钮/滚轮三路输入；容器内自动步进 |
-| 滚动视口 | `hm_wmp_scrollview` | 编排 WMP：manifest 子树 + ClipChildren 视口；拖动/滚轮/钳位/失效全引擎化，宿主零粘合 |
-| 聊天消息列表 | `hm_wmp_msgout` | MsgOutEditor v1a：微信风格气泡（对方/自己/系统）、贴底、免打扰、惯性滚轮 |
+| 滚动视口 | `hm_wmp_scrollview` | 静态子树滚动：manifest 子树 + ClipChildren 视口；拖动/滚轮/钳位/失效全引擎化，宿主零粘合；纵向状态在共享的 `hm_scroll_core` |
+| 聊天消息列表 | `hm_wmp_msgout` | MsgOutEditor v1b：自持滚动（同一个 `hm_scroll_core`，直接驱动滚动条）、条目可扩展（text / image 经 `hm_msgout_item_i`）、微信风格气泡（对方/自己/系统）、贴底、免打扰、惯性滚轮、拖选 + Ctrl+A / Ctrl+C |
 | 根菜单栏 | `hm_wmp_rootmenu` | 标签直接读 HMENU（`GetMenuItemInfo`） |
 | 弹出菜单 | `hm_wmp_popupmenu` | 引擎自建弹窗、自适尺寸、自绘条目、边缘翻转、键盘导航、禁用项、发丝分隔线；字体/颜色可 manifest 配置；透明接管或主动调用 |
 | 静态面/文本 | `hm_wmp_bkgnd` | 文字走 `hm_wmp_set_text()`/`_at()` 实时刷新，像素缓存自动失效 |
